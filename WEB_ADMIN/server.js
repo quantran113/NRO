@@ -583,20 +583,27 @@ app.post('/api/grant-item-batch', async (req, res) => {
 });
 
 app.post('/api/grant-pet', async (req, res) => {
-    // 1. Try sending to Live Game Server first (ONLINE)
+    // 1. Try sending to Live Game Server first (ONLINE) with 2.5s fast timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
     try {
         const resp = await fetch(`${JAVA_API_URL}/api/grant-pet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
             body: JSON.stringify(req.body)
         });
+        clearTimeout(timeoutId);
         if (resp.ok) {
             const data = await resp.json();
             return res.status(resp.status).json(data);
         }
-    } catch (err) {}
+    } catch (err) {
+        clearTimeout(timeoutId);
+    }
 
-    // 2. Fallback: If player is OFFLINE or Game Server API is unreachable, update MySQL directly!
+    // 2. Fallback: If player is OFFLINE or Game Server API is unreachable, update MySQL directly in < 0.1s!
     try {
         const { playerName, petType = 0, petGender = 0, power = 2000, tiemNang = power } = req.body;
         if (!playerName) {
@@ -665,7 +672,7 @@ app.post('/api/grant-pet', async (req, res) => {
 
         return res.json({
             status: 'success',
-            message: `Đã khởi tạo Đệ Tử [${petNames[pType]}] thành công cho nhân vật OFFLINE [${playerName}] vào MySQL! Khi đăng nhập nhân vật sẽ có ngay đệ tử.`
+            message: `Đã khởi tạo Đệ Tử [${petNames[pType]}] thành công cho nhân vật [${playerName}] vào MySQL!`
         });
     } catch (dbErr) {
         return res.status(500).json({ status: 'error', message: 'Lỗi khi cấp đệ tử vào MySQL: ' + dbErr.message });
