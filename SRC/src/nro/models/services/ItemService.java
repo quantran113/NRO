@@ -137,20 +137,9 @@ public class ItemService {
             return;
         }
 
-        // 3. Fallback default base options for Equipment (Áo, Quần, Găng, Giày, Radar, Cải Trang)
-        if (item.template.type == 0) { // Áo
-            item.itemOptions.add(new ItemOption(47, Util.nextInt(50, 500)));
-        } else if (item.template.type == 1) { // Quần
-            item.itemOptions.add(new ItemOption(22, Util.nextInt(500, 5000)));
-        } else if (item.template.type == 2) { // Găng
-            item.itemOptions.add(new ItemOption(0, Util.nextInt(100, 2000)));
-        } else if (item.template.type == 3) { // Giày
-            item.itemOptions.add(new ItemOption(23, Util.nextInt(500, 5000)));
-        } else if (item.template.type == 4) { // Radar
-            item.itemOptions.add(new ItemOption(14, Util.nextInt(1, 10)));
-        } else if (item.template.type == 5) { // Cải trang
+        // 3. Special single option fallbacks if not found in NPC shop
+        if (item.template.type == 5) { // Cải trang
             item.itemOptions.add(new ItemOption(50, 10)); // +10% SD
-            item.itemOptions.add(new ItemOption(77, 10)); // +10% HP/MP
         }
     }
 

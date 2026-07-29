@@ -254,19 +254,21 @@ public class AdminHttpServer {
                         return;
                     }
 
-                    // Add star slots option (107)
-                    if (starCount > 0) {
-                        item.itemOptions.add(new Item.ItemOption(107, starCount));
-                    }
-
-                    // Add custom options
-                    if (optionsReq != null) {
+                    // If user provided custom options -> clear defaults (đồ trắng) and use only custom
+                    // If no custom options -> keep default base game options (đồ gốc)
+                    if (optionsReq != null && !optionsReq.isEmpty()) {
+                        item.itemOptions.clear(); // Đồ trắng
                         for (Object o : optionsReq) {
                             JSONObject optObj = (JSONObject) o;
                             int optId = ((Number) optObj.get("id")).intValue();
                             int param = ((Number) optObj.get("param")).intValue();
                             item.itemOptions.add(new Item.ItemOption(optId, param));
                         }
+                    }
+
+                    // Add star slots option (107)
+                    if (starCount > 0) {
+                        item.itemOptions.add(new Item.ItemOption(107, starCount));
                     }
 
                     boolean added = InventoryService.gI().addItemBag(targetPlayer, item);
@@ -304,13 +306,8 @@ public class AdminHttpServer {
                             dataItem.add(quantity);
 
                             JSONArray optionsArr = new JSONArray();
-                            if (starCount > 0) {
-                                JSONArray starOpt = new JSONArray();
-                                starOpt.add(107);
-                                starOpt.add(starCount);
-                                optionsArr.add(starOpt.toJSONString());
-                            }
-                            if (optionsReq != null) {
+                            if (optionsReq != null && !optionsReq.isEmpty()) {
+                                // Custom options -> đồ trắng + only custom
                                 for (Object o : optionsReq) {
                                     JSONObject optObj = (JSONObject) o;
                                     int optId = ((Number) optObj.get("id")).intValue();
@@ -320,6 +317,23 @@ public class AdminHttpServer {
                                     customOpt.add(param);
                                     optionsArr.add(customOpt.toJSONString());
                                 }
+                            } else {
+                                // No custom -> đồ gốc game (get default options from createNewItem)
+                                Item tempItem = ItemService.gI().createNewItem((short) itemId, 1);
+                                if (tempItem != null && tempItem.itemOptions != null) {
+                                    for (Item.ItemOption io : tempItem.itemOptions) {
+                                        JSONArray baseOpt = new JSONArray();
+                                        baseOpt.add(io.optionTemplate.id);
+                                        baseOpt.add(io.param);
+                                        optionsArr.add(baseOpt.toJSONString());
+                                    }
+                                }
+                            }
+                            if (starCount > 0) {
+                                JSONArray starOpt = new JSONArray();
+                                starOpt.add(107);
+                                starOpt.add(starCount);
+                                optionsArr.add(starOpt.toJSONString());
                             }
                             dataItem.add(optionsArr.toJSONString());
                             dataItem.add(System.currentTimeMillis());
@@ -419,16 +433,18 @@ public class AdminHttpServer {
 
                         Item item = ItemService.gI().createNewItem((short) itemId, quantity);
                         if (item != null) {
-                            if (starCount > 0) {
-                                item.itemOptions.add(new Item.ItemOption(107, starCount));
-                            }
-                            if (optionsReq != null) {
+                            // Custom options -> đồ trắng + chỉ custom; Không custom -> đồ gốc game
+                            if (optionsReq != null && !optionsReq.isEmpty()) {
+                                item.itemOptions.clear(); // Đồ trắng
                                 for (Object o : optionsReq) {
                                     JSONObject optObj = (JSONObject) o;
                                     int optId = ((Number) optObj.get("id")).intValue();
                                     int param = ((Number) optObj.get("param")).intValue();
                                     item.itemOptions.add(new Item.ItemOption(optId, param));
                                 }
+                            }
+                            if (starCount > 0) {
+                                item.itemOptions.add(new Item.ItemOption(107, starCount));
                             }
                             boolean added = InventoryService.gI().addItemBag(targetPlayer, item);
                             if (added) successCount++;

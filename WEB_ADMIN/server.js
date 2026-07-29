@@ -535,14 +535,15 @@ app.post('/api/grant-item-batch', async (req, res) => {
             const optionsReq = itemReq.options || [];
 
             const optionsArr = [];
-            if (starCount > 0) {
-                optionsArr.push(JSON.stringify([107, starCount]));
-            }
-            for (const opt of optionsReq) {
-                optionsArr.push(JSON.stringify([parseInt(opt.id), parseInt(opt.param) || 0]));
-            }
+            const hasCustomOptions = optionsReq && optionsReq.length > 0;
 
-            if (optionsArr.length === 0) {
+            if (hasCustomOptions) {
+                // User chose custom options -> đồ trắng + only custom
+                for (const opt of optionsReq) {
+                    optionsArr.push(JSON.stringify([parseInt(opt.id), parseInt(opt.param) || 0]));
+                }
+            } else {
+                // No custom options -> đồ gốc game (base defaults)
                 const crystalOptMap = {
                     441: [95, 5], 442: [96, 5], 443: [97, 5], 444: [98, 5], 445: [99, 5], 446: [100, 5], 447: [101, 5],
                     1416: [95, 5], 1417: [96, 5], 1418: [97, 5], 1419: [98, 5], 1420: [99, 5], 1421: [100, 5], 1422: [101, 5],
@@ -551,6 +552,10 @@ app.post('/api/grant-item-batch', async (req, res) => {
                 if (crystalOptMap[itemId]) {
                     optionsArr.push(JSON.stringify(crystalOptMap[itemId]));
                 }
+            }
+
+            if (starCount > 0) {
+                optionsArr.push(JSON.stringify([107, starCount]));
             }
 
             const dataItem = [
