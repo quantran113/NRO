@@ -91,6 +91,13 @@ app.get('/api/admin/stats', async (req, res) => {
     }
 });
 
+// Auto-repair account table schema on startup
+(async () => {
+    try {
+        await pool.execute("ALTER TABLE account MODIFY COLUMN email VARCHAR(255) NULL DEFAULT ''");
+    } catch (e) {}
+})();
+
 // Register Account Endpoint (Public / Web)
 app.post('/api/register', async (req, res) => {
     try {
@@ -111,42 +118,43 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ status: 'error', message: `Tài khoản [${cleanUser}] đã tồn tại!` });
         }
 
-        const emailVal = cleanEmail || `${cleanUser}@gmail.com`;
+        // Dynamically inspect columns of account table
+        const [cols] = await pool.execute('SHOW COLUMNS FROM account');
+        const colNames = cols.map(c => c.Field);
 
-        let inserted = false;
-        // 1. Try with email, active, admin, create_time
-        try {
-            await pool.execute(
-                'INSERT INTO account (username, password, email, active, admin, create_time) VALUES (?, ?, ?, 1, 0, NOW())',
-                [cleanUser, cleanPass, emailVal]
-            );
-            inserted = true;
-        } catch (e1) {
-            // 2. Try with email, active, admin
-            try {
-                await pool.execute(
-                    'INSERT INTO account (username, password, email, active, admin) VALUES (?, ?, ?, 1, 0)',
-                    [cleanUser, cleanPass, emailVal]
-                );
-                inserted = true;
-            } catch (e2) {
-                // 3. Try with email only
-                try {
-                    await pool.execute(
-                        'INSERT INTO account (username, password, email) VALUES (?, ?, ?)',
-                        [cleanUser, cleanPass, emailVal]
-                    );
-                    inserted = true;
-                } catch (e3) {
-                    // 4. Basic insert
-                    await pool.execute(
-                        'INSERT INTO account (username, password) VALUES (?, ?)',
-                        [cleanUser, cleanPass]
-                    );
-                    inserted = true;
-                }
-            }
+        const fields = ['username', 'password'];
+        const values = [cleanUser, cleanPass];
+
+        if (colNames.includes('email')) {
+            fields.push('email');
+            values.push(cleanEmail);
         }
+
+        if (colNames.includes('active')) {
+            fields.push('active');
+            values.push(1);
+        }
+
+        if (colNames.includes('admin')) {
+            fields.push('admin');
+            values.push(0);
+        } else if (colNames.includes('is_admin')) {
+            fields.push('is_admin');
+            values.push(0);
+        }
+
+        if (colNames.includes('create_time')) {
+            fields.push('create_time');
+            values.push(new Date());
+        } else if (colNames.includes('created_at')) {
+            fields.push('created_at');
+            values.push(new Date());
+        }
+
+        const placeholders = fields.map(() => '?').join(', ');
+        const sql = `INSERT INTO account (${fields.join(', ')}) VALUES (${placeholders})`;
+
+        await pool.execute(sql, values);
 
         res.json({ status: 'success', message: `Đăng ký tài khoản [${cleanUser}] thành công!` });
     } catch (err) {
