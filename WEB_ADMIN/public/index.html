@@ -426,6 +426,17 @@
 
                 </form>
 
+                <!-- TOOL: FIX DUPLICATE ITEM OPTIONS -->
+                <div style="margin-top: 28px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 20px;">
+                    <h3 style="color: #f87171; margin-bottom: 8px;"><i class="fa-solid fa-wrench"></i> 🔧 SỬA ĐỒ LỖI TRÙNG CHỈ SỐ (Fix Duplicate Options)</h3>
+                    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+                        Quét toàn bộ nhân vật trong Database. Tìm tất cả đồ (Hành Trang + Đồ Mặc + Rương Đồ) có chỉ số bị lặp trùng ID → Tự động xóa bản thừa, chỉ giữ 1 bản duy nhất.
+                    </p>
+                    <button type="button" class="btn-primary" id="btn-fix-duplicate-options" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 800; padding: 12px 28px; font-size: 14px;" onclick="fixDuplicateItemOptions()">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ⚡ QUÉT & SỬA TẤT CẢ ĐỒ LỖI NGAY
+                    </button>
+                </div>
+
             </div>
         </div>
 

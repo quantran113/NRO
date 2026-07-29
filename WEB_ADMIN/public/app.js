@@ -2194,3 +2194,31 @@ function escapeHtml(text) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
 }
+
+// --- FIX DUPLICATE ITEM OPTIONS ---
+async function fixDuplicateItemOptions() {
+    if (!confirm('⚠️ Bạn có chắc chắn muốn quét & sửa TẤT CẢ đồ bị trùng chỉ số trên toàn bộ nhân vật?\n\nLưu ý: Nhân vật đang ONLINE cần thoát game và đăng nhập lại để thấy thay đổi.')) {
+        return;
+    }
+
+    const btn = document.getElementById('btn-fix-duplicate-options');
+    const origText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang quét toàn bộ Database...';
+
+    try {
+        const resp = await fetch('/api/fix-duplicate-options', { method: 'POST' });
+        const data = await resp.json();
+
+        if (data.status === 'success') {
+            showToast(data.message, 'success');
+        } else {
+            showToast(data.message || 'Lỗi khi sửa đồ', 'error');
+        }
+    } catch (err) {
+        showToast('Không thể kết nối API: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+    }
+}

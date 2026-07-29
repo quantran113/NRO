@@ -932,6 +932,128 @@ app.post('/api/adjust-player-power', async (req, res) => {
     }
 });
 
+// --- FIX DUPLICATE ITEM OPTIONS (Sửa Đồ Lỗi Trùng Chỉ Số) ---
+app.post('/api/fix-duplicate-options', async (req, res) => {
+    try {
+        const columns = ['items_bag', 'items_body', 'items_box'];
+        let totalPlayersFixed = 0;
+        let totalItemsFixed = 0;
+
+        const [players] = await pool.execute('SELECT id, name, items_bag, items_body, items_box FROM player');
+
+        for (const player of players) {
+            let playerModified = false;
+            const updates = {};
+
+            for (const col of columns) {
+                const raw = player[col];
+                if (!raw || raw === '[]' || raw === 'null') continue;
+
+                let itemsArray;
+                try { itemsArray = JSON.parse(raw); } catch (e) { continue; }
+                if (!Array.isArray(itemsArray)) continue;
+
+                let colModified = false;
+
+                for (let i = 0; i < itemsArray.length; i++) {
+                    let slot = itemsArray[i];
+                    // Slot can be a string or an array
+                    let slotArr;
+                    if (typeof slot === 'string') {
+                        try { slotArr = JSON.parse(slot); } catch (e) { continue; }
+                    } else if (Array.isArray(slot)) {
+                        slotArr = slot;
+                    } else {
+                        continue;
+                    }
+
+                    if (!Array.isArray(slotArr) || slotArr.length < 3) continue;
+
+                    const tempId = parseInt(slotArr[0]);
+                    if (tempId === -1) continue; // Empty slot
+
+                    // slotArr[2] is options string like '[[optId,param],[optId,param]]'
+                    let optionsRaw = slotArr[2];
+                    let options;
+                    if (typeof optionsRaw === 'string') {
+                        try { options = JSON.parse(optionsRaw); } catch (e) { continue; }
+                    } else if (Array.isArray(optionsRaw)) {
+                        options = optionsRaw;
+                    } else {
+                        continue;
+                    }
+
+                    if (!Array.isArray(options) || options.length <= 1) continue;
+
+                    // Parse each option: can be "[optId,param]" string or [optId,param] array
+                    const parsedOpts = [];
+                    for (const optRaw of options) {
+                        let opt;
+                        if (typeof optRaw === 'string') {
+                            try { opt = JSON.parse(optRaw); } catch (e) { continue; }
+                        } else if (Array.isArray(optRaw)) {
+                            opt = optRaw;
+                        } else {
+                            continue;
+                        }
+                        if (Array.isArray(opt) && opt.length >= 2) {
+                            parsedOpts.push(opt);
+                        }
+                    }
+
+                    // Deduplicate: keep only the FIRST occurrence of each option ID
+                    const seenIds = new Set();
+                    const uniqueOpts = [];
+                    for (const opt of parsedOpts) {
+                        const optId = parseInt(opt[0]);
+                        if (!seenIds.has(optId)) {
+                            seenIds.add(optId);
+                            uniqueOpts.push(opt);
+                        }
+                    }
+
+                    // If duplicates were found and removed
+                    if (uniqueOpts.length < parsedOpts.length) {
+                        totalItemsFixed++;
+                        colModified = true;
+
+                        // Rebuild options array in original format (array of JSON strings)
+                        const newOptions = uniqueOpts.map(o => JSON.stringify(o));
+                        slotArr[2] = JSON.stringify(newOptions);
+
+                        // Write back slot
+                        if (typeof slot === 'string') {
+                            itemsArray[i] = JSON.stringify(slotArr);
+                        } else {
+                            itemsArray[i] = slotArr;
+                        }
+                    }
+                }
+
+                if (colModified) {
+                    playerModified = true;
+                    updates[col] = JSON.stringify(itemsArray);
+                }
+            }
+
+            if (playerModified) {
+                totalPlayersFixed++;
+                const setClauses = Object.keys(updates).map(k => `${k} = ?`).join(', ');
+                const values = [...Object.values(updates), player.id];
+                await pool.execute(`UPDATE player SET ${setClauses} WHERE id = ?`, values);
+            }
+        }
+
+        res.json({
+            status: 'success',
+            message: `✅ Đã quét ${players.length} nhân vật. Sửa ${totalItemsFixed} món đồ bị trùng chỉ số trên ${totalPlayersFixed} nhân vật!`
+        });
+    } catch (err) {
+        console.error('Fix duplicate options error:', err);
+        res.status(500).json({ status: 'error', message: 'Lỗi khi sửa đồ: ' + err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`=================================================`);
     console.log(`🔥 WEB ADMIN PANEL NRO READY!`);
