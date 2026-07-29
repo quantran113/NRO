@@ -885,6 +885,11 @@ function filterItems() {
 }
 
 // --- CART MANAGEMENT ---
+function quickAddPetSkillBook(itemId) {
+    switchTab('grant');
+    addItemToCart(itemId);
+}
+
 function addItemToCart(itemId) {
     const item = itemTemplates.find(i => i.id === itemId);
     if (!item) return;
