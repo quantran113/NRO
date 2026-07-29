@@ -81,9 +81,44 @@ public class ItemService {
         item.quantity = quantity;
         item.createTime = System.currentTimeMillis();
 
+        initDefaultItemOptions(item);
+
         item.content = item.getContent();
         item.info = item.getInfo();
         return item;
+    }
+
+    public void initDefaultItemOptions(Item item) {
+        if (item == null || item.template == null || !item.itemOptions.isEmpty()) {
+            return;
+        }
+        int tempId = item.template.id;
+        switch (tempId) {
+            case 441 -> item.itemOptions.add(new ItemOption(95, 5));
+            case 442 -> item.itemOptions.add(new ItemOption(96, 5));
+            case 443 -> item.itemOptions.add(new ItemOption(97, 5));
+            case 444 -> item.itemOptions.add(new ItemOption(98, 5));
+            case 445 -> item.itemOptions.add(new ItemOption(99, 5));
+            case 446 -> item.itemOptions.add(new ItemOption(100, 5));
+            case 447 -> item.itemOptions.add(new ItemOption(101, 5));
+
+            case 1416 -> item.itemOptions.add(new ItemOption(95, 5));
+            case 1417 -> item.itemOptions.add(new ItemOption(96, 5));
+            case 1418 -> item.itemOptions.add(new ItemOption(97, 5));
+            case 1419 -> item.itemOptions.add(new ItemOption(98, 5));
+            case 1420 -> item.itemOptions.add(new ItemOption(99, 5));
+            case 1421 -> item.itemOptions.add(new ItemOption(100, 5));
+            case 1422 -> item.itemOptions.add(new ItemOption(101, 5));
+
+            case 1426 -> item.itemOptions.add(new ItemOption(95, 5));
+            case 1427 -> item.itemOptions.add(new ItemOption(96, 5));
+            case 1428 -> item.itemOptions.add(new ItemOption(97, 5));
+            case 1429 -> item.itemOptions.add(new ItemOption(98, 5));
+            case 1430 -> item.itemOptions.add(new ItemOption(99, 5));
+            case 1431 -> item.itemOptions.add(new ItemOption(100, 5));
+            case 1432 -> item.itemOptions.add(new ItemOption(101, 5));
+            case 1433 -> item.itemOptions.add(new ItemOption(153, 5));
+        }
     }
 
     public Item otpts(short tempId, int quantity) {

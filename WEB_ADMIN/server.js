@@ -542,6 +542,17 @@ app.post('/api/grant-item-batch', async (req, res) => {
                 optionsArr.push(JSON.stringify([parseInt(opt.id), parseInt(opt.param) || 0]));
             }
 
+            if (optionsArr.length === 0) {
+                const crystalOptMap = {
+                    441: [95, 5], 442: [96, 5], 443: [97, 5], 444: [98, 5], 445: [99, 5], 446: [100, 5], 447: [101, 5],
+                    1416: [95, 5], 1417: [96, 5], 1418: [97, 5], 1419: [98, 5], 1420: [99, 5], 1421: [100, 5], 1422: [101, 5],
+                    1426: [95, 5], 1427: [96, 5], 1428: [97, 5], 1429: [98, 5], 1430: [99, 5], 1431: [100, 5], 1432: [101, 5]
+                };
+                if (crystalOptMap[itemId]) {
+                    optionsArr.push(JSON.stringify(crystalOptMap[itemId]));
+                }
+            }
+
             const dataItem = [
                 itemId,
                 quantity,
