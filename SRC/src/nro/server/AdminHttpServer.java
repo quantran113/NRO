@@ -560,6 +560,21 @@ public class AdminHttpServer {
                 long power = body.containsKey("power") ? ((Number) body.get("power")).longValue() : 2000L;
                 long tiemNang = body.containsKey("tiemNang") ? ((Number) body.get("tiemNang")).longValue() : power;
 
+                long minPower = switch (petType) {
+                    case 1 -> 1500000L; // Mabư: Min 1.5 Tr
+                    case 2 -> 40000000000L; // Úp: Min 40 Tỷ
+                    case 3 -> 40000000000L; // Kid Beer: Min 40 Tỷ
+                    case 4 -> 40000000000L; // Jiren: Min 40 Tỷ
+                    default -> 2000L; // Đệ Thường: Min 2,000
+                };
+
+                if (power < minPower) {
+                    power = minPower;
+                }
+                if (tiemNang < power) {
+                    tiemNang = power;
+                }
+
                 if (playerName == null || playerName.trim().isEmpty()) {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
                     return;

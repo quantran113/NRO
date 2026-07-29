@@ -1265,6 +1265,19 @@ function setPetPowerPreset(val) {
     if (tInput) tInput.value = val;
 }
 
+function handlePetTypeChange() {
+    const petType = parseInt(document.getElementById('pet-type-select').value) || 0;
+    const pInput = document.getElementById('pet-power-input');
+    const tInput = document.getElementById('pet-tiemnang-input');
+
+    let minP = 2000;
+    if (petType === 1) minP = 1500000;
+    else if (petType >= 2) minP = 40000000000;
+
+    if (pInput) pInput.value = minP;
+    if (tInput) tInput.value = minP;
+}
+
 async function executeGrantPet(e) {
     e.preventDefault();
 
