@@ -3,6 +3,7 @@ src/models/ShenronEvent.java
 src/models/ConsignItem.java
 src/models/GiftCode.java
 src/models/Template.java
+src/nro/server/AdminHttpServer.java
 src/nro/models/database/TraningDAO.java
 src/nro/models/database/HistoryTransactionDAO.java
 src/nro/models/database/SuperRankDAO.java
@@ -400,6 +401,7 @@ src/nro/models/minigame/ConSoMayManGold.java
 src/nro/models/minigame/ChonAiDay_Gem.java
 src/nro/models/minigame/ChonAiDay_Gold.java
 src/nro/models/minigame/ConSoMayManData.java
+src/nro/models/item/DropManager.java
 src/nro/models/item/ItemTime.java
 src/nro/models/item/Item.java
 src/nro/models/task/BadgesTaskTemplate.java
