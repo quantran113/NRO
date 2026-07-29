@@ -738,6 +738,89 @@ tr:hover td {
         grid-template-columns: 1fr !important;
         gap: 14px;
     }
+
+    /* Transform Tables into Responsive Mobile Glass Cards */
+    .table-responsive {
+        overflow-x: visible !important;
+    }
+
+    .table-responsive table, 
+    .table-responsive thead, 
+    .table-responsive tbody, 
+    .table-responsive th, 
+    .table-responsive td, 
+    .table-responsive tr { 
+        display: block; 
+    }
+    
+    .table-responsive thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    .table-responsive tbody tr { 
+        background: rgba(20, 25, 42, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--border-glass) !important;
+        border-radius: 12px !important;
+        margin-bottom: 14px !important;
+        padding: 14px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        transition: var(--transition);
+    }
+
+    .table-responsive tbody tr:hover {
+        border-color: var(--gold) !important;
+        box-shadow: 0 0 15px var(--gold-glow);
+    }
+    
+    .table-responsive td { 
+        border: none !important;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08) !important;
+        position: relative;
+        padding: 8px 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        white-space: normal !important;
+        font-size: 13px !important;
+        word-break: break-word;
+    }
+
+    .table-responsive td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--gold);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .table-responsive td:last-child::before {
+        display: none !important;
+    }
+
+    .table-responsive td:last-child {
+        border-bottom: none !important;
+        padding-top: 10px !important;
+        margin-top: 4px;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        justify-content: flex-start !important;
+    }
+
+    .table-responsive td:last-child button {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 110px;
+        justify-content: center;
+        padding: 8px 10px !important;
+        font-size: 11px !important;
+    }
 }
 
 @media (max-width: 600px) {

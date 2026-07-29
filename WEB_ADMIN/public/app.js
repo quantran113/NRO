@@ -441,17 +441,17 @@ function renderSelectedShopItemsTable() {
         const iconId = item.iconId !== undefined && item.iconId !== null ? item.iconId : item.tempId;
 
         tr.innerHTML = `
-            <td style="padding: 12px; font-weight: 700; color: #fff;">
+            <td data-label="Vật Phẩm" style="padding: 12px; font-weight: 700; color: #fff;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" style="width: 24px; height: 24px;" alt="">
                     <span>#${item.tempId} - ${escapeHtml(item.name)}</span>
                 </div>
             </td>
-            <td style="padding: 12px; color: var(--gold); font-weight: 800; font-size: 15px;">${item.cost.toLocaleString('vi-VN')}</td>
-            <td style="padding: 12px;">${currencyBadge}</td>
-            <td style="padding: 12px;">${optsText}</td>
-            <td style="padding: 12px;">${newTag}</td>
-            <td style="padding: 12px;">
+            <td data-label="Giá Bán" style="padding: 12px; color: var(--gold); font-weight: 800; font-size: 15px;">${item.cost.toLocaleString('vi-VN')}</td>
+            <td data-label="Loại Tiền" style="padding: 12px;">${currencyBadge}</td>
+            <td data-label="Chỉ Số Option" style="padding: 12px;">${optsText}</td>
+            <td data-label="Hàng Mới" style="padding: 12px;">${newTag}</td>
+            <td data-label="Thao Tác" style="padding: 12px;">
                 <button type="button" class="btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="deleteNpcShopItem(${item.id})">
                     <i class="fa-solid fa-trash"></i> Xóa
                 </button>
@@ -769,12 +769,12 @@ function renderDropRulesTable() {
             : '<span class="badge-offline" style="cursor: pointer;" onclick="toggleDropRule(' + rule.id + ')">ĐÃ TẮT</span>';
 
         tr.innerHTML = `
-            <td style="padding: 12px;">${mapText}</td>
-            <td style="padding: 12px; font-weight: 700; color: #fff;"><i class="fa-solid fa-box-open" style="color: var(--gold);"></i> #${rule.itemId} - ${escapeHtml(itemName)}</td>
-            <td style="padding: 12px; color: var(--gold); font-weight: 700;">x${rule.quantity}</td>
-            <td style="padding: 12px; color: var(--cyan); font-weight: 800;">${rule.ratePercent}%</td>
-            <td style="padding: 12px;">${statusBadge}</td>
-            <td style="padding: 12px;">
+            <td data-label="Bản Đồ" style="padding: 12px;">${mapText}</td>
+            <td data-label="Vật Phẩm" style="padding: 12px; font-weight: 700; color: #fff;"><i class="fa-solid fa-box-open" style="color: var(--gold);"></i> #${rule.itemId} - ${escapeHtml(itemName)}</td>
+            <td data-label="Số Lượng" style="padding: 12px; color: var(--gold); font-weight: 700;">x${rule.quantity}</td>
+            <td data-label="Tỷ Lệ" style="padding: 12px; color: var(--cyan); font-weight: 800;">${rule.ratePercent}%</td>
+            <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
+            <td data-label="Thao Tác" style="padding: 12px;">
                 <button type="button" class="btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="deleteDropRule(${rule.id})">
                     <i class="fa-solid fa-trash"></i> Xóa
                 </button>
@@ -1539,14 +1539,14 @@ function renderAccountTable() {
         const createDate = a.create_time ? new Date(a.create_time).toLocaleDateString('vi-VN') : 'N/A';
 
         tr.innerHTML = `
-            <td style="padding: 12px; color: var(--text-muted);">#${a.id}</td>
-            <td style="padding: 12px; font-weight: 700; color: #fff;">${escapeHtml(a.username)}</td>
-            <td style="padding: 12px; color: var(--cyan); font-family: monospace;">${escapeHtml(a.password)}</td>
-            <td style="padding: 12px; color: var(--gold);">${a.player_count || 0} NV</td>
-            <td style="padding: 12px;">${adminBadge}</td>
-            <td style="padding: 12px;">${activeBadge}</td>
-            <td style="padding: 12px; color: var(--text-muted); font-size: 12px;">${createDate}</td>
-            <td style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+            <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${a.id}</td>
+            <td data-label="Tài Khoản" style="padding: 12px; font-weight: 700; color: #fff;">${escapeHtml(a.username)}</td>
+            <td data-label="Mật Khẩu" style="padding: 12px; color: var(--cyan); font-family: monospace;">${escapeHtml(a.password)}</td>
+            <td data-label="Số NV" style="padding: 12px; color: var(--gold);">${a.player_count || 0} NV</td>
+            <td data-label="Quyền" style="padding: 12px;">${adminBadge}</td>
+            <td data-label="Trạng Thái" style="padding: 12px;">${activeBadge}</td>
+            <td data-label="Ngày Tạo" style="padding: 12px; color: var(--text-muted); font-size: 12px;">${createDate}</td>
+            <td data-label="Thao Tác" style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
                 <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(255,215,0,0.15); color: var(--gold);" onclick="toggleAccountAdmin(${a.id}, ${a.admin || 0})">
                     <i class="fa-solid fa-user-shield"></i> ${a.admin === 1 ? 'Hạ Admin' : 'Cấp Admin'}
                 </button>
@@ -1763,18 +1763,18 @@ function renderPlayerTable() {
         const taskBadge = `<span style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid rgba(255, 215, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">#${p.taskId !== undefined ? p.taskId : 0} - ${escapeHtml(p.taskName || 'Nhiệm vụ')}</span>`;
 
         tr.innerHTML = `
-            <td style="padding: 12px; color: var(--text-muted);">#${p.id}</td>
-            <td style="padding: 12px; font-weight: 700; color: #fff;">
+            <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${p.id}</td>
+            <td data-label="Tên Nhân Vật" style="padding: 12px; font-weight: 700; color: #fff;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <img src="${avatarSrc}" onerror="this.src='/icons/64.png';" style="width: 38px; height: 38px; object-fit: contain; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,215,0,0.3);" />
+                    <img src="${avatarSrc}" onerror="this.src='/icons/64.png';" style="width: 34px; height: 34px; object-fit: contain; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,215,0,0.3);" />
                     <span>${escapeHtml(p.name)}</span>
                 </div>
             </td>
-            <td style="padding: 12px; color: var(--gold); font-size: 13px;">${escapeHtml(p.username || 'N/A')}</td>
-            <td style="padding: 12px; color: var(--cyan);">${genderText}</td>
-            <td style="padding: 12px;">${taskBadge}</td>
-            <td style="padding: 12px;">${statusBadge}</td>
-            <td style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+            <td data-label="Tài Khoản" style="padding: 12px; color: var(--gold); font-size: 13px;">${escapeHtml(p.username || 'N/A')}</td>
+            <td data-label="Hành Tinh" style="padding: 12px; color: var(--cyan);">${genderText}</td>
+            <td data-label="Nhiệm Vụ" style="padding: 12px;">${taskBadge}</td>
+            <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
+            <td data-label="Thao Tác" style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
                 <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: 700; border: 1px solid #10b981;" onclick="openAdjustPlayerPowerModal('${escapeHtml(p.name)}')">
                     <i class="fa-solid fa-bolt"></i> ⚡ SM/Tiềm Năng
                 </button>
@@ -2091,11 +2091,11 @@ async function loadAdminGiftcodes() {
             const expDateStr = gc.expired ? new Date(gc.expired).toLocaleDateString('vi-VN') : 'Không hạn';
 
             tr.innerHTML = `
-                <td style="padding: 12px; font-weight: 800; color: var(--gold); font-size: 15px;">${escapeHtml(gc.code)}</td>
-                <td style="padding: 12px; color: var(--cyan); font-weight: bold;">${gc.count_left === -1 || gc.count_left >= 999999 ? 'Vô hạn' : gc.count_left + ' lượt'}</td>
-                <td style="padding: 12px; font-size: 13px;">${detailStr}</td>
-                <td style="padding: 12px; color: var(--text-muted); font-size: 12px;">${expDateStr}</td>
-                <td style="padding: 12px;">
+                <td data-label="Mã Code" style="padding: 12px; font-weight: 800; color: var(--gold); font-size: 15px;">${escapeHtml(gc.code)}</td>
+                <td data-label="Lượt Còn" style="padding: 12px; color: var(--cyan); font-weight: bold;">${gc.count_left === -1 || gc.count_left >= 999999 ? 'Vô hạn' : gc.count_left + ' lượt'}</td>
+                <td data-label="Phần Quà" style="padding: 12px; font-size: 13px;">${detailStr}</td>
+                <td data-label="Hạn Dùng" style="padding: 12px; color: var(--text-muted); font-size: 12px;">${expDateStr}</td>
+                <td data-label="Thao Tác" style="padding: 12px;">
                     <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(239, 68, 68, 0.2); color: #f87171;" onclick="deleteAdminGiftcode(${gc.id}, '${escapeHtml(gc.code)}')">
                         <i class="fa-solid fa-trash"></i> Xóa
                     </button>
