@@ -111,16 +111,41 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ status: 'error', message: `Tài khoản [${cleanUser}] đã tồn tại!` });
         }
 
+        const emailVal = cleanEmail || `${cleanUser}@gmail.com`;
+
+        let inserted = false;
+        // 1. Try with email, active, admin, create_time
         try {
             await pool.execute(
                 'INSERT INTO account (username, password, email, active, admin, create_time) VALUES (?, ?, ?, 1, 0, NOW())',
-                [cleanUser, cleanPass, cleanEmail]
+                [cleanUser, cleanPass, emailVal]
             );
-        } catch (e) {
-            await pool.execute(
-                'INSERT INTO account (username, password, active, admin, create_time) VALUES (?, ?, 1, 0, NOW())',
-                [cleanUser, cleanPass]
-            );
+            inserted = true;
+        } catch (e1) {
+            // 2. Try with email, active, admin
+            try {
+                await pool.execute(
+                    'INSERT INTO account (username, password, email, active, admin) VALUES (?, ?, ?, 1, 0)',
+                    [cleanUser, cleanPass, emailVal]
+                );
+                inserted = true;
+            } catch (e2) {
+                // 3. Try with email only
+                try {
+                    await pool.execute(
+                        'INSERT INTO account (username, password, email) VALUES (?, ?, ?)',
+                        [cleanUser, cleanPass, emailVal]
+                    );
+                    inserted = true;
+                } catch (e3) {
+                    // 4. Basic insert
+                    await pool.execute(
+                        'INSERT INTO account (username, password) VALUES (?, ?)',
+                        [cleanUser, cleanPass]
+                    );
+                    inserted = true;
+                }
+            }
         }
 
         res.json({ status: 'success', message: `Đăng ký tài khoản [${cleanUser}] thành công!` });
