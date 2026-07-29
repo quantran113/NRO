@@ -819,6 +819,20 @@ app.post('/api/user/use-giftcode', async (req, res) => {
     }
 });
 
+app.post('/api/adjust-player-power', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/adjust-player-power`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
+        });
+        const data = await resp.json();
+        return res.status(resp.status).json(data);
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: 'Không thể kết nối Java Server API. Vui lòng bật server bằng lệnh bash run.sh.' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`=================================================`);
     console.log(`🔥 WEB ADMIN PANEL NRO READY!`);

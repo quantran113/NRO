@@ -65,6 +65,7 @@ public class AdminHttpServer {
             server.createContext("/api/next-task", new NextTaskHandler());
             server.createContext("/api/reload-giftcode", new ReloadGiftCodeHandler());
             server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
+            server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
             
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -557,6 +558,7 @@ public class AdminHttpServer {
                 int petType = body.containsKey("petType") ? ((Number) body.get("petType")).intValue() : 0;
                 int petGender = body.containsKey("petGender") ? ((Number) body.get("petGender")).intValue() : 0;
                 long power = body.containsKey("power") ? ((Number) body.get("power")).longValue() : 2000L;
+                long tiemNang = body.containsKey("tiemNang") ? ((Number) body.get("tiemNang")).longValue() : power;
 
                 if (playerName == null || playerName.trim().isEmpty()) {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
@@ -575,23 +577,23 @@ public class AdminHttpServer {
                     // ONLINE Player
                     if (targetPlayer.pet != null) {
                         switch (petType) {
-                            case 1 -> nro.models.services.PetService.gI().changeMabuPet(targetPlayer, petGender);
-                            case 2 -> nro.models.services.PetService.gI().changeUubPet(targetPlayer, petGender);
-                            case 3 -> nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer, petGender);
-                            case 4 -> nro.models.services.PetService.gI().changeJirenPet(targetPlayer, petGender);
-                            default -> nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender);
+                            case 1: nro.models.services.PetService.gI().changeMabuPet(targetPlayer, petGender); break;
+                            case 2: nro.models.services.PetService.gI().changeUubPet(targetPlayer); break;
+                            case 3: nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer); break;
+                            case 4: nro.models.services.PetService.gI().changeJirenPet(targetPlayer); break;
+                            default: nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender); break;
                         }
                     } else {
                         switch (petType) {
-                            case 1 -> nro.models.services.PetService.gI().createMabuPet(targetPlayer, petGender);
-                            case 2 -> nro.models.services.PetService.gI().createUubPet(targetPlayer, petGender);
-                            case 3 -> nro.models.services.PetService.gI().createKidBeerPet(targetPlayer, petGender);
-                            case 4 -> nro.models.services.PetService.gI().createJirenPet(targetPlayer, petGender);
-                            default -> nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender);
+                            case 1: nro.models.services.PetService.gI().createMabuPet(targetPlayer, petGender); break;
+                            case 2: nro.models.services.PetService.gI().createUubPet(targetPlayer); break;
+                            case 3: nro.models.services.PetService.gI().createKidBeerPet(targetPlayer); break;
+                            case 4: nro.models.services.PetService.gI().createJirenPet(targetPlayer); break;
+                            default: nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender); break;
                         }
                     }
 
-                    // Set custom power if provided
+                    // Set custom power and tiemNang if provided
                     if (power > 0) {
                         final Player plTarget = targetPlayer;
                         new Thread(() -> {
@@ -599,7 +601,8 @@ public class AdminHttpServer {
                                 Thread.sleep(1500);
                                 if (plTarget.pet != null) {
                                     plTarget.pet.nPoint.power = power;
-                                    plTarget.pet.nPoint.tiemNang = power;
+                                    plTarget.pet.nPoint.tiemNang = tiemNang;
+                                    nro.models.services.Service.gI().point(plTarget);
                                     nro.models.database.PlayerDAO.updatePlayer(plTarget);
                                 }
                             } catch (Exception e) {}
@@ -1148,6 +1151,69 @@ public class AdminHttpServer {
 
                 GiftCodeService.gI().giftCode(player, code);
                 sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xử lý nhập GiftCode cho [" + player.name + "]!\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/adjust-player-power ---
+    private static class AdjustPlayerPowerHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStream is = exchange.getRequestBody();
+                String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
+
+                if (body == null) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
+                    return;
+                }
+
+                String playerName = (String) body.get("playerName");
+                String action = body.containsKey("action") ? (String) body.get("action") : "add";
+                long power = body.containsKey("power") ? ((Number) body.get("power")).longValue() : 0L;
+                long tiemNang = body.containsKey("tiemNang") ? ((Number) body.get("tiemNang")).longValue() : 0L;
+
+                if (playerName == null || playerName.trim().isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    return;
+                }
+
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName.trim())) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                if (player != null) {
+                    if ("set".equalsIgnoreCase(action)) {
+                        player.nPoint.power = power;
+                        player.nPoint.tiemNang = tiemNang;
+                    } else if ("sub".equalsIgnoreCase(action)) {
+                        player.nPoint.power = Math.max(0, player.nPoint.power - power);
+                        player.nPoint.tiemNang = Math.max(0, player.nPoint.tiemNang - tiemNang);
+                    } else { // "add"
+                        player.nPoint.power += power;
+                        player.nPoint.tiemNang += tiemNang;
+                    }
+
+                    nro.models.services.Service.gI().point(player);
+                    nro.models.services.Service.gI().sendThongBao(player, "Admin vừa điều chỉnh Sức mạnh & Tiềm năng cho bạn!");
+                    nro.models.database.PlayerDAO.updatePlayer(player);
+
+                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã điều chỉnh SM & Tiềm năng cho nhân vật [" + player.name + "] (ONLINE)!\"}");
+                } else {
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] phải ONLINE trong game để điều chỉnh Sức Mạnh!\"}");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");

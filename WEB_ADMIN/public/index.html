@@ -243,21 +243,34 @@
                         </select>
                     </div>
 
-                    <!-- Pet Power Level Selector -->
-                    <div class="form-group">
-                        <label><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> Sức Mạnh Khởi Tạo Cho Đệ Tử</label>
-                        <select id="pet-power-select" class="select-field">
-                            <option value="2000">🌱 2,000 Sức Mạnh (Sơ Sinh Mới Nở)</option>
-                            <option value="1500000">🔥 1,500,000 Sức Mạnh (Tiêu Chuẩn Mabư)</option>
-                            <option value="1500000000">⚡ 1,500,000,000 Sức Mạnh (1.5 Tỷ - Mở Skill 2)</option>
-                            <option value="15000000000">💥 15,000,000,000 Sức Mạnh (15 Tỷ - Mở Skill 3)</option>
-                            <option value="40000000000">👑 40,000,000,000 Sức Mạnh (40 Tỷ - Full Skill 4)</option>
-                            <option value="80000000000">🌟 80,000,000,000 Sức Mạnh (80 Tỷ Max Stats)</option>
-                        </select>
+                    <!-- Pet Power & Potential Custom Inputs -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> Sức Mạnh Khởi Tạo Cho Đệ Tử</label>
+                            <input type="number" id="pet-power-input" class="input-field" value="2000" placeholder="Nhập số sức mạnh..." style="font-weight: 800; color: var(--cyan);" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-star" style="color: var(--gold);"></i> Tiềm Năng Khởi Tạo Cho Đệ Tử</label>
+                            <input type="number" id="pet-tiemnang-input" class="input-field" value="2000" placeholder="Nhập số tiềm năng..." style="font-weight: 800; color: var(--gold);" required>
+                        </div>
+                    </div>
+
+                    <!-- Quick Preset Power Pills -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block;"><i class="fa-solid fa-bolt"></i> Nút Tăng Nhanh Sức Mạnh Đệ Tử</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(2000)">🌱 2,000 SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(1500000)">🔥 1.5 Tr SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(1500000000)">⚡ 1.5 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(15000000000)">💥 15 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(40000000000)">👑 40 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(80000000000)">🌟 80 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(90000000000)">🚀 90 Tỷ SM (Max)</button>
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
-                    <div style="margin-top: 28px;">
+                    <div style="margin-top: 24px;">
                         <button type="submit" class="btn-primary" id="btn-grant-pet-action" style="background: linear-gradient(135deg, #00f3ff, #b537f2); color: #fff;">
                             <i class="fa-solid fa-paw"></i> CẤP / ĐỔI ĐỆ TỬ NGAY (REALTIME TRONG GAME)
                         </button>
@@ -267,46 +280,6 @@
 
                 <!-- PET SKILL BOOKS QUICK GRANT SECTION -->
                 <div style="margin-top: 32px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 20px;">
-                    
-                    <!-- SECTION 1: CHANGE SKILL BOOKS (SÁCH ĐỔI SKILL) -->
-                    <h3 style="color: var(--cyan); font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-arrows-rotate"></i> BỘ SÁCH ĐỔI / TẨY SKILL ĐỆ TỬ (ĐỔI CHIÊU 2, 3, 4, 5)
-                    </h3>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Click 1-chạm để thêm Sách Đổi Chiêu (Tẩy / Reset lại Skill Đệ Tử ngẫu nhiên):</p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px;">
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--cyan); border-color: var(--cyan);" onclick="quickAddPetSkillBook(1758)">
-                            <span style="font-size: 18px;">🔄</span>
-                            <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 2</div>
-                                <div style="font-size: 11px; opacity: 0.8;">Item #1758</div>
-                            </div>
-                        </button>
-
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--cyan); border-color: var(--cyan);" onclick="quickAddPetSkillBook(1759)">
-                            <span style="font-size: 18px;">🔄</span>
-                            <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 3</div>
-                                <div style="font-size: 11px; opacity: 0.8;">Item #1759</div>
-                            </div>
-                        </button>
-
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--gold); border-color: var(--gold);" onclick="quickAddPetSkillBook(1760)">
-                            <span style="font-size: 18px;">🔄</span>
-                            <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 4</div>
-                                <div style="font-size: 11px; opacity: 0.8;">Item #1760</div>
-                            </div>
-                        </button>
-
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #ff4757; border-color: #ff4757;" onclick="quickAddPetSkillBook(1795)">
-                            <span style="font-size: 18px;">🔁</span>
-                            <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Đệ Tử RAM</div>
-                                <div style="font-size: 11px; opacity: 0.8;">Item #1795</div>
-                            </div>
-                        </button>
-                    </div>
 
                     <!-- SECTION 2: UPGRADE SKILL BOOKS (SÁCH NÂNG SKILL) -->
                     <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
@@ -914,6 +887,53 @@
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('modal-change-name')">HỦY BỎ</button>
                 <button type="button" class="btn-primary" id="modal-confirm-change-name-btn">LƯU TÊN MỚI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM MODAL: ADJUST PLAYER POWER & POTENTIAL -->
+    <div id="modal-adjust-power" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> ĐIỀU CHỈNH SỨC MẠNH & TIỀM NĂNG</h3>
+                <button type="button" class="modal-close-btn" onclick="closeModal('modal-adjust-power')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Nhân vật: <strong id="adjust-power-player-name" style="color: var(--gold); font-size: 15px;"></strong></p>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-sliders"></i> Chế độ điều chỉnh</label>
+                    <select id="modal-power-action" class="select-field">
+                        <option value="add">➕ TĂNG THÊM (Cộng dồn vào SM hiện tại)</option>
+                        <option value="sub">➖ GIẢM BỚT (Trừ đi khỏi SM hiện tại)</option>
+                        <option value="set">🎯 ĐẶT THÀNH (Thay đổi chính xác con số này)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> Số Sức Mạnh (Power)</label>
+                    <input type="number" id="modal-power-input" class="input-field" placeholder="Nhập số sức mạnh..." style="font-weight: 800; color: var(--cyan);" value="1000000000">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-star" style="color: var(--gold);"></i> Số Tiềm Năng (Tiềm Năng)</label>
+                    <input type="number" id="modal-tiemnang-input" class="input-field" placeholder="Nhập số tiềm năng..." style="font-weight: 800; color: var(--gold);" value="1000000000">
+                </div>
+
+                <!-- Quick preset pills -->
+                <div style="margin-top: 10px;">
+                    <label style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: block;">Mức tăng nhanh:</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(100000000)">+100 Tr</button>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(1000000000)">+1 Tỷ</button>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(5000000000)">+5 Tỷ</button>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(10000000000)">+10 Tỷ</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-adjust-power')">HỦY BỎ</button>
+                <button type="button" class="btn-primary" id="modal-confirm-adjust-power-btn" style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 800;">⚡ LƯU THAY ĐỔI</button>
             </div>
         </div>
     </div>

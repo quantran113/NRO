@@ -1258,13 +1258,21 @@ function checkPetPlayerStatus() {
     }
 }
 
+function setPetPowerPreset(val) {
+    const pInput = document.getElementById('pet-power-input');
+    const tInput = document.getElementById('pet-tiemnang-input');
+    if (pInput) pInput.value = val;
+    if (tInput) tInput.value = val;
+}
+
 async function executeGrantPet(e) {
     e.preventDefault();
 
     const playerName = document.getElementById('target-player-pet').value.trim();
     const petType = parseInt(document.getElementById('pet-type-select').value) || 0;
     const petGender = parseInt(document.getElementById('pet-gender-select').value) || 0;
-    const power = parseInt(document.getElementById('pet-power-select').value) || 2000;
+    const power = parseInt(document.getElementById('pet-power-input').value) || 2000;
+    const tiemNang = parseInt(document.getElementById('pet-tiemnang-input').value) || power;
 
     if (!playerName) {
         showToast('Vui lòng nhập tên nhân vật nhận đệ tử!', 'error');
@@ -1284,7 +1292,8 @@ async function executeGrantPet(e) {
                 playerName: playerName,
                 petType: petType,
                 petGender: petGender,
-                power: power
+                power: power,
+                tiemNang: tiemNang
             })
         });
 
@@ -1736,6 +1745,9 @@ function renderPlayerTable() {
             <td style="padding: 12px;">${taskBadge}</td>
             <td style="padding: 12px;">${statusBadge}</td>
             <td style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: 700; border: 1px solid #10b981;" onclick="openAdjustPlayerPowerModal('${escapeHtml(p.name)}')">
+                    <i class="fa-solid fa-bolt"></i> ⚡ SM/Tiềm Năng
+                </button>
                 <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="quickSelectPlayer('${escapeHtml(p.name)}')">
                     <i class="fa-solid fa-gift"></i> Cấp Đồ
                 </button>
@@ -1749,6 +1761,42 @@ function renderPlayerTable() {
         `;
         tbody.appendChild(tr);
     });
+}
+
+function setModalPowerPreset(val) {
+    const pInput = document.getElementById('modal-power-input');
+    const tInput = document.getElementById('modal-tiemnang-input');
+    if (pInput) pInput.value = val;
+    if (tInput) tInput.value = val;
+}
+
+function openAdjustPlayerPowerModal(playerName) {
+    const nameEl = document.getElementById('adjust-power-player-name');
+    if (nameEl) nameEl.innerText = playerName;
+    
+    showModal('modal-adjust-power');
+
+    const confirmBtn = document.getElementById('modal-confirm-adjust-power-btn');
+    confirmBtn.onclick = async () => {
+        const action = document.getElementById('modal-power-action').value;
+        const power = parseInt(document.getElementById('modal-power-input').value) || 0;
+        const tiemNang = parseInt(document.getElementById('modal-tiemnang-input').value) || 0;
+
+        try {
+            const resp = await fetch('/api/adjust-player-power', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName, action, power, tiemNang })
+            });
+            const data = await resp.json();
+            closeModal('modal-adjust-power');
+            showToast(data.message, data.status === 'success' ? 'success' : 'error');
+            loadPlayers();
+        } catch (e) {
+            closeModal('modal-adjust-power');
+            showToast('Không thể kết nối đến Game Server', 'error');
+        }
+    };
 }
 
 // --- TAB SWITCHING ---
