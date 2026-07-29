@@ -613,6 +613,7 @@ public class AdminHttpServer {
                         final Player plTarget = targetPlayer;
                         final long pVal = power;
                         final long tVal = tiemNang;
+                        final int pType = petType;
                         new Thread(() -> {
                             try {
                                 Thread.sleep(1200);
@@ -631,10 +632,30 @@ public class AdminHttpServer {
                                     plTarget.pet.nPoint.limitPower = calcLimit;
                                     plTarget.pet.nPoint.power = pVal;
                                     plTarget.pet.nPoint.tiemNang = tVal;
+
+                                    // Automatically open skill 2, 3, 4, 5 based on power level!
+                                    if (plTarget.pet.playerSkill != null && plTarget.pet.playerSkill.skills != null) {
+                                        if (plTarget.pet.playerSkill.skills.size() > 1 && pVal >= 150000000L) {
+                                            plTarget.pet.openSkill2();
+                                        }
+                                        if (plTarget.pet.playerSkill.skills.size() > 2 && pVal >= 1500000000L) {
+                                            plTarget.pet.openSkill3();
+                                        }
+                                        if (plTarget.pet.playerSkill.skills.size() > 3 && pVal >= 20000000000L) {
+                                            plTarget.pet.openSkill4();
+                                        }
+                                        if (plTarget.pet.playerSkill.skills.size() > 4 && pVal >= 40000000000L && pType >= 2) {
+                                            plTarget.pet.openSkill5();
+                                        }
+                                    }
+
+                                    plTarget.pet.joinMapMaster();
                                     nro.models.services.Service.gI().point(plTarget);
                                     nro.models.database.PlayerDAO.updatePlayer(plTarget);
                                 }
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }).start();
                     }
 
@@ -643,10 +664,7 @@ public class AdminHttpServer {
                     res.put("message", "Đã cấp/đổi Đệ tử thành công cho nhân vật [" + targetPlayer.name + "] (Đang ONLINE)");
                     sendJsonResponse(exchange, 200, res.toJSONString());
                 } else {
-                    JSONObject res = new JSONObject();
-                    res.put("status", "success");
-                    res.put("message", "Vui lòng đăng nhập nhân vật [" + playerName + "] vào game để hệ thống khởi tạo đệ tử!");
-                    sendJsonResponse(exchange, 200, res.toJSONString());
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] đang OFFLINE\"}");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

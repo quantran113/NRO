@@ -583,16 +583,92 @@ app.post('/api/grant-item-batch', async (req, res) => {
 });
 
 app.post('/api/grant-pet', async (req, res) => {
+    // 1. Try sending to Live Game Server first (ONLINE)
     try {
         const resp = await fetch(`${JAVA_API_URL}/api/grant-pet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(req.body)
         });
-        const data = await resp.json();
-        return res.status(resp.status).json(data);
-    } catch (err) {
-        res.status(500).json({ status: 'error', message: 'Không thể kết nối Java Server API. Vui lòng bật server bằng lệnh bash run.sh.' });
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.status(resp.status).json(data);
+        }
+    } catch (err) {}
+
+    // 2. Fallback: If player is OFFLINE or Game Server API is unreachable, update MySQL directly!
+    try {
+        const { playerName, petType = 0, petGender = 0, power = 2000, tiemNang = power } = req.body;
+        if (!playerName) {
+            return res.status(400).json({ status: 'error', message: 'Tên nhân vật không hợp lệ' });
+        }
+
+        const [players] = await pool.execute('SELECT id FROM player WHERE name = ?', [playerName.trim()]);
+        if (players.length === 0) {
+            return res.status(404).json({ status: 'error', message: `Không tìm thấy nhân vật [${playerName}] trong cơ sở dữ liệu MySQL` });
+        }
+
+        const playerId = players[0].id;
+        const pType = parseInt(petType) || 0;
+        const pGender = parseInt(petGender) || 0;
+
+        let minP = 2000;
+        if (pType === 1) minP = 1500000;
+        else if (pType >= 2) minP = 40000000000;
+
+        const finalPower = Math.max(minP, parseInt(power) || 2000);
+        const finalTiemNang = Math.max(finalPower, parseInt(tiemNang) || finalPower);
+
+        let calcLimit = 0;
+        if (finalPower >= 80000000000) calcLimit = 9;
+        else if (finalPower >= 70000000000) calcLimit = 8;
+        else if (finalPower >= 60000000000) calcLimit = 7;
+        else if (finalPower >= 50000000000) calcLimit = 6;
+        else if (finalPower >= 39000000000) calcLimit = 5;
+        else if (finalPower >= 29000000000) calcLimit = 4;
+        else if (finalPower >= 24000000000) calcLimit = 3;
+        else if (finalPower >= 19000000000) calcLimit = 2;
+        else if (finalPower >= 17000000000) calcLimit = 1;
+
+        const petNames = ["Đệ tử", "Mabư", "Uub", "Kid Beer", "Kid Jiren"];
+        const petName = "$" + (petNames[pType] || "Đệ tử");
+
+        let hpg = (pType >= 2) ? 400000 : 2000;
+        let mpg = (pType >= 2) ? 400000 : 2000;
+        let dameg = (pType >= 2) ? 20000 : (pType === 1 ? 100 : 50);
+
+        const petInfo = JSON.stringify([pType, pGender, petName, 0, 0, 0]);
+        const petPoint = JSON.stringify([calcLimit, finalPower, finalTiemNang, 1000, 1000, hpg, mpg, dameg, 20, 0, hpg, mpg]);
+
+        const bodyCount = (pType >= 2) ? 9 : 7;
+        const bodyArr = [];
+        for (let i = 0; i < bodyCount; i++) {
+            bodyArr.push(JSON.stringify([-1, 0, "[]", 0]));
+        }
+        const petBody = JSON.stringify(bodyArr);
+
+        // Skills
+        const skillArr = [
+            JSON.stringify([pGender === 0 ? 0 : pGender === 1 ? 4 : 8, 1, 0, 1]), // Skill 1
+            JSON.stringify([finalPower >= 150000000 ? 1 : -1, 1, 0, 1]), // Skill 2 Kamejoko
+            JSON.stringify([finalPower >= 1500000000 ? 6 : -1, 1, 0, 1]), // Skill 3 Thai duong ha san
+            JSON.stringify([finalPower >= 20000000000 ? 8 : -1, 1, 0, 1]), // Skill 4 Bien khi
+            JSON.stringify([(finalPower >= 40000000000 && pType >= 2) ? (pGender === 0 ? 24 : pGender === 1 ? 25 : 26) : -1, 1, 0, 1]), // Skill 5 Super Kame
+            JSON.stringify([-1, 0, 0, 0]),
+            JSON.stringify([-1, 0, 0, 0])
+        ];
+        const petSkill = JSON.stringify(skillArr);
+
+        const petData = JSON.stringify([petInfo, petPoint, petBody, petSkill]);
+
+        await pool.execute('UPDATE player SET pet = ? WHERE id = ?', [petData, playerId]);
+
+        return res.json({
+            status: 'success',
+            message: `Đã khởi tạo Đệ Tử [${petNames[pType]}] thành công cho nhân vật OFFLINE [${playerName}] vào MySQL! Khi đăng nhập nhân vật sẽ có ngay đệ tử.`
+        });
+    } catch (dbErr) {
+        return res.status(500).json({ status: 'error', message: 'Lỗi khi cấp đệ tử vào MySQL: ' + dbErr.message });
     }
 });
 
