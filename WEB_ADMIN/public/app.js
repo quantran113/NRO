@@ -1428,22 +1428,85 @@ function renderAccountTable() {
     });
 }
 
-async function changeAccountPassword(id, username) {
-    const newPass = prompt(`Nhập mật khẩu MỚI cho tài khoản [${username}]:`);
-    if (!newPass || !newPass.trim()) return;
+// --- MODAL UTILS ---
+function showModal(modalId) {
+    const el = document.getElementById(modalId);
+    if (el) el.style.display = 'flex';
+}
 
-    try {
-        const resp = await fetch('/api/admin/account/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, password: newPass.trim() })
-        });
-        const data = await resp.json();
-        showToast(data.message, data.status === 'success' ? 'success' : 'error');
-        loadAccountData();
-    } catch (e) {
-        showToast('Lỗi khi đổi mật khẩu tài khoản', 'error');
+function closeModal(modalId) {
+    const el = document.getElementById(modalId);
+    if (el) el.style.display = 'none';
+}
+
+function customConfirm(title, message, onConfirm) {
+    const titleEl = document.getElementById('confirm-modal-title');
+    const msgEl = document.getElementById('confirm-modal-message');
+    const btn = document.getElementById('modal-confirm-action-btn');
+
+    if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size: 22px; color: var(--gold);"></i> ${escapeHtml(title)}`;
+    if (msgEl) msgEl.innerHTML = message;
+
+    btn.onclick = async () => {
+        closeModal('modal-confirm-action');
+        if (onConfirm) await onConfirm();
+    };
+
+    showModal('modal-confirm-action');
+}
+
+function changeAccountPassword(id, username) {
+    const nameEl = document.getElementById('change-pass-user-name');
+    if (nameEl) nameEl.innerText = username;
+    const input = document.getElementById('modal-new-password-input');
+    if (input) input.value = '';
+    
+    const confirmBtn = document.getElementById('modal-confirm-change-pass-btn');
+    if (confirmBtn) {
+        confirmBtn.onclick = async () => {
+            const newPass = input ? input.value.trim() : '';
+            if (!newPass) {
+                showToast('Vui lòng nhập mật khẩu mới', 'error');
+                return;
+            }
+            try {
+                const resp = await fetch('/api/admin/account/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, password: newPass })
+                });
+                const data = await resp.json();
+                showToast(data.message, data.status === 'success' ? 'success' : 'error');
+                closeModal('modal-change-password');
+                loadAccountData();
+            } catch (e) {
+                showToast('Lỗi khi đổi mật khẩu tài khoản', 'error');
+            }
+        };
     }
+
+    showModal('modal-change-password');
+}
+
+function deleteAccount(id, username) {
+    customConfirm(
+        'XÁC NHẬN XÓA TÀI KHOẢN',
+        `Bạn có chắc chắn muốn <strong style="color: var(--red);">XÓA VĨNH VIỄN</strong> tài khoản <strong style="color: var(--gold);">${escapeHtml(username)}</strong> và toàn bộ dữ liệu nhân vật liên quan?`,
+        async () => {
+            try {
+                const resp = await fetch('/api/admin/account/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                const data = await resp.json();
+                showToast(data.message, data.status === 'success' ? 'success' : 'error');
+                loadAccountData();
+            } catch (e) {
+                showToast('Lỗi khi xóa tài khoản', 'error');
+            }
+        }
+    );
 }
 
 async function editItemTemplateName(itemId, oldName) {
@@ -1497,22 +1560,6 @@ async function toggleAccountLock(id, currentActive) {
     }
 }
 
-async function deleteAccount(id, username) {
-    if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản [${username}]?`)) return;
-    try {
-        const resp = await fetch('/api/admin/account/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        });
-        const data = await resp.json();
-        showToast(data.message, data.status === 'success' ? 'success' : 'error');
-        loadAccountData();
-    } catch (e) {
-        showToast('Lỗi khi xóa tài khoản', 'error');
-    }
-}
-
 async function openQuickCreateAccountModal() {
     const user = prompt('Nhập tên tài khoản mới:');
     if (!user || !user.trim()) return;
@@ -1533,41 +1580,25 @@ async function openQuickCreateAccountModal() {
     }
 }
 
-// --- PLAYER TABLE RENDER WITH IN-GAME AVATARS ---
-async function changePlayerName(playerId, currentName) {
-    const newName = prompt(`Nhập TÊN MỚI cho nhân vật [${currentName}]:`, currentName);
-    if (!newName || !newName.trim() || newName.trim() === currentName) return;
-
-    try {
-        const resp = await fetch('/api/admin/player/change-name', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ playerId, newName: newName.trim() })
-        });
-        const data = await resp.json();
-        showToast(data.message, data.status === 'success' ? 'success' : 'error');
-        await loadPlayers();
-        renderPlayerTable();
-    } catch (e) {
-        showToast('Lỗi khi đổi tên nhân vật', 'error');
-    }
-}
-
-async function nextPlayerTask(playerName) {
-    if (!confirm(`Bạn có chắc chắn muốn chuyển/qua nhiệm vụ tiếp theo cho nhân vật [${playerName}]?`)) return;
-
-    try {
-        const resp = await fetch('/api/admin/player/next-task', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ playerName })
-        });
-        const data = await resp.json();
-        showToast(data.message, data.status === 'success' ? 'success' : 'error');
-        await loadPlayers();
-    } catch (e) {
-        showToast('Lỗi khi chuyển nhiệm vụ', 'error');
-    }
+function nextPlayerTask(playerName) {
+    customConfirm(
+        'XÁC NHẬN QUA NHIỆM VỤ',
+        `Bạn có chắc chắn muốn chuyển sang nhiệm vụ tiếp theo cho nhân vật <strong style="color: var(--gold);">${escapeHtml(playerName)}</strong>?`,
+        async () => {
+            try {
+                const resp = await fetch('/api/admin/player/next-task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerName })
+                });
+                const data = await resp.json();
+                showToast(data.message, data.status === 'success' ? 'success' : 'error');
+                await loadPlayers();
+            } catch (e) {
+                showToast('Lỗi khi chuyển nhiệm vụ', 'error');
+            }
+        }
+    );
 }
 
 function renderPlayerTable() {
