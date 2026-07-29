@@ -679,6 +679,93 @@
                         <!-- Loaded dynamically -->
                     </tbody>
                 </table>
+        <!-- PLAYER USER PORTAL (FOR NON-ADMIN PLAYERS) -->
+        <div id="player-portal-view" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 28px; max-width: 900px; margin: 0 auto;">
+                
+                <!-- Header User Banner -->
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 20px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div id="portal-avatar-box" style="width: 54px; height: 54px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <img id="portal-avatar-img" src="/icons/64.png" onerror="this.src='/icons/64.png';" style="width: 44px; height: 44px; object-fit: contain;">
+                        </div>
+                        <div>
+                            <h2 id="portal-welcome-name" style="font-size: 20px; color: var(--gold); font-weight: 800;">Xin chào, Player!</h2>
+                            <p id="portal-sub-info" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Tài khoản Người Chơi Game NRO</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="logoutAdmin()" style="padding: 8px 16px; font-size: 13px;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
+                    </button>
+                </div>
+
+                <!-- NO CHARACTER WARNING ALERT -->
+                <div id="portal-no-char-alert" style="display: none; background: rgba(255, 71, 87, 0.12); border: 1px solid var(--red); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 28px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 36px; color: var(--red); margin-bottom: 10px; display: block;"></i>
+                    <h3 style="color: var(--red); font-size: 18px; font-weight: 800; margin-bottom: 8px;">TÀI KHOẢN CHƯA CÓ NHÂN VẬT TRONG GAME!</h3>
+                    <p style="font-size: 14px; color: var(--text-main); line-height: 1.5;">Tài khoản này chưa tạo nhân vật. Vui lòng mở Game Ngọc Rồng trên máy, đăng nhập tài khoản và <strong>tạo nhân vật mới</strong> trước khi mua vàng/thao tác nhé!</p>
+                </div>
+
+                <!-- CHARACTER INFO CARD (IF HAS PLAYER) -->
+                <div id="portal-has-char-card" style="display: none; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--cyan); border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+                    <h3 style="color: var(--cyan); font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-address-card"></i> THÔNG TIN NHÂN VẬT TRONG GAME
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-muted);">Tên Nhân Vật:</span>
+                            <div id="portal-char-name" style="font-size: 16px; font-weight: 800; color: #fff;">-</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-muted);">Hành Tinh:</span>
+                            <div id="portal-char-gender" style="font-size: 16px; font-weight: 800; color: var(--gold);">-</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-muted);">ID Nhân Vật:</span>
+                            <div id="portal-char-id" style="font-size: 16px; font-weight: 800; color: var(--cyan);">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BUY GOLD STORE -->
+                <h3 style="color: var(--gold); font-size: 17px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-coins"></i> CỬA HÀNG MUA VÀNG GAME NRO
+                </h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                    
+                    <!-- Package 50 Gold Bars -->
+                    <div class="glass" style="padding: 20px; border: 1px solid rgba(255,215,0,0.4); text-align: center;">
+                        <div style="font-size: 36px; margin-bottom: 8px;">💰</div>
+                        <h4 style="color: var(--gold); font-size: 16px; font-weight: 800;">GÓI 50 THỎI VÀNG</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 50 Thỏi Vàng vào túi đồ</p>
+                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(50)" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; font-weight: 800; width: 100%;">
+                            🛒 MUA 50 THỎI VÀNG
+                        </button>
+                    </div>
+
+                    <!-- Package 200 Gold Bars -->
+                    <div class="glass" style="padding: 20px; border: 1px solid var(--cyan); text-align: center;">
+                        <div style="font-size: 36px; margin-bottom: 8px;">👑</div>
+                        <h4 style="color: var(--cyan); font-size: 16px; font-weight: 800;">GÓI 200 THỎI VÀNG</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 200 Thỏi Vàng VIP</p>
+                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(200)" style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 800; width: 100%;">
+                            🛒 MUA 200 THỎI VÀNG
+                        </button>
+                    </div>
+
+                    <!-- Package 500 Gold Bars -->
+                    <div class="glass" style="padding: 20px; border: 1px solid #b537f2; text-align: center;">
+                        <div style="font-size: 36px; margin-bottom: 8px;">💎</div>
+                        <h4 style="color: #b537f2; font-size: 16px; font-weight: 800;">GÓI 500 THỎI VÀNG</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 500 Thỏi Vàng Siêu Cấp</p>
+                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(500)" style="background: linear-gradient(135deg, #b537f2, #7d2ae8); color: #fff; font-weight: 800; width: 100%;">
+                            🛒 MUA 500 THỎI VÀNG
+                        </button>
+                    </div>
+
+                </div>
+
             </div>
         </div>
 

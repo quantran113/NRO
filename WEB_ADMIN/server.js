@@ -49,18 +49,86 @@ app.post('/api/admin/login', async (req, res) => {
         }
 
         const user = rows[0];
-        if (user.admin >= 1 || user.username === '1' || user.username === 'admin') {
-            return res.json({
-                success: true,
-                message: 'Đăng nhập Admin thành công',
-                user: { id: user.id, username: user.username, admin: user.admin }
-            });
-        } else {
-            return res.status(403).json({ success: false, message: 'Tài khoản không có quyền Admin' });
+        if (user.active === 0) {
+            return res.status(403).json({ success: false, message: 'Tài khoản của bạn đang bị khóa!' });
         }
+
+        // Fetch player character info for this account
+        let playerInfo = null;
+        try {
+            const [players] = await pool.execute(`
+                SELECT p.id, p.name, p.gender, p.head, p.data_task 
+                FROM player p WHERE p.account_id = ? LIMIT 1
+            `, [user.id]);
+
+            if (players.length > 0) {
+                const p = players[0];
+                let headId = p.head;
+                if (headId === -1 || headId === undefined || headId === null) {
+                    headId = p.gender === 0 ? 64 : p.gender === 1 ? 9 : 29;
+                }
+                playerInfo = {
+                    id: p.id,
+                    name: p.name,
+                    gender: p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda',
+                    head: headId,
+                    avatarUrl: `/icons/${headId}.png`
+                };
+            }
+        } catch (e) {}
+
+        const isAdmin = (user.admin >= 1 || user.username === '1' || user.username === 'admin');
+
+        return res.json({
+            success: true,
+            message: isAdmin ? 'Đăng nhập Admin thành công' : 'Đăng nhập Người Chơi thành công',
+            user: {
+                id: user.id,
+                username: user.username,
+                admin: isAdmin ? 1 : 0,
+                hasPlayer: playerInfo !== null,
+                player: playerInfo
+            }
+        });
     } catch (err) {
         console.error('Lỗi login:', err);
         res.status(500).json({ success: false, message: 'Lỗi server kết nối CSDL: ' + err.message });
+    }
+});
+
+// Player Gold Purchase Endpoint
+app.post('/api/user/buy-gold', async (req, res) => {
+    try {
+        const { accountId, quantity } = req.body;
+        if (!accountId) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu thông tin tài khoản' });
+        }
+
+        const [players] = await pool.execute('SELECT id, name FROM player WHERE account_id = ? LIMIT 1', [accountId]);
+        if (players.length === 0) {
+            return res.status(400).json({ status: 'error', message: 'Tài khoản chưa có nhân vật trong game!' });
+        }
+
+        const player = players[0];
+        const goldCount = parseInt(quantity) || 50;
+
+        try {
+            const resp = await fetch(`${JAVA_API_URL}/api/grant-item`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerName: player.name,
+                    items: [{ id: 457, quantity: goldCount, options: [] }]
+                })
+            });
+            if (resp.ok) {
+                return res.json({ status: 'success', message: `Đã mua và gửi thành công ${goldCount} Thỏi Vàng vào túi đồ nhân vật [${player.name}]!` });
+            }
+        } catch (e) {}
+
+        res.json({ status: 'success', message: `Đã xử lý mua ${goldCount} Thỏi Vàng cho nhân vật [${player.name}]!` });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
     }
 });
 

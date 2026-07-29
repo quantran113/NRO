@@ -96,19 +96,46 @@ function clearLoginInputs() {
 }
 
 function checkLoginState() {
-    const isLoggedIn = sessionStorage.getItem('nro_admin_logged');
-    if (isLoggedIn === 'true') {
-        document.getElementById('login-screen').style.display = 'none';
-        initAdminData();
-    } else {
-        document.getElementById('login-screen').style.display = 'flex';
-        clearLoginInputs();
-        [50, 150, 300, 600, 1000].forEach(ms => setTimeout(clearLoginInputs, ms));
+    const saved = sessionStorage.getItem('nro_logged_user');
+    if (saved) {
+        try {
+            currentLoggedUser = JSON.parse(saved);
+            document.getElementById('login-screen').style.display = 'none';
+            if (currentLoggedUser.admin >= 1) {
+                const header = document.querySelector('header');
+                if (header) header.style.display = 'flex';
+                initAdminData();
+            } else {
+                const header = document.querySelector('header');
+                if (header) header.style.display = 'none';
+                document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+                const portal = document.getElementById('player-portal-view');
+                if (portal) portal.style.display = 'block';
+
+                document.getElementById('portal-welcome-name').innerText = `Xin chào, ${currentLoggedUser.username}!`;
+                if (!currentLoggedUser.hasPlayer) {
+                    document.getElementById('portal-no-char-alert').style.display = 'block';
+                    document.getElementById('portal-has-char-card').style.display = 'none';
+                } else {
+                    document.getElementById('portal-no-char-alert').style.display = 'none';
+                    document.getElementById('portal-has-char-card').style.display = 'block';
+                    document.getElementById('portal-char-name').innerText = currentLoggedUser.player.name;
+                    document.getElementById('portal-char-gender').innerText = currentLoggedUser.player.gender;
+                    document.getElementById('portal-char-id').innerText = `#${currentLoggedUser.player.id}`;
+                    document.getElementById('portal-avatar-img').src = currentLoggedUser.player.avatarUrl;
+                }
+            }
+            return;
+        } catch (e) {}
     }
+    document.getElementById('login-screen').style.display = 'flex';
+    clearLoginInputs();
+    [50, 150, 300, 600, 1000].forEach(ms => setTimeout(clearLoginInputs, ms));
 }
 
 function setupLoginForm() {
     const form = document.getElementById('login-form');
+    if (!form) return;
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('admin-user').value.trim();
@@ -123,23 +150,79 @@ function setupLoginForm() {
             const data = await resp.json();
 
             if (data.success) {
-                sessionStorage.setItem('nro_admin_logged', 'true');
+                currentLoggedUser = data.user;
+                sessionStorage.setItem('nro_logged_user', JSON.stringify(data.user));
                 document.getElementById('login-screen').style.display = 'none';
                 showToast(data.message, 'success');
-                initAdminData();
+
+                if (data.user.admin >= 1) {
+                    const header = document.querySelector('header');
+                    if (header) header.style.display = 'flex';
+                    const portal = document.getElementById('player-portal-view');
+                    if (portal) portal.style.display = 'none';
+                    initAdminData();
+                } else {
+                    const header = document.querySelector('header');
+                    if (header) header.style.display = 'none';
+                    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+                    const portal = document.getElementById('player-portal-view');
+                    if (portal) portal.style.display = 'block';
+
+                    document.getElementById('portal-welcome-name').innerText = `Xin chào, ${data.user.username}!`;
+
+                    if (!data.user.hasPlayer) {
+                        document.getElementById('portal-no-char-alert').style.display = 'block';
+                        document.getElementById('portal-has-char-card').style.display = 'none';
+                    } else {
+                        document.getElementById('portal-no-char-alert').style.display = 'none';
+                        document.getElementById('portal-has-char-card').style.display = 'block';
+                        document.getElementById('portal-char-name').innerText = data.user.player.name;
+                        document.getElementById('portal-char-gender').innerText = data.user.player.gender;
+                        document.getElementById('portal-char-id').innerText = `#${data.user.player.id}`;
+                        document.getElementById('portal-avatar-img').src = data.user.player.avatarUrl;
+                    }
+                }
             } else {
                 showToast(data.message || 'Đăng nhập thất bại', 'error');
             }
         } catch (err) {
-            showToast('Không thể kết nối đến Web Admin Server', 'error');
+            showToast('Không thể kết nối đến Web Server', 'error');
         }
     });
 }
 
 function logoutAdmin() {
-    sessionStorage.removeItem('nro_admin_logged');
+    sessionStorage.removeItem('nro_logged_user');
+    currentLoggedUser = null;
     document.getElementById('login-screen').style.display = 'flex';
-    showToast('Đã đăng xuất tài khoản Admin', 'success');
+    clearLoginInputs();
+}
+
+async function buyGoldForPlayer(quantity) {
+    if (!currentLoggedUser) {
+        showToast('Vui lòng đăng nhập lại!', 'error');
+        return;
+    }
+    if (!currentLoggedUser.hasPlayer) {
+        customConfirm(
+            'CHƯA CÓ NHÂN VẬT',
+            'Tài khoản của bạn <strong style="color: var(--red);">chưa tạo nhân vật</strong> trong game.<br>Vui lòng mở Game Ngọc Rồng trên máy, đăng nhập và <strong>tạo nhân vật mới</strong> trước khi mua vàng nhé!',
+            null
+        );
+        return;
+    }
+
+    try {
+        const resp = await fetch('/api/user/buy-gold', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accountId: currentLoggedUser.id, quantity })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+    } catch (e) {
+        showToast('Lỗi khi gửi yêu cầu mua vàng', 'error');
+    }
 }
 
 // --- DATA INITIALIZATION ---
