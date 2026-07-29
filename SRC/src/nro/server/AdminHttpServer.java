@@ -593,9 +593,9 @@ public class AdminHttpServer {
                     if (targetPlayer.pet != null) {
                         switch (petType) {
                             case 1: nro.models.services.PetService.gI().changeMabuPet(targetPlayer, petGender); break;
-                            case 2: nro.models.services.PetService.gI().changeUubPet(targetPlayer); break;
-                            case 3: nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer); break;
-                            case 4: nro.models.services.PetService.gI().changeJirenPet(targetPlayer); break;
+                            case 2: nro.models.services.PetService.gI().changeUubPet(targetPlayer, petGender); break;
+                            case 3: nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer, petGender); break;
+                            case 4: nro.models.services.PetService.gI().changeJirenPet(targetPlayer, petGender); break;
                             default: nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender); break;
                         }
                     } else {
@@ -651,6 +651,7 @@ public class AdminHttpServer {
 
                                     plTarget.pet.joinMapMaster();
                                     nro.models.services.Service.gI().point(plTarget);
+                                    nro.models.services.Service.gI().sendThongBao(plTarget, "Admin vừa cấp/đổi Đệ Tử mới thành công cho bạn!");
                                     nro.models.database.PlayerDAO.updatePlayer(plTarget);
                                 }
                             } catch (Exception e) {

@@ -344,6 +344,9 @@ public class PetService {
 
         pet.nPoint.setFullHpMp();
         player.pet = pet;
+        try {
+            pet.joinMapMaster();
+        } catch (Exception e) {}
     }
 
     public static void Pet2(Player pl, int h, int b, int l) {
