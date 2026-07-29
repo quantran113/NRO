@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NRO Server Admin Control Panel - Cấp Đồ, Đệ Tử & Sự Kiện Realtime</title>
+    <link rel="stylesheet" href="style.css?v=20260729_2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- ADMIN LOGIN & REGISTRATION MODAL -->
+    <div id="login-screen">
+        <div class="login-card glass" style="max-width: 420px; width: 100%;">
+            <div class="brand-icon" style="margin: 0 auto 12px;">
+                <i class="fa-solid fa-dragon"></i>
+            </div>
+            <h2>NRO SERVER PORTAL</h2>
+            
+            <!-- Auth Switcher Tabs -->
+            <div style="display: flex; gap: 8px; margin: 16px 0; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px;">
+                <button id="auth-tab-login" class="nav-btn active" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 13px;" onclick="switchAuthTab('login')">
+                    <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP
+                </button>
+                <button id="auth-tab-register" class="nav-btn" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 13px;" onclick="switchAuthTab('register')">
+                    <i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ MỚI
+                </button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" autocomplete="off" action="javascript:void(0);">
+                <!-- Fake inputs to trick Chrome/Safari Autofill -->
+                <input type="text" name="fakeusernameremembered" style="display:none;" tabindex="-1" />
+                <input type="password" name="fakepasswordremembered" style="display:none;" tabindex="-1" />
+                
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Tài khoản Admin</label>
+                    <input type="text" id="admin-user" name="admin_username_real_sec" class="input-field" placeholder="Nhập tài khoản admin..." autocomplete="off" value="" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-key"></i> Mật khẩu</label>
+                    <input type="password" id="admin-pass" name="admin_password_real_sec" class="input-field" placeholder="Nhập mật khẩu..." autocomplete="new-password" value="" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">
+                    <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP ADMIN
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" autocomplete="off" action="javascript:void(0);" style="display: none;">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user-tag"></i> Tên tài khoản mới</label>
+                    <input type="text" id="reg-user" class="input-field" placeholder="Nhập tài khoản (3-30 ký tự)..." autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-envelope"></i> Địa chỉ Email</label>
+                    <input type="email" id="reg-email" class="input-field" placeholder="Nhập email (VD: user@gmail.com)..." autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-lock"></i> Mật khẩu</label>
+                    <input type="password" id="reg-pass" class="input-field" placeholder="Nhập mật khẩu..." autocomplete="new-password" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-shield-check"></i> Xác nhận mật khẩu</label>
+                    <input type="password" id="reg-pass-confirm" class="input-field" placeholder="Nhập lại mật khẩu..." autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #10b981, #059669);">
+                    <i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ TÀI KHOẢN
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP HEADER -->
+    <header>
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-dragon"></i>
+            </div>
+            <h1>QUẢN TRỊ <span>NRO SERVER</span></h1>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchTab('grant')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> CẤP ĐỒ REALTIME
+            </button>
+            <button class="nav-btn" onclick="switchTab('pet')">
+                <i class="fa-solid fa-paw"></i> CẤP ĐỆ TỬ STUDIO
+            </button>
+            <button class="nav-btn" onclick="switchTab('events')">
+                <i class="fa-solid fa-calendar-star"></i> SỰ KIỆN & X2 TNSM
+            </button>
+            <button class="nav-btn" onclick="switchTab('drops')">
+                <i class="fa-solid fa-dice"></i> QUẢN LÝ RƠI ĐỒ
+            </button>
+            <button class="nav-btn" onclick="switchTab('shops')">
+                <i class="fa-solid fa-store"></i> QUẢN LÝ SHOP NPC
+            </button>
+            <button class="nav-btn" onclick="switchTab('accounts')">
+                <i class="fa-solid fa-users-gear"></i> QUẢN LÝ TÀI KHOẢN
+            </button>
+            <button class="nav-btn" onclick="switchTab('players')">
+                <i class="fa-solid fa-users"></i> DANH SÁCH NHÂN VẬT
+            </button>
+            <button class="nav-btn" onclick="logoutAdmin()">
+                <i class="fa-solid fa-power-off"></i> ĐĂNG XUẤT
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+
+        <!-- DASHBOARD STATS ROW -->
+        <div class="stats-grid">
+            <div class="stat-card glass">
+                <div class="stat-icon"><i class="fa-solid fa-circle-nodes"></i></div>
+                <div class="stat-info">
+                    <h3 id="stat-online">0</h3>
+                    <p>Đang Online Live</p>
+                </div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-icon"><i class="fa-solid fa-users-gear"></i></div>
+                <div class="stat-info">
+                    <h3 id="stat-players">0</h3>
+                    <p>Tổng Nhân Vật</p>
+                </div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-icon"><i class="fa-solid fa-user-shield"></i></div>
+                <div class="stat-info">
+                    <h3 id="stat-accounts">0</h3>
+                    <p>Tài Khoản Game</p>
+                </div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-icon"><i class="fa-solid fa-server"></i></div>
+                <div class="stat-info">
+                    <h3 style="color: var(--green); font-size: 20px;"><i class="fa-solid fa-signal"></i> PORT 14445</h3>
+                    <p>Trạng Thái Java Server</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: CẤP ĐỒ REALTIME STUDIO -->
+        <div id="tab-grant" class="tab-content">
+            <div class="grant-grid">
+
+                <!-- LEFT COLUMN: ITEM CATALOG -->
+                <div class="glass" style="display: flex; flex-direction: column;">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-boxes-stacked"></i> KHO ĐỒ GỐC TRONG GAME</h2>
+                        <span id="item-count-badge" class="badge-online">Đang tải...</span>
+                    </div>
+                    <div class="panel-body" style="flex: 1;">
+                        <div class="item-search-box">
+                            <input type="text" id="item-search" class="input-field" placeholder="🔍 Tìm tên vật phẩm hoặc gõ ID (Áo, Quần, Găng...)..." oninput="filterItems()">
+                        </div>
+                        <div class="item-list-container" id="item-catalog">
+                            <!-- Dynamically loaded -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: MULTI-ITEM GRANT CART STUDIO -->
+                <div class="glass">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-cart-flatbed"></i> DANH SÁCH VẬT PHẨM CẦN CẤP</h2>
+                        <span id="cart-count-badge" class="badge-online" style="background: rgba(0, 243, 255, 0.15); color: var(--cyan); border-color: var(--cyan);">0 Món Trong Giỏ</span>
+                    </div>
+                    <div class="panel-body">
+                        <form id="grant-form" onsubmit="executeBatchGrant(event)">
+
+                            <!-- Target Player Search with Dropdown Auto-Suggest -->
+                            <div class="form-group" style="position: relative;">
+                                <label><i class="fa-solid fa-user-tag"></i> Nhập / Chọn Nhân Vật Nhận Đồ</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="target-player" class="input-field" placeholder="🔍 Nhập hoặc chọn tên nhân vật (ví dụ: admin)..." autocomplete="off" oninput="handlePlayerSearchInput()" onfocus="showPlayerSuggestions()" required>
+                                    <span id="player-status-badge" class="badge-offline" style="align-self: center; white-space: nowrap;">Chưa chọn</span>
+                                </div>
+                                <div id="player-suggestions" class="suggestions-dropdown" style="display: none;"></div>
+                            </div>
+
+                            <!-- DYNAMIC CART ITEMS CONTAINER -->
+                            <div id="cart-items-list" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+                                <!-- Cart item cards rendered dynamically -->
+                            </div>
+
+                            <!-- Submit Batch Grant Button -->
+                            <div style="margin-top: 24px;">
+                                <button type="submit" class="btn-primary" id="btn-grant-action">
+                                    <i class="fa-solid fa-bolt-lightning"></i> CẤP TOÀN BỘ DANH SÁCH (NHẬN LẬP TỨC TRONG GAME)
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB 2: CẤP ĐỆ TỬ STUDIO -->
+        <div id="tab-pet" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 32px; max-width: 850px; margin: 0 auto;">
+                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                    <h2><i class="fa-solid fa-paw" style="color: var(--gold);"></i> QUẢN LÝ & CẤP ĐỆ TỬ REALTIME</h2>
+                </div>
+                <form id="pet-grant-form" onsubmit="executeGrantPet(event)" style="margin-top: 24px;">
+
+                    <!-- Target Player Input -->
+                    <div class="form-group" style="position: relative;">
+                        <label><i class="fa-solid fa-user-tag"></i> Tên Nhân Vật Nhận Đệ Tử</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="target-player-pet" class="input-field" placeholder="🔍 Nhập hoặc chọn tên nhân vật (ví dụ: admin)..." required autocomplete="off" oninput="handlePetPlayerSearchInput()">
+                            <span id="pet-player-status-badge" class="badge-offline" style="align-self: center; white-space: nowrap;">Chưa chọn</span>
+                        </div>
+                        <div id="pet-player-suggestions" class="suggestions-dropdown" style="display: none;"></div>
+                    </div>
+
+                    <!-- Pet Type Selector -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-dragon"></i> Chọn Loại Đệ Tử</label>
+                        <select id="pet-type-select" class="select-field" style="font-size: 15px; font-weight: 700; color: var(--gold);">
+                            <option value="0">👦 Đệ Tử Thường (Trái Đất, Namếc, Xayda)</option>
+                            <option value="1">🍬 Đệ Tử Mabư (Mabư béo siêu ngầu)</option>
+                            <option value="2">💥 Đệ Tử Úp (Siêu Cấp Uub)</option>
+                            <option value="3">🐱 Đệ Tử Beerus (Thần Hủy Diệt Kid Beer)</option>
+                            <option value="4">👽 Đệ Tử Jiren (Chiến Binh Kid Jiren)</option>
+                        </select>
+                    </div>
+
+                    <!-- Pet Gender Selector -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-globe"></i> Hành Tinh / Giới Tính Đệ Tử</label>
+                        <select id="pet-gender-select" class="select-field">
+                            <option value="0">🌍 Trái Đất (Kamejoko / Thái Dương Hạ Tán)</option>
+                            <option value="1">🟢 Namếc (Antimon / Masenko)</option>
+                            <option value="2">⚡ Xayda (Atomic / Quả Cầu Kênh Khi)</option>
+                        </select>
+                    </div>
+
+                    <!-- Pet Power Level Selector -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> Sức Mạnh Khởi Tạo Cho Đệ Tử</label>
+                        <select id="pet-power-select" class="select-field">
+                            <option value="2000">🌱 2,000 Sức Mạnh (Sơ Sinh Mới Nở)</option>
+                            <option value="1500000">🔥 1,500,000 Sức Mạnh (Tiêu Chuẩn Mabư)</option>
+                            <option value="1500000000">⚡ 1,500,000,000 Sức Mạnh (1.5 Tỷ - Mở Skill 2)</option>
+                            <option value="15000000000">💥 15,000,000,000 Sức Mạnh (15 Tỷ - Mở Skill 3)</option>
+                            <option value="40000000000">👑 40,000,000,000 Sức Mạnh (40 Tỷ - Full Skill 4)</option>
+                            <option value="80000000000">🌟 80,000,000,000 Sức Mạnh (80 Tỷ Max Stats)</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="margin-top: 28px;">
+                        <button type="submit" class="btn-primary" id="btn-grant-pet-action" style="background: linear-gradient(135deg, #00f3ff, #b537f2); color: #fff;">
+                            <i class="fa-solid fa-paw"></i> CẤP / ĐỔI ĐỆ TỬ NGAY (REALTIME TRONG GAME)
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 3: QUẢN LÝ SỰ KIỆN & X2 TNSM -->
+        <div id="tab-events" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 32px; max-width: 850px; margin: 0 auto;">
+                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                    <h2><i class="fa-solid fa-calendar-star" style="color: var(--gold);"></i> QUẢN LÝ SỰ KIỆN & X2 EXP/TNSM REALTIME</h2>
+                </div>
+
+                <form id="server-events-form" onsubmit="saveServerEvents(event)" style="margin-top: 24px;">
+
+                    <!-- EXP / TNSM Multiplier Section -->
+                    <div style="background: rgba(0, 243, 255, 0.05); border: 1px solid var(--cyan); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                        <h3 style="color: var(--cyan); font-size: 16px; margin-bottom: 12px;"><i class="fa-solid fa-bolt"></i> HỆ SỐ X2/X5/X10 TIỀM NĂNG SỨC MẠNH (TNSM)</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Tất cả người chơi đánh quái, làm nhiệm vụ sẽ nhận được kinh nghiệm x theo hệ số này ngay lập tức.</p>
+                        
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                                <label style="font-size: 13px;">Nhập Hệ Số TNSM (1 = Mặc Định, 2 = X2, 5 = X5...)</label>
+                                <input type="number" id="exp-rate-input" class="input-field" value="1" min="1" max="100" style="font-size: 18px; font-weight: 800; color: var(--gold);" required>
+                            </div>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="setExpPreset(1)">x1 Mặc Định</button>
+                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px; color: var(--cyan); border-color: var(--cyan);" onclick="setExpPreset(2)">⚡ x2 TNSM</button>
+                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px; color: var(--gold); border-color: var(--gold);" onclick="setExpPreset(5)">🔥 x5 TNSM</button>
+                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px; color: #ff4757; border-color: #ff4757;" onclick="setExpPreset(10)">🚀 x10 TNSM</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Events Toggles Section -->
+                    <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 16px;"><i class="fa-solid fa-gift"></i> BẬT / TẮT CÁC SỰ KIỆN TRONG GAME</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+
+                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #fff; font-size: 14px;">🧧 Tết Nguyên Đán</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Sự kiện lì xì, múa lân, bánh chưng</p>
+                            </div>
+                            <input type="checkbox" id="evt-lunar-new-year" style="width: 22px; height: 22px; cursor: pointer;">
+                        </div>
+
+                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #fff; font-size: 14px;">🌸 Quốc Tế Phụ Nữ (8/3)</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Tặng hoa, làm nhiệm vụ 8/3</p>
+                            </div>
+                            <input type="checkbox" id="evt-womens-day" style="width: 22px; height: 22px; cursor: pointer;">
+                        </div>
+
+                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #fff; font-size: 14px;">🎃 Sự Kiện Halloween</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Bí ngô, kẹo ma quái, cải trang</p>
+                            </div>
+                            <input type="checkbox" id="evt-halloween" style="width: 22px; height: 22px; cursor: pointer;">
+                        </div>
+
+                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #fff; font-size: 14px;">🎄 Giáng Sinh / Noel</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Cây thông, Ông già Noel phát quà</p>
+                            </div>
+                            <input type="checkbox" id="evt-christmas" style="width: 22px; height: 22px; cursor: pointer;">
+                        </div>
+
+                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #fff; font-size: 14px;">👑 Giỗ Tổ Hùng Vương</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Dưa hấu, Sơn Tinh Thủy Tinh</p>
+                            </div>
+                            <input type="checkbox" id="evt-hung-vuong" style="width: 22px; height: 22px; cursor: pointer;">
+                        </div>
+
+                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #fff; font-size: 14px;">🥮 Tết Trung Thu</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Bánh trung thu, Chị Hằng Thỏ Ngọc</p>
+                            </div>
+                            <input type="checkbox" id="evt-trung-thu" style="width: 22px; height: 22px; cursor: pointer;">
+                        </div>
+
+                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; grid-column: 1 / -1;">
+                            <div>
+                                <h4 style="color: #fff; font-size: 14px;">💳 Sự Kiện Khuyến Mãi Nạp</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Tăng % giá trị khuyến mãi nạp ngọc/vàng</p>
+                            </div>
+                            <input type="checkbox" id="evt-top-up" style="width: 22px; height: 22px; cursor: pointer;">
+                        </div>
+
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit" class="btn-primary" id="btn-save-events" style="background: linear-gradient(135deg, #00f3ff, #00ff87); color: #000; font-weight: 800;">
+                            <i class="fa-solid fa-floppy-disk"></i> LƯU & ÁP DỤNG CÀI ĐẶT SỰ KIỆN / X2 TNSM REALTIME
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- TAB 4: QUẢN LÝ TỈ LỆ RƠI VẬT PHẨM THEO MAP -->
+        <div id="tab-drops" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 32px; max-width: 950px; margin: 0 auto;">
+                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                    <h2><i class="fa-solid fa-dice" style="color: var(--gold);"></i> QUẢN LÝ TỈ LỆ RƠI ĐỒ & VẬT PHẨM THEO MAP REALTIME</h2>
+                </div>
+
+                <!-- Add New Drop Rule Form -->
+                <div class="glass" style="padding: 20px; margin-top: 24px; margin-bottom: 24px; border: 1px dashed var(--cyan);">
+                    <h3 style="color: var(--cyan); font-size: 15px; margin-bottom: 16px;"><i class="fa-solid fa-plus-circle"></i> THÊM QUY TẮC RƠI ĐỒ THEO MAP MỚI</h3>
+                    <form onsubmit="addDropRule(event)" style="display: grid; grid-template-columns: 1.5fr 1.5fr 1fr 1fr auto; gap: 12px; align-items: end;">
+                        
+                        <!-- Map Selection Input with Auto-Suggest -->
+                        <div class="form-group" style="margin-bottom: 0; position: relative;">
+                            <label style="font-size: 11px;">Chọn Map (-1 = Tất Cả Map)</label>
+                            <input type="text" id="rule-map-search" class="input-field" placeholder="🔍 Gõ tên hoặc ID Map..." autocomplete="off" oninput="handleMapSearchInput()" onfocus="handleMapSearchInput()" required>
+                            <input type="hidden" id="rule-map-id" value="-1">
+                            <div id="map-suggestions" class="suggestions-dropdown" style="display: none;"></div>
+                        </div>
+
+                        <!-- Item Selection Input with Auto-Suggest -->
+                        <div class="form-group" style="margin-bottom: 0; position: relative;">
+                            <label style="font-size: 11px;">Chọn Vật Phẩm Rơi</label>
+                            <input type="text" id="rule-item-search" class="input-field" placeholder="🔍 Gõ tên hoặc ID Món..." autocomplete="off" oninput="handleRuleItemSearchInput()" onfocus="handleRuleItemSearchInput()" required>
+                            <input type="hidden" id="rule-item-id">
+                            <div id="rule-item-suggestions" class="suggestions-dropdown" style="display: none;"></div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 11px;">Số Lượng</label>
+                            <input type="number" id="rule-quantity" class="input-field" value="1" min="1" required>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 11px;">Tỉ Lệ Rơi (%)</label>
+                            <input type="number" id="rule-rate-percent" class="input-field" placeholder="Ví dụ: 5" min="1" max="100" required>
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="btn-primary" style="padding: 10px 16px; font-size: 13px;">
+                                <i class="fa-solid fa-plus"></i> THÊM RULE
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Drop Rules Table -->
+                <h3 style="color: #fff; font-size: 15px; margin-bottom: 12px;"><i class="fa-solid fa-list-check"></i> DANH SÁCH QUY TẮC RƠI ĐỒ ĐANG ÁP DỤNG</h3>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
+                            <th style="padding: 12px;">MAP</th>
+                            <th style="padding: 12px;">VẬT PHẨM RƠI</th>
+                            <th style="padding: 12px;">SỐ LƯỢNG</th>
+                            <th style="padding: 12px;">TỈ LỆ RƠI (%)</th>
+                            <th style="padding: 12px;">TRẠNG THÁI</th>
+                            <th style="padding: 12px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="drop-rules-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <!-- TAB 5: QUẢN LÝ SHOP NPC REALTIME -->
+        <div id="tab-shops" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 32px; max-width: 1000px; margin: 0 auto;">
+                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                    <h2><i class="fa-solid fa-store" style="color: var(--gold);"></i> QUẢN LÝ VẬT PHẨM & GIÁ BÁN TRONG SHOP NPC REALTIME</h2>
+                </div>
+
+                <!-- Add New Item to NPC Shop Form -->
+                <div class="glass" style="padding: 20px; margin-top: 24px; margin-bottom: 24px; border: 1px dashed var(--gold);">
+                    <h3 style="color: var(--gold); font-size: 15px; margin-bottom: 16px;"><i class="fa-solid fa-cart-plus"></i> THÊM MÓN ĐỒ MỚI VÀO SHOP NPC</h3>
+                    <form onsubmit="addNpcShopItem(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <!-- NPC Selector -->
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 12px;"><i class="fa-solid fa-user-ninja"></i> Chọn NPC Bán</label>
+                                <select id="shop-npc-select" class="select-field" style="font-weight: 700; color: var(--cyan);" onchange="handleNpcShopSelectChange()"></select>
+                            </div>
+                            <!-- Tab Shop Selector -->
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 12px;"><i class="fa-solid fa-folder-open"></i> Chọn Tab Shop</label>
+                                <select id="shop-tab-select" class="select-field" style="font-weight: 700; color: var(--gold);" onchange="renderSelectedShopItemsTable()"></select>
+                            </div>
+                            <!-- Currency Selector -->
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 12px;"><i class="fa-solid fa-coins"></i> Loại Tiền Tệ Mua</label>
+                                <select id="shop-currency-select" class="select-field" style="font-weight: 700;">
+                                    <option value="0|-1">💰 Vàng (Gold)</option>
+                                    <option value="1|-1">💎 Ngọc Xanh (Gem)</option>
+                                    <option value="3|-1">🔴 Hồng Ngọc (Ruby)</option>
+                                    <option value="4|-1">🎟️ Điểm Thưởng / Coupon</option>
+                                    <option value="0|4028">🪙 Thỏi Vàng (Item 457)</option>
+                                    <option value="0|419">⭐ Ngọc Rồng 1 Sao</option>
+                                    <option value="0|420">⭐ Ngọc Rồng 2 Sao</option>
+                                    <option value="0|421">⭐ Ngọc Rồng 3 Sao</option>
+                                    <option value="0|422">⭐ Ngọc Rồng 4 Sao</option>
+                                    <option value="0|423">⭐ Ngọc Rồng 5 Sao</option>
+                                    <option value="0|424">⭐ Ngọc Rồng 6 Sao</option>
+                                    <option value="0|425">⭐ Ngọc Rồng 7 Sao</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; margin-bottom: 16px; align-items: end;">
+                            <!-- Item Selection with Auto-Suggest -->
+                            <div class="form-group" style="margin-bottom: 0; position: relative;">
+                                <label style="font-size: 12px;"><i class="fa-solid fa-box-open"></i> Chọn Vật Phẩm Bán</label>
+                                <input type="text" id="shop-item-search" class="input-field" placeholder="🔍 Gõ tên hoặc ID món đồ..." autocomplete="off" oninput="handleShopItemSearchInput()" onfocus="handleShopItemSearchInput()" required>
+                                <input type="hidden" id="shop-item-id">
+                                <div id="shop-item-suggestions" class="suggestions-dropdown" style="display: none;"></div>
+                            </div>
+                            <!-- Cost Input -->
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 12px;"><i class="fa-solid fa-tag"></i> Giá Bán</label>
+                                <input type="number" id="shop-item-cost" class="input-field" value="1000" min="0" required>
+                            </div>
+                            <!-- Is New Checkbox -->
+                            <div class="form-group" style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="shop-item-isnew" style="width: 20px; height: 20px;">
+                                <label for="shop-item-isnew" style="margin-bottom: 0; font-size: 13px; cursor: pointer; color: var(--cyan);">Gắn Nhãn "NEW"</label>
+                            </div>
+                        </div>
+
+                        <!-- Item Options Creator -->
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 12px; margin: 0;"><i class="fa-solid fa-bolt"></i> Chỉ Số Option Của Đồ Bán Trong Shop</label>
+                                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="addShopOptionRow()">
+                                    <i class="fa-solid fa-plus"></i> Thêm Chỉ Số
+                                </button>
+                            </div>
+                            <div id="shop-item-options-list"></div>
+                        </div>
+
+                        <div>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #00f3ff, #00ff87); color: #000; font-weight: 800;">
+                                <i class="fa-solid fa-plus-circle"></i> THÊM MÓN ĐỒ VÀO SHOP NPC REALTIME
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Existing Items in Selected Shop Table -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> CÁC MÓN ĐỒ ĐANG BÁN TRONG TAB SHOP</h3>
+                    <span id="shop-items-count-badge" class="badge-online" style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border-color: var(--gold);">0 Món</span>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
+                            <th style="padding: 12px;">VẬT PHẨM</th>
+                            <th style="padding: 12px;">GIÁ BÁN</th>
+                            <th style="padding: 12px;">LOẠI TIỀN</th>
+                            <th style="padding: 12px;">CHỈ SỐ OPTION</th>
+                            <th style="padding: 12px;">NHÃN</th>
+                            <th style="padding: 12px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shop-items-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <!-- TAB 6: QUẢN LÝ TÀI KHOẢN & ĐĂNG KÝ -->
+        <div id="tab-accounts" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 24px;">
+                <div class="panel-header" style="border: none; padding: 0 0 16px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <h2><i class="fa-solid fa-users-gear"></i> QUẢN LÝ TÀI KHOẢN HỆ THỐNG</h2>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="text" id="account-table-search" class="input-field" placeholder="🔍 Tìm tên tài khoản..." style="max-width: 250px;" oninput="renderAccountTable()">
+                        <button class="btn-primary" style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, #10b981, #059669);" onclick="openQuickCreateAccountModal()">
+                            <i class="fa-solid fa-user-plus"></i> + ĐĂNG KÝ TÀI KHOẢN MỚI
+                        </button>
+                    </div>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
+                            <th style="padding: 12px;">ID</th>
+                            <th style="padding: 12px;">TÊN TÀI KHOẢN</th>
+                            <th style="padding: 12px;">MẬT KHẨU</th>
+                            <th style="padding: 12px;">SỐ NHÂN VẬT</th>
+                            <th style="padding: 12px;">QUẢN TRỊ (ADMIN)</th>
+                            <th style="padding: 12px;">TRẠNG THÁI</th>
+                            <th style="padding: 12px;">NGÀY TẠO</th>
+                            <th style="padding: 12px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="account-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 7: DANH SÁCH NHÂN VẬT & AVATAR -->
+        <div id="tab-players" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 24px;">
+                <div class="panel-header" style="border: none; padding: 0 0 16px 0;">
+                    <h2><i class="fa-solid fa-address-book"></i> DANH SÁCH NHÂN VẬT KHÁCH HÀNG</h2>
+                    <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..." style="max-width: 300px;" oninput="renderPlayerTable()">
+                </div>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
+                            <th style="padding: 12px;">ID</th>
+                            <th style="padding: 12px;">AVATAR / TÊN NHÂN VẬT</th>
+                            <th style="padding: 12px;">TÀI KHOẢN</th>
+                            <th style="padding: 12px;">HÀNH TINH</th>
+                            <th style="padding: 12px;">NHIỆM VỤ HIỆN TẠI</th>
+                            <th style="padding: 12px;">TRẠNG THÁI</th>
+                            <th style="padding: 12px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="player-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <script src="app.js?v=20260729_2"></script>
+</body>
+</html>

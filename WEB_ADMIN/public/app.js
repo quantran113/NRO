@@ -1,0 +1,1684 @@
+// Global Application State
+let itemTemplates = [];
+let mapTemplates = [];
+let optionTemplates = [];
+let playersList = [];
+let accountsList = [];
+
+// --- AUTH & SWITCHER ---
+function switchAuthTab(type) {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const tabLogin = document.getElementById('auth-tab-login');
+    const tabRegister = document.getElementById('auth-tab-register');
+
+    if (type === 'register') {
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'block';
+        if (tabLogin) tabLogin.classList.remove('active');
+        if (tabRegister) tabRegister.classList.add('active');
+    } else {
+        if (registerForm) registerForm.style.display = 'none';
+        if (loginForm) loginForm.style.display = 'block';
+        if (tabRegister) tabRegister.classList.remove('active');
+        if (tabLogin) tabLogin.classList.add('active');
+    }
+}
+
+function setupRegisterForm() {
+    const form = document.getElementById('register-form');
+    if (!form) return;
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('reg-user').value.trim();
+        const emailEl = document.getElementById('reg-email');
+        const email = emailEl ? emailEl.value.trim() : '';
+        const password = document.getElementById('reg-pass').value.trim();
+        const confirmPass = document.getElementById('reg-pass-confirm').value.trim();
+
+        if (password !== confirmPass) {
+            return showToast('Mật khẩu xác nhận không khớp!', 'error');
+        }
+
+        try {
+            const resp = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+            const data = await resp.json();
+
+            if (data.status === 'success') {
+                showToast(data.message, 'success');
+                document.getElementById('admin-user').value = username;
+                document.getElementById('admin-pass').value = password;
+                switchAuthTab('login');
+            } else {
+                showToast(data.message || 'Đăng ký thất bại', 'error');
+            }
+        } catch (err) {
+            showToast('Lỗi khi đăng ký tài khoản', 'error');
+        }
+    });
+}
+let cartItems = []; // Array of items to be granted to player
+let dropRulesList = [];
+let npcShopsList = [];
+let newShopItemOptions = [];
+let currentTab = 'grant';
+
+// Popular default NRO option templates for quick selection
+const POPULAR_OPTIONS = [
+    { id: 0, name: 'Sức đánh' },
+    { id: 6, name: 'HP' },
+    { id: 7, name: 'KI' },
+    { id: 14, name: 'Chí mạng (%)' },
+    { id: 50, name: 'Sức đánh (%)' },
+    { id: 77, name: 'HP (%)' },
+    { id: 103, name: 'KI (%)' },
+    { id: 30, name: 'Không thể giao dịch' },
+    { id: 93, name: 'Hạn sử dụng (ngày)' }
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+    checkLoginState();
+    setupLoginForm();
+    setupRegisterForm();
+    setupOutsideClickListener();
+});
+
+// --- LOGIN & AUTH ---
+function clearLoginInputs() {
+    const u = document.getElementById('admin-user');
+    const p = document.getElementById('admin-pass');
+    if (u) u.value = '';
+    if (p) p.value = '';
+}
+
+function checkLoginState() {
+    const isLoggedIn = sessionStorage.getItem('nro_admin_logged');
+    if (isLoggedIn === 'true') {
+        document.getElementById('login-screen').style.display = 'none';
+        initAdminData();
+    } else {
+        document.getElementById('login-screen').style.display = 'flex';
+        clearLoginInputs();
+        [50, 150, 300, 600, 1000].forEach(ms => setTimeout(clearLoginInputs, ms));
+    }
+}
+
+function setupLoginForm() {
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('admin-user').value.trim();
+        const password = document.getElementById('admin-pass').value.trim();
+
+        try {
+            const resp = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                sessionStorage.setItem('nro_admin_logged', 'true');
+                document.getElementById('login-screen').style.display = 'none';
+                showToast(data.message, 'success');
+                initAdminData();
+            } else {
+                showToast(data.message || 'Đăng nhập thất bại', 'error');
+            }
+        } catch (err) {
+            showToast('Không thể kết nối đến Web Admin Server', 'error');
+        }
+    });
+}
+
+function logoutAdmin() {
+    sessionStorage.removeItem('nro_admin_logged');
+    document.getElementById('login-screen').style.display = 'flex';
+    showToast('Đã đăng xuất tài khoản Admin', 'success');
+}
+
+// --- DATA INITIALIZATION ---
+async function initAdminData() {
+    loadStats();
+    await loadItemTemplates();
+    await loadMapTemplates();
+    await loadOptionTemplates();
+    await loadPlayers();
+    loadServerEvents();
+    loadDropRules();
+    loadNpcShops();
+
+    // Auto-add default item 0 (Áo) to cart if empty
+    if (itemTemplates.length > 0 && cartItems.length === 0) {
+        addItemToCart(itemTemplates[0].id);
+    }
+}
+
+async function loadStats() {
+    try {
+        const resp = await fetch('/api/admin/stats');
+        if (resp.ok) {
+            const data = await resp.json();
+            document.getElementById('stat-accounts').innerText = data.totalAccounts || 0;
+            document.getElementById('stat-players').innerText = data.totalPlayers || 0;
+            document.getElementById('stat-online').innerText = data.onlinePlayers || 0;
+        }
+    } catch (e) {
+        console.error('Failed to load stats', e);
+    }
+}
+
+async function loadItemTemplates() {
+    try {
+        const resp = await fetch('/api/item-templates');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (Array.isArray(data) && data.length > 0) {
+                itemTemplates = data;
+                document.getElementById('item-count-badge').innerText = itemTemplates.length + ' Món';
+                renderItemCatalog(itemTemplates.slice(0, 120));
+                return;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load item templates', e);
+    }
+    document.getElementById('item-count-badge').innerText = '0 Món (Đang kết nối DB)';
+}
+
+async function loadMapTemplates() {
+    try {
+        const resp = await fetch('/api/map-templates');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (Array.isArray(data)) {
+                mapTemplates = data;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load map templates', e);
+    }
+}
+
+async function loadOptionTemplates() {
+    try {
+        const resp = await fetch('/api/option-templates');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (Array.isArray(data) && data.length > 0) {
+                optionTemplates = data;
+                return;
+            }
+        }
+    } catch (e) {}
+    optionTemplates = POPULAR_OPTIONS;
+}
+
+async function loadPlayers() {
+    try {
+        const resp = await fetch('/api/players');
+        if (resp.ok) {
+            playersList = await resp.json();
+            renderPlayerTable();
+            checkTargetPlayerStatus();
+        }
+    } catch (e) {
+        console.error('Failed to load players', e);
+    }
+}
+
+// --- NPC SHOP MANAGEMENT STUDIO ---
+async function loadNpcShops() {
+    try {
+        const resp = await fetch('/api/npc-shops');
+        if (resp.ok) {
+            npcShopsList = await resp.json();
+            populateNpcShopSelect();
+        }
+    } catch (e) {
+        console.error('Failed to load NPC shops', e);
+    }
+}
+
+function populateNpcShopSelect() {
+    const npcSelect = document.getElementById('shop-npc-select');
+    if (!npcSelect) return;
+
+    npcSelect.innerHTML = '';
+    if (!npcShopsList || npcShopsList.length === 0) {
+        npcSelect.innerHTML = '<option value="">Không tìm thấy Shop NPC</option>';
+        return;
+    }
+
+    npcShopsList.forEach(shop => {
+        const opt = document.createElement('option');
+        opt.value = shop.shopId;
+        opt.innerText = `[NPC #${shop.npcId}] ${shop.npcName} (${shop.tagName})`;
+        npcSelect.appendChild(opt);
+    });
+
+    handleNpcShopSelectChange();
+}
+
+function handleNpcShopSelectChange() {
+    const shopId = parseInt(document.getElementById('shop-npc-select').value);
+    const tabSelect = document.getElementById('shop-tab-select');
+    tabSelect.innerHTML = '';
+
+    const shopObj = npcShopsList.find(s => s.shopId === shopId);
+    if (!shopObj || !shopObj.tabs || shopObj.tabs.length === 0) {
+        tabSelect.innerHTML = '<option value="">Không có tab shop nào</option>';
+        renderSelectedShopItemsTable();
+        return;
+    }
+
+    shopObj.tabs.forEach(tab => {
+        const opt = document.createElement('option');
+        opt.value = tab.tabId;
+        opt.innerText = `Tab #${tab.tabId}: ${tab.name}`;
+        tabSelect.appendChild(opt);
+    });
+
+    renderSelectedShopItemsTable();
+}
+
+function renderSelectedShopItemsTable() {
+    const shopId = parseInt(document.getElementById('shop-npc-select').value);
+    const tabId = parseInt(document.getElementById('shop-tab-select').value);
+    const tbody = document.getElementById('shop-items-table-body');
+    const badge = document.getElementById('shop-items-count-badge');
+    tbody.innerHTML = '';
+
+    const shopObj = npcShopsList.find(s => s.shopId === shopId);
+    if (!shopObj) {
+        badge.innerText = '0 Món';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">Vui lòng chọn Shop NPC</td></tr>';
+        return;
+    }
+
+    const tabObj = shopObj.tabs ? shopObj.tabs.find(t => t.tabId === tabId) : null;
+    if (!tabObj || !tabObj.items || tabObj.items.length === 0) {
+        badge.innerText = '0 Món';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">Tab Shop này chưa có món đồ nào</td></tr>';
+        return;
+    }
+
+    badge.innerText = tabObj.items.length + ' Món Đang Bán';
+
+    tabObj.items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+
+        let currencyBadge = '';
+        if (item.iconSpec === 4028) {
+            currencyBadge = '<span style="color: var(--gold); font-weight: 700;">🪙 Thỏi Vàng</span>';
+        } else if (item.iconSpec >= 419 && item.iconSpec <= 425) {
+            const star = item.iconSpec - 418;
+            currencyBadge = `<span style="color: var(--gold); font-weight: 700;">⭐ Ngọc Rồng ${star} Sao</span>`;
+        } else if (item.iconSpec > 0) {
+            currencyBadge = `<span style="color: var(--cyan); font-weight: 700;">🎒 Item Icon #${item.iconSpec}</span>`;
+        } else if (item.typeSell === 0) {
+            currencyBadge = '<span style="color: var(--gold); font-weight: 700;">💰 Vàng</span>';
+        } else if (item.typeSell === 1) {
+            currencyBadge = '<span style="color: var(--cyan); font-weight: 700;">💎 Ngọc Xanh</span>';
+        } else if (item.typeSell === 3) {
+            currencyBadge = '<span style="color: #ff4757; font-weight: 700;">🔴 Hồng Ngọc</span>';
+        } else {
+            currencyBadge = '<span style="color: #b537f2; font-weight: 700;">🎟️ Coupon</span>';
+        }
+
+        const newTag = item.isNew ? '<span class="badge-online" style="font-size: 10px; background: rgba(0, 255, 135, 0.2); color: #00ff87;">NEW</span>' : '-';
+
+        let optsText = '';
+        if (item.options && item.options.length > 0) {
+            optsText = item.options.map(o => {
+                const optT = (optionTemplates || POPULAR_OPTIONS).find(pt => pt.id === o.id);
+                const optName = optT ? optT.name : `Opt #${o.id}`;
+                return `<span style="font-size: 11px; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; display: inline-block; margin: 2px;">#${o.id} ${escapeHtml(optName)}: +${o.param}</span>`;
+            }).join(' ');
+        } else {
+            optsText = '<span style="color: var(--text-muted); font-size: 12px;">Không có chỉ số</span>';
+        }
+
+        const iconId = item.iconId !== undefined && item.iconId !== null ? item.iconId : item.tempId;
+
+        tr.innerHTML = `
+            <td style="padding: 12px; font-weight: 700; color: #fff;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" style="width: 24px; height: 24px;" alt="">
+                    <span>#${item.tempId} - ${escapeHtml(item.name)}</span>
+                </div>
+            </td>
+            <td style="padding: 12px; color: var(--gold); font-weight: 800; font-size: 15px;">${item.cost.toLocaleString('vi-VN')}</td>
+            <td style="padding: 12px;">${currencyBadge}</td>
+            <td style="padding: 12px;">${optsText}</td>
+            <td style="padding: 12px;">${newTag}</td>
+            <td style="padding: 12px;">
+                <button type="button" class="btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="deleteNpcShopItem(${item.id})">
+                    <i class="fa-solid fa-trash"></i> Xóa
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function handleShopItemSearchInput() {
+    const input = document.getElementById('shop-item-search');
+    const val = input.value.trim().toLowerCase();
+    const dropdown = document.getElementById('shop-item-suggestions');
+    const hiddenId = document.getElementById('shop-item-id');
+
+    if (itemTemplates.length === 0) {
+        await loadItemTemplates();
+    }
+
+    let matches = itemTemplates;
+    if (val) {
+        if (!isNaN(val)) {
+            hiddenId.value = val;
+            matches = itemTemplates.filter(i => i.id.toString().includes(val) || (i.name && i.name.toLowerCase().includes(val)));
+        } else {
+            matches = itemTemplates.filter(i => i.name && i.name.toLowerCase().includes(val));
+        }
+    }
+
+    if (!matches || matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    dropdown.innerHTML = '';
+    matches.slice(0, 15).forEach(i => {
+        const iconId = (i.iconID !== undefined && i.iconID !== null) ? i.iconID : i.icon_id || i.id;
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = `
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" style="width: 20px; height: 20px;" alt="">
+                #${i.id} - <strong>${escapeHtml(i.name)}</strong>
+            </span>
+        `;
+        item.onclick = () => {
+            input.value = `#${i.id} - ${i.name}`;
+            hiddenId.value = i.id;
+            dropdown.style.display = 'none';
+        };
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = 'block';
+}
+
+function addShopOptionRow() {
+    newShopItemOptions.push({ id: 0, param: 10 });
+    renderShopOptionsList();
+}
+
+function removeShopOptionRow(idx) {
+    if (idx >= 0 && idx < newShopItemOptions.length) {
+        newShopItemOptions.splice(idx, 1);
+        renderShopOptionsList();
+    }
+}
+
+function updateShopOptionValue(idx, field, val) {
+    if (newShopItemOptions[idx]) {
+        newShopItemOptions[idx][field] = parseInt(val) || 0;
+    }
+}
+
+function renderShopOptionsList() {
+    const container = document.getElementById('shop-item-options-list');
+    container.innerHTML = '';
+
+    const listToUse = (optionTemplates && optionTemplates.length > 0) ? optionTemplates : POPULAR_OPTIONS;
+
+    newShopItemOptions.forEach((opt, idx) => {
+        let selectOptions = '';
+        listToUse.forEach(o => {
+            const sel = o.id === opt.id ? 'selected' : '';
+            selectOptions += `<option value="${o.id}" ${sel}>${o.id} - ${escapeHtml(o.name)}</option>`;
+        });
+
+        const row = document.createElement('div');
+        row.className = 'option-row';
+        row.style.marginBottom = '8px';
+        row.innerHTML = `
+            <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
+                <input type="text" class="input-field" placeholder="🔍 Gõ tên hoặc ID để lọc..." style="padding: 4px 8px; font-size: 11px; background: rgba(0,0,0,0.5);" oninput="filterOptionSelect(this, null, null, ${idx})" />
+                <select class="select-field" style="width: 100%; font-size: 12px;" onchange="updateShopOptionValue(${idx}, 'id', this.value)">
+                    ${selectOptions}
+                </select>
+            </div>
+            <input type="number" class="input-field" value="${opt.param}" style="flex: 1;" placeholder="Param..." oninput="updateShopOptionValue(${idx}, 'param', this.value)" required>
+            <button type="button" class="btn-danger" style="align-self: flex-end; padding: 8px;" onclick="removeShopOptionRow(${idx})">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+        container.appendChild(row);
+    });
+}
+
+async function addNpcShopItem(e) {
+    e.preventDefault();
+
+    const tabId = parseInt(document.getElementById('shop-tab-select').value);
+    const tempId = parseInt(document.getElementById('shop-item-id').value);
+    const cost = parseInt(document.getElementById('shop-item-cost').value) || 0;
+    const currencyVal = document.getElementById('shop-currency-select').value;
+    const parts = currencyVal.split('|');
+    const typeSell = parseInt(parts[0]) || 0;
+    const iconSpec = parts.length > 1 ? parseInt(parts[1]) : -1;
+    const isNew = document.getElementById('shop-item-isnew').checked ? 1 : 0;
+
+    if (isNaN(tabId) || isNaN(tempId)) {
+        showToast('Vui lòng chọn hoặc nhập ID Vật Phẩm!', 'error');
+        return;
+    }
+
+    try {
+        const resp = await fetch('/api/npc-shops', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'add_item',
+                tabId: tabId,
+                tempId: tempId,
+                cost: cost,
+                typeSell: typeSell,
+                iconSpec: iconSpec,
+                isNew: isNew,
+                options: newShopItemOptions
+            })
+        });
+
+        const result = await resp.json();
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+            document.getElementById('shop-item-search').value = '';
+            document.getElementById('shop-item-id').value = '';
+            newShopItemOptions = [];
+            renderShopOptionsList();
+            await loadNpcShops();
+        } else {
+            showToast(result.message || 'Thêm vật phẩm thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server', 'error');
+    }
+}
+
+async function deleteNpcShopItem(itemShopId) {
+    try {
+        const resp = await fetch('/api/npc-shops', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'delete_item', itemShopId: itemShopId })
+        });
+        const result = await resp.json();
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+            await loadNpcShops();
+        } else {
+            showToast(result.message || 'Xóa thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server', 'error');
+    }
+}
+
+// --- ITEM DROP RULES MANAGEMENT & MAP SUGGESTIONS ---
+async function loadDropRules() {
+    try {
+        const resp = await fetch('/api/drop-rules');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data) {
+                dropRulesList = data.rules || [];
+                renderDropRulesTable();
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load drop rules', e);
+    }
+}
+
+async function handleMapSearchInput() {
+    const input = document.getElementById('rule-map-search');
+    const val = input.value.trim().toLowerCase();
+    const dropdown = document.getElementById('map-suggestions');
+    const hiddenId = document.getElementById('rule-map-id');
+
+    if (mapTemplates.length === 0) {
+        await loadMapTemplates();
+    }
+
+    let matches = mapTemplates;
+    if (val && val !== '-1' && !val.includes('tất cả')) {
+        if (!isNaN(val)) {
+            hiddenId.value = val;
+            matches = mapTemplates.filter(m => m.id.toString().includes(val) || (m.name && m.name.toLowerCase().includes(val)));
+        } else {
+            matches = mapTemplates.filter(m => m.name && m.name.toLowerCase().includes(val));
+        }
+    }
+
+    dropdown.innerHTML = '';
+    
+    // Add "All Maps" option at top
+    const allItem = document.createElement('div');
+    allItem.className = 'suggestion-item';
+    allItem.innerHTML = '<span><i class="fa-solid fa-earth-americas" style="color: var(--gold);"></i> <strong>TẤT CẢ MAP (-1)</strong></span>';
+    allItem.onclick = () => {
+        input.value = 'TẤT CẢ MAP (-1)';
+        hiddenId.value = '-1';
+        dropdown.style.display = 'none';
+    };
+    dropdown.appendChild(allItem);
+
+    if (matches && matches.length > 0) {
+        matches.slice(0, 15).forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.innerHTML = `<span><i class="fa-solid fa-map-location-dot" style="color: var(--cyan);"></i> Map #${m.id} - <strong>${escapeHtml(m.name)}</strong></span>`;
+            item.onclick = () => {
+                input.value = `Map #${m.id} - ${m.name}`;
+                hiddenId.value = m.id;
+                dropdown.style.display = 'none';
+            };
+            dropdown.appendChild(item);
+        });
+    }
+
+    dropdown.style.display = 'block';
+}
+
+async function handleRuleItemSearchInput() {
+    const input = document.getElementById('rule-item-search');
+    const val = input.value.trim().toLowerCase();
+    const dropdown = document.getElementById('rule-item-suggestions');
+    const hiddenId = document.getElementById('rule-item-id');
+
+    if (itemTemplates.length === 0) {
+        await loadItemTemplates();
+    }
+
+    let matches = itemTemplates;
+    if (val) {
+        if (!isNaN(val)) {
+            hiddenId.value = val;
+            matches = itemTemplates.filter(i => i.id.toString().includes(val) || (i.name && i.name.toLowerCase().includes(val)));
+        } else {
+            matches = itemTemplates.filter(i => i.name && i.name.toLowerCase().includes(val));
+        }
+    }
+
+    if (!matches || matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    dropdown.innerHTML = '';
+    matches.slice(0, 15).forEach(i => {
+        const iconId = (i.iconID !== undefined && i.iconID !== null) ? i.iconID : i.icon_id || i.id;
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = `
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" style="width: 20px; height: 20px;" alt="">
+                #${i.id} - <strong>${escapeHtml(i.name)}</strong>
+            </span>
+        `;
+        item.onclick = () => {
+            input.value = `#${i.id} - ${i.name}`;
+            hiddenId.value = i.id;
+            dropdown.style.display = 'none';
+        };
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = 'block';
+}
+
+function renderDropRulesTable() {
+    const tbody = document.getElementById('drop-rules-table-body');
+    tbody.innerHTML = '';
+
+    if (!dropRulesList || dropRulesList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">Chưa có quy tắc rơi đồ nào được cài đặt</td></tr>';
+        return;
+    }
+
+    dropRulesList.forEach(rule => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+
+        const itemObj = itemTemplates.find(i => i.id === rule.itemId);
+        const itemName = itemObj ? itemObj.name : `Vật phẩm #${rule.itemId}`;
+        
+        let mapText = '';
+        if (rule.mapId === -1) {
+            mapText = '<span style="color: var(--gold); font-weight: 700;"><i class="fa-solid fa-earth-americas"></i> TẤT CẢ MAP (-1)</span>';
+        } else {
+            const mapObj = mapTemplates.find(m => m.id === rule.mapId);
+            const mapName = mapObj ? mapObj.name : `Map #${rule.mapId}`;
+            mapText = `<span style="color: var(--cyan); font-weight: 700;"><i class="fa-solid fa-map-location-dot"></i> #${rule.mapId} - ${escapeHtml(mapName)}</span>`;
+        }
+
+        const statusBadge = rule.active 
+            ? '<span class="badge-online" style="cursor: pointer;" onclick="toggleDropRule(' + rule.id + ')">ĐANG BẬT</span>' 
+            : '<span class="badge-offline" style="cursor: pointer;" onclick="toggleDropRule(' + rule.id + ')">ĐÃ TẮT</span>';
+
+        tr.innerHTML = `
+            <td style="padding: 12px;">${mapText}</td>
+            <td style="padding: 12px; font-weight: 700; color: #fff;"><i class="fa-solid fa-box-open" style="color: var(--gold);"></i> #${rule.itemId} - ${escapeHtml(itemName)}</td>
+            <td style="padding: 12px; color: var(--gold); font-weight: 700;">x${rule.quantity}</td>
+            <td style="padding: 12px; color: var(--cyan); font-weight: 800;">${rule.ratePercent}%</td>
+            <td style="padding: 12px;">${statusBadge}</td>
+            <td style="padding: 12px;">
+                <button type="button" class="btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="deleteDropRule(${rule.id})">
+                    <i class="fa-solid fa-trash"></i> Xóa
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function addDropRule(e) {
+    e.preventDefault();
+    const mapId = parseInt(document.getElementById('rule-map-id').value);
+    const itemId = parseInt(document.getElementById('rule-item-id').value);
+    const quantity = parseInt(document.getElementById('rule-quantity').value) || 1;
+    const ratePercent = parseInt(document.getElementById('rule-rate-percent').value) || 5;
+
+    if (isNaN(mapId) || isNaN(itemId)) {
+        showToast('Vui lòng chọn hoặc nhập ID Map và ID Vật Phẩm!', 'error');
+        return;
+    }
+
+    try {
+        const resp = await fetch('/api/drop-rules', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'add',
+                mapId: mapId,
+                itemId: itemId,
+                quantity: quantity,
+                ratePercent: ratePercent
+            })
+        });
+        const result = await resp.json();
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+            document.getElementById('rule-map-search').value = '';
+            document.getElementById('rule-map-id').value = '-1';
+            document.getElementById('rule-item-search').value = '';
+            document.getElementById('rule-item-id').value = '';
+            loadDropRules();
+        } else {
+            showToast(result.message || 'Thêm quy tắc thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server', 'error');
+    }
+}
+
+async function deleteDropRule(id) {
+    try {
+        const resp = await fetch('/api/drop-rules', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'delete', id: id })
+        });
+        const result = await resp.json();
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+            loadDropRules();
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server', 'error');
+    }
+}
+
+async function toggleDropRule(id) {
+    try {
+        const resp = await fetch('/api/drop-rules', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'toggle', id: id })
+        });
+        const result = await resp.json();
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+            loadDropRules();
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server', 'error');
+    }
+}
+
+// --- SERVER EVENTS & EXP MULTIPLIER LOGIC ---
+async function loadServerEvents() {
+    try {
+        const resp = await fetch('/api/server-events');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data) {
+                document.getElementById('exp-rate-input').value = data.expRate || 1;
+                document.getElementById('evt-lunar-new-year').checked = !!data.lunarNewYear;
+                document.getElementById('evt-womens-day').checked = !!data.womensDay;
+                document.getElementById('evt-halloween').checked = !!data.halloween;
+                document.getElementById('evt-christmas').checked = !!data.christmas;
+                document.getElementById('evt-hung-vuong').checked = !!data.hungVuong;
+                document.getElementById('evt-trung-thu').checked = !!data.trungThu;
+                document.getElementById('evt-top-up').checked = !!data.topUp;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load server events', e);
+    }
+}
+
+function setExpPreset(val) {
+    document.getElementById('exp-rate-input').value = val;
+}
+
+async function saveServerEvents(e) {
+    e.preventDefault();
+
+    const expRate = parseInt(document.getElementById('exp-rate-input').value) || 1;
+    const lunarNewYear = document.getElementById('evt-lunar-new-year').checked;
+    const womensDay = document.getElementById('evt-womens-day').checked;
+    const halloween = document.getElementById('evt-halloween').checked;
+    const christmas = document.getElementById('evt-christmas').checked;
+    const hungVuong = document.getElementById('evt-hung-vuong').checked;
+    const trungThu = document.getElementById('evt-trung-thu').checked;
+    const topUp = document.getElementById('evt-top-up').checked;
+
+    const btn = document.getElementById('btn-save-events');
+    const origText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG LƯU CÀI ĐẶT SỰ KIỆN...';
+
+    try {
+        const resp = await fetch('/api/server-events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                expRate,
+                lunarNewYear,
+                womensDay,
+                halloween,
+                christmas,
+                hungVuong,
+                trungThu,
+                topUp
+            })
+        });
+
+        const result = await resp.json();
+
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+        } else {
+            showToast(result.message || 'Lưu cài đặt sự kiện thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+    }
+}
+
+// --- ITEM CATALOG & SEARCH ---
+function renderItemCatalog(items) {
+    const container = document.getElementById('item-catalog');
+    container.innerHTML = '';
+
+    if (!items || items.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 20px;">Không tìm thấy vật phẩm nào</p>';
+        return;
+    }
+
+    items.forEach(item => {
+        const iconId = (item.iconID !== undefined && item.iconID !== null) ? item.iconID : item.icon_id || item.id;
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.onclick = () => addItemToCart(item.id);
+        
+        div.innerHTML = `
+            <div class="item-img-badge">
+                <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" class="nro-item-sprite" alt="${escapeHtml(item.name)}">
+            </div>
+            <div class="item-details" style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h4 style="color: #fff; font-size: 14px; font-weight: 700;">${escapeHtml(item.name)}</h4>
+                    <span class="item-tag" style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--border-glass);">#${item.id}</span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${item.description ? escapeHtml(item.description) : 'Vật phẩm gốc NRO'}</p>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function filterItems() {
+    const query = document.getElementById('item-search').value.toLowerCase().trim();
+    if (!query) {
+        renderItemCatalog(itemTemplates.slice(0, 120));
+        return;
+    }
+    const filtered = itemTemplates.filter(item => 
+        item.id.toString() === query ||
+        (item.name && item.name.toLowerCase().includes(query))
+    );
+    renderItemCatalog(filtered.slice(0, 120));
+}
+
+// --- CART MANAGEMENT ---
+function addItemToCart(itemId) {
+    const item = itemTemplates.find(i => i.id === itemId);
+    if (!item) return;
+
+    const iconId = (item.iconID !== undefined && item.iconID !== null) ? item.iconID : item.icon_id || item.id;
+
+    cartItems.push({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        iconID: iconId,
+        quantity: 1,
+        stars: 0,
+        options: []
+    });
+
+    renderCartList();
+    showToast(`⚡ Đã thêm [${item.name}] vào danh sách cấp!`, 'success');
+}
+
+function removeCartItem(index) {
+    if (index >= 0 && index < cartItems.length) {
+        const removed = cartItems.splice(index, 1);
+        renderCartList();
+        if (removed.length > 0) {
+            showToast(`Đã xóa món ${removed[0].name} khỏi danh sách cấp`, 'success');
+        }
+    }
+}
+
+function setCartStar(cartIndex, starCount) {
+    if (cartItems[cartIndex]) {
+        cartItems[cartIndex].stars = starCount;
+        renderCartList();
+    }
+}
+
+function addCartOptionRow(cartIndex) {
+    if (cartItems[cartIndex]) {
+        cartItems[cartIndex].options.push({ id: 0, param: 10 });
+        renderCartList();
+    }
+}
+
+function removeCartOptionRow(cartIndex, optIndex) {
+    if (cartItems[cartIndex] && cartItems[cartIndex].options[optIndex] !== undefined) {
+        cartItems[cartIndex].options.splice(optIndex, 1);
+        renderCartList();
+    }
+}
+
+function updateCartOptionValue(cartIndex, optIndex, field, value) {
+    if (cartItems[cartIndex] && cartItems[cartIndex].options[optIndex]) {
+        cartItems[cartIndex].options[optIndex][field] = parseInt(value) || 0;
+    }
+}
+
+function filterOptionSelect(inputEl, cartIndex, optIndex, shopOptIndex) {
+    const val = inputEl.value.toLowerCase().trim();
+    const container = inputEl.parentElement;
+    const select = container ? container.querySelector('select') : null;
+    if (!select) return;
+
+    const listToUse = (optionTemplates && optionTemplates.length > 0) ? optionTemplates : POPULAR_OPTIONS;
+
+    const matches = listToUse.filter(o => 
+        !val || 
+        o.id.toString().includes(val) || 
+        (o.name && o.name.toLowerCase().includes(val))
+    );
+
+    let html = '';
+    if (matches.length === 0) {
+        html = '<option value="">❌ Không tìm thấy option nào khớp</option>';
+    } else {
+        matches.forEach(o => {
+            html += `<option value="${o.id}">${o.id} - ${escapeHtml(o.name)}</option>`;
+        });
+    }
+
+    select.innerHTML = html;
+
+    if (matches.length > 0) {
+        const selectedId = matches[0].id;
+        select.value = selectedId;
+        if (cartIndex !== null && cartIndex !== undefined && optIndex !== null && optIndex !== undefined) {
+            updateCartOptionValue(cartIndex, optIndex, 'id', selectedId);
+        } else if (shopOptIndex !== null && shopOptIndex !== undefined) {
+            updateShopOptionValue(shopOptIndex, 'id', selectedId);
+        }
+    }
+}
+
+function addQuickOptionToCart(cartIndex, optId, paramVal) {
+    if (cartItems[cartIndex]) {
+        cartItems[cartIndex].options.push({ id: optId, param: paramVal });
+        renderCartList();
+        showToast('Đã thêm option nhanh!', 'success');
+    }
+}
+
+function renderCartList() {
+    const container = document.getElementById('cart-items-list');
+    const badge = document.getElementById('cart-count-badge');
+    badge.innerText = cartItems.length + ' Món Trong Danh Sách';
+    container.innerHTML = '';
+
+    if (cartItems.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px; border: 1px dashed var(--border-glass); border-radius: 8px;"><i class="fa-solid fa-hand-pointer" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--gold);"></i>Hãy bấm trực tiếp vào món đồ bạn muốn ở kho đồ bên trái để thêm vào danh sách cấp!</p>';
+        return;
+    }
+
+    cartItems.forEach((cartItem, idx) => {
+        const iconId = cartItem.iconID || cartItem.id;
+        const itemCard = document.createElement('div');
+        itemCard.className = 'glass';
+        itemCard.style.padding = '16px';
+        itemCard.style.border = '1px solid rgba(255, 215, 0, 0.3)';
+
+        // Star buttons HTML
+        let starBtnsHtml = '';
+        for (let s = 0; s <= 7; s++) {
+            const activeClass = cartItem.stars === s ? 'active' : '';
+            const starText = s === 7 ? '⭐ 7 SAO' : s + ' Sao';
+            starBtnsHtml += `<button type="button" class="star-btn ${activeClass}" onclick="setCartStar(${idx}, ${s})">${starText}</button>`;
+        }
+
+        // Custom options HTML with Quick Option Pills
+        let optionsHtml = `
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 11px; color: var(--gold); display: block; margin-bottom: 4px;"><i class="fa-solid fa-bolt"></i> CHỌN NHANH OPTION PHỔ BIẾN:</label>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 50, 10)">💪 Sức đánh +10%</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 77, 10)">❤️ HP +10%</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 103, 10)">⚡ KI +10%</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 94, 10)">🛡️ Giáp +10%</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 100, 20)">💰 Vàng +20%</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 14, 0)">🌟 Kiệt sức 0s</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 108, 0)">👑 Không bị bem</span>
+                </div>
+            </div>
+        `;
+        const listToUse = (optionTemplates && optionTemplates.length > 0) ? optionTemplates : POPULAR_OPTIONS;
+        
+        cartItem.options.forEach((opt, optIdx) => {
+            let selectOptions = '';
+            listToUse.forEach(o => {
+                const sel = o.id === opt.id ? 'selected' : '';
+                selectOptions += `<option value="${o.id}" ${sel}>${o.id} - ${escapeHtml(o.name)}</option>`;
+            });
+
+            optionsHtml += `
+                <div class="option-row" style="margin-bottom: 8px;">
+                    <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
+                        <input type="text" class="input-field" placeholder="🔍 Gõ tên hoặc ID để lọc (VD: Sức đánh, 50)..." style="padding: 4px 8px; font-size: 11px; background: rgba(0,0,0,0.5); border-color: rgba(0,243,255,0.3);" oninput="filterOptionSelect(this, ${idx}, ${optIdx})" />
+                        <select class="select-field" style="width: 100%; font-size: 12px;" onchange="updateCartOptionValue(${idx}, ${optIdx}, 'id', this.value)">
+                            ${selectOptions}
+                        </select>
+                    </div>
+                    <input type="number" class="input-field" value="${opt.param}" style="flex: 1;" placeholder="Chỉ số (Param)..." oninput="updateCartOptionValue(${idx}, ${optIdx}, 'param', this.value)" required>
+                    <button type="button" class="btn-danger" style="align-self: flex-end; padding: 8px;" onclick="removeCartOptionRow(${idx}, ${optIdx})">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `;
+        });
+
+        itemCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="item-img-badge">
+                        <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" class="nro-item-sprite" alt="${escapeHtml(cartItem.name)}">
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h4 style="color: #fff; font-size: 15px; font-weight: 700; margin: 0;">Món ${idx + 1}: ${escapeHtml(cartItem.name)}</h4>
+                            <span class="item-tag" style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--gold);">#${cartItem.id}</span>
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-muted);">${cartItem.description ? escapeHtml(cartItem.description) : 'Vật phẩm gốc NRO'}</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="removeCartItem(${idx})">
+                    <i class="fa-solid fa-trash"></i> Xóa
+                </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-bottom: 12px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 12px;"><i class="fa-solid fa-layer-group"></i> Số Lượng</label>
+                    <input type="number" class="input-field" value="${cartItem.quantity}" min="1" max="9999" onchange="cartItems[${idx}].quantity = parseInt(this.value) || 1">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 12px;"><i class="fa-solid fa-star" style="color: var(--gold);"></i> Đục Lỗ Sao</label>
+                    <div class="star-selector">${starBtnsHtml}</div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="font-size: 12px; margin: 0;"><i class="fa-solid fa-bolt"></i> Chỉ Số Option Đồ</label>
+                    <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="addCartOptionRow(${idx})">
+                        <i class="fa-solid fa-plus"></i> Thêm Chỉ Số
+                    </button>
+                </div>
+                <div>${optionsHtml}</div>
+            </div>
+        `;
+        container.appendChild(itemCard);
+    });
+}
+
+// --- PET GRANT STUDIO LOGIC ---
+function handlePetPlayerSearchInput() {
+    const input = document.getElementById('target-player-pet');
+    const val = input.value.trim().toLowerCase();
+    const dropdown = document.getElementById('pet-player-suggestions');
+
+    checkPetPlayerStatus();
+
+    if (!val) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    const matches = playersList.filter(p => p.name && p.name.toLowerCase().includes(val));
+    if (matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    dropdown.innerHTML = '';
+    matches.slice(0, 10).forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        const badge = p.online ? '<span class="badge-online" style="font-size: 10px;">ONLINE</span>' : '<span class="badge-offline" style="font-size: 10px;">OFFLINE</span>';
+        item.innerHTML = `
+            <span><i class="fa-solid fa-user"></i> <strong>${escapeHtml(p.name)}</strong> (ID #${p.id})</span>
+            ${badge}
+        `;
+        item.onclick = () => {
+            document.getElementById('target-player-pet').value = p.name;
+            dropdown.style.display = 'none';
+            checkPetPlayerStatus();
+        };
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = 'block';
+}
+
+function checkPetPlayerStatus() {
+    const name = document.getElementById('target-player-pet').value.trim();
+    const badge = document.getElementById('pet-player-status-badge');
+    
+    if (!name) {
+        badge.className = 'badge-offline';
+        badge.innerText = 'Chưa chọn';
+        return;
+    }
+
+    const match = playersList.find(p => p.name && p.name.toLowerCase() === name.toLowerCase());
+    if (match) {
+        if (match.online) {
+            badge.className = 'badge-online';
+            badge.innerText = 'ONLINE LIVE';
+        } else {
+            badge.className = 'badge-offline';
+            badge.innerText = 'OFFLINE';
+        }
+    } else {
+        badge.className = 'badge-offline';
+        badge.innerText = 'NHẬN DIỆN TỰ ĐỘNG';
+    }
+}
+
+async function executeGrantPet(e) {
+    e.preventDefault();
+
+    const playerName = document.getElementById('target-player-pet').value.trim();
+    const petType = parseInt(document.getElementById('pet-type-select').value) || 0;
+    const petGender = parseInt(document.getElementById('pet-gender-select').value) || 0;
+    const power = parseInt(document.getElementById('pet-power-select').value) || 2000;
+
+    if (!playerName) {
+        showToast('Vui lòng nhập tên nhân vật nhận đệ tử!', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-grant-pet-action');
+    const origText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG GỬI CẤP/ĐỔI ĐỆ TỬ...';
+
+    try {
+        const resp = await fetch('/api/grant-pet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                playerName: playerName,
+                petType: petType,
+                petGender: petGender,
+                power: power
+            })
+        });
+
+        const result = await resp.json();
+
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+            loadStats();
+        } else {
+            showToast(result.message || 'Cấp đệ tử thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+    }
+}
+
+// --- PLAYER AUTO-SUGGEST & STATUS FOR ITEM GRANT ---
+function handlePlayerSearchInput() {
+    const input = document.getElementById('target-player');
+    const val = input.value.trim().toLowerCase();
+    const dropdown = document.getElementById('player-suggestions');
+
+    checkTargetPlayerStatus();
+
+    if (!val) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    const matches = playersList.filter(p => p.name && p.name.toLowerCase().includes(val));
+    if (matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    dropdown.innerHTML = '';
+    matches.slice(0, 10).forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        const badge = p.online ? '<span class="badge-online" style="font-size: 10px;">ONLINE</span>' : '<span class="badge-offline" style="font-size: 10px;">OFFLINE</span>';
+        item.innerHTML = `
+            <span><i class="fa-solid fa-user"></i> <strong>${escapeHtml(p.name)}</strong> (ID #${p.id})</span>
+            ${badge}
+        `;
+        item.onclick = () => selectPlayerSuggestion(p.name);
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = 'block';
+}
+
+function showPlayerSuggestions() {
+    if (playersList.length > 0) {
+        handlePlayerSearchInput();
+    }
+}
+
+function selectPlayerSuggestion(name) {
+    document.getElementById('target-player').value = name;
+    document.getElementById('player-suggestions').style.display = 'none';
+    checkTargetPlayerStatus();
+}
+
+function setupOutsideClickListener() {
+    document.addEventListener('click', (e) => {
+        const dropdown1 = document.getElementById('player-suggestions');
+        const dropdown2 = document.getElementById('pet-player-suggestions');
+        const dropdownMap = document.getElementById('map-suggestions');
+        const dropdownItem = document.getElementById('rule-item-suggestions');
+        const dropdownShopItem = document.getElementById('shop-item-suggestions');
+
+        const input1 = document.getElementById('target-player');
+        const input2 = document.getElementById('target-player-pet');
+        const inputMap = document.getElementById('rule-map-search');
+        const inputItem = document.getElementById('rule-item-search');
+        const inputShopItem = document.getElementById('shop-item-search');
+
+        if (dropdown1 && !dropdown1.contains(e.target) && e.target !== input1) dropdown1.style.display = 'none';
+        if (dropdown2 && !dropdown2.contains(e.target) && e.target !== input2) dropdown2.style.display = 'none';
+        if (dropdownMap && !dropdownMap.contains(e.target) && e.target !== inputMap) dropdownMap.style.display = 'none';
+        if (dropdownItem && !dropdownItem.contains(e.target) && e.target !== inputItem) dropdownItem.style.display = 'none';
+        if (dropdownShopItem && !dropdownShopItem.contains(e.target) && e.target !== inputShopItem) dropdownShopItem.style.display = 'none';
+    });
+}
+
+function checkTargetPlayerStatus() {
+    const name = document.getElementById('target-player').value.trim();
+    const badge = document.getElementById('player-status-badge');
+    
+    if (!name) {
+        badge.className = 'badge-offline';
+        badge.innerText = 'Chưa chọn';
+        return;
+    }
+
+    const match = playersList.find(p => p.name && p.name.toLowerCase() === name.toLowerCase());
+    if (match) {
+        if (match.online) {
+            badge.className = 'badge-online';
+            badge.innerText = 'ONLINE LIVE';
+        } else {
+            badge.className = 'badge-offline';
+            badge.innerText = 'OFFLINE';
+        }
+    } else {
+        badge.className = 'badge-offline';
+        badge.innerText = 'NHẬN DIỆN TỰ ĐỘNG';
+    }
+}
+
+function quickSelectPlayer(name) {
+    document.getElementById('target-player').value = name;
+    document.getElementById('target-player-pet').value = name;
+    switchTab('grant');
+    checkTargetPlayerStatus();
+    checkPetPlayerStatus();
+}
+
+// --- EXECUTE BATCH REALTIME ITEM GRANT ---
+async function executeBatchGrant(e) {
+    e.preventDefault();
+
+    const playerName = document.getElementById('target-player').value.trim();
+
+    if (!playerName) {
+        showToast('Vui lòng nhập hoặc chọn tên nhân vật nhận đồ!', 'error');
+        return;
+    }
+
+    if (cartItems.length === 0) {
+        showToast('Danh sách vật phẩm cấp đang trống. Vui lòng bấm vào món đồ bên trái!', 'error');
+        return;
+    }
+
+    const itemsPayload = cartItems.map(item => ({
+        itemId: item.id,
+        quantity: item.quantity,
+        stars: item.stars,
+        options: item.options
+    }));
+
+    const btn = document.getElementById('btn-grant-action');
+    const origText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG GỬI CẤP TOÀN BỘ DANH SÁCH...';
+
+    try {
+        const resp = await fetch('/api/grant-item-batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                playerName: playerName,
+                items: itemsPayload
+            })
+        });
+        const result = await resp.json();
+
+        if (resp.ok && result.status === 'success') {
+            showToast(result.message, 'success');
+            loadStats();
+        } else {
+            showToast(result.message || 'Cấp đồ thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối API Server: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+    }
+}
+
+// --- ACCOUNT TABLE RENDER & MANAGEMENT ---
+async function loadAccountData() {
+    try {
+        const resp = await fetch('/api/admin/accounts');
+        if (resp.ok) {
+            accountsList = await resp.json();
+            renderAccountTable();
+        }
+    } catch (e) {
+        console.error('Failed to load accounts', e);
+    }
+}
+
+function renderAccountTable() {
+    const tbody = document.getElementById('account-table-body');
+    if (!tbody) return;
+    const query = (document.getElementById('account-table-search')?.value || '').toLowerCase().trim();
+    tbody.innerHTML = '';
+
+    const filtered = accountsList.filter(a => !query || (a.username && a.username.toLowerCase().includes(query)));
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 20px;">Không tìm thấy tài khoản nào</td></tr>';
+        return;
+    }
+
+    filtered.forEach(a => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+
+        const adminBadge = a.admin === 1 
+            ? '<span style="background: rgba(255,215,0,0.2); color: var(--gold); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">ADMIN</span>'
+            : '<span style="color: var(--text-muted); font-size: 11px;">User</span>';
+        
+        const activeBadge = a.active === 1
+            ? '<span class="badge-online">HOẠT ĐỘNG</span>'
+            : '<span class="badge-offline">BỊ KHÓA</span>';
+
+        const createDate = a.create_time ? new Date(a.create_time).toLocaleDateString('vi-VN') : 'N/A';
+
+        tr.innerHTML = `
+            <td style="padding: 12px; color: var(--text-muted);">#${a.id}</td>
+            <td style="padding: 12px; font-weight: 700; color: #fff;">${escapeHtml(a.username)}</td>
+            <td style="padding: 12px; color: var(--cyan); font-family: monospace;">${escapeHtml(a.password)}</td>
+            <td style="padding: 12px; color: var(--gold);">${a.player_count || 0} NV</td>
+            <td style="padding: 12px;">${adminBadge}</td>
+            <td style="padding: 12px;">${activeBadge}</td>
+            <td style="padding: 12px; color: var(--text-muted); font-size: 12px;">${createDate}</td>
+            <td style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(255,215,0,0.15); color: var(--gold);" onclick="toggleAccountAdmin(${a.id}, ${a.admin || 0})">
+                    <i class="fa-solid fa-user-shield"></i> ${a.admin === 1 ? 'Hạ Admin' : 'Cấp Admin'}
+                </button>
+                <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(0,243,255,0.15); color: var(--cyan);" onclick="changeAccountPassword(${a.id}, '${escapeHtml(a.username)}')">
+                    <i class="fa-solid fa-key"></i> Đổi MK
+                </button>
+                <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="toggleAccountLock(${a.id}, ${a.active})">
+                    <i class="fa-solid ${a.active === 1 ? 'fa-lock' : 'fa-lock-open'}"></i> ${a.active === 1 ? 'Khóa' : 'Mở'}
+                </button>
+                <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(239, 68, 68, 0.2); color: #f87171;" onclick="deleteAccount(${a.id}, '${escapeHtml(a.username)}')">
+                    <i class="fa-solid fa-trash"></i> Xóa
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function changeAccountPassword(id, username) {
+    const newPass = prompt(`Nhập mật khẩu MỚI cho tài khoản [${username}]:`);
+    if (!newPass || !newPass.trim()) return;
+
+    try {
+        const resp = await fetch('/api/admin/account/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, password: newPass.trim() })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        loadAccountData();
+    } catch (e) {
+        showToast('Lỗi khi đổi mật khẩu tài khoản', 'error');
+    }
+}
+
+async function editItemTemplateName(itemId, oldName) {
+    const newName = prompt(`Nhập TÊN MỚI cho Vật Phẩm #${itemId} (Hiện tại: ${oldName}):`, oldName);
+    if (!newName || !newName.trim() || newName.trim() === oldName) return;
+
+    try {
+        const resp = await fetch('/api/admin/item-template/update-name', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: itemId, name: newName.trim() })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        await loadItemTemplates();
+        if (typeof renderCartList === 'function') renderCartList();
+    } catch (e) {
+        showToast('Lỗi khi đổi tên vật phẩm', 'error');
+    }
+}
+
+async function toggleAccountAdmin(id, currentAdmin) {
+    const newAdmin = currentAdmin === 1 ? 0 : 1;
+    try {
+        const resp = await fetch('/api/admin/account/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, admin: newAdmin, is_admin: newAdmin })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        loadAccountData();
+    } catch (e) {
+        showToast('Lỗi khi cập nhật quyền Admin', 'error');
+    }
+}
+
+async function toggleAccountLock(id, currentActive) {
+    const newActive = currentActive === 1 ? 0 : 1;
+    try {
+        const resp = await fetch('/api/admin/account/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, active: newActive })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        loadAccountData();
+    } catch (e) {
+        showToast('Lỗi khi cập nhật tài khoản', 'error');
+    }
+}
+
+async function deleteAccount(id, username) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản [${username}]?`)) return;
+    try {
+        const resp = await fetch('/api/admin/account/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        loadAccountData();
+    } catch (e) {
+        showToast('Lỗi khi xóa tài khoản', 'error');
+    }
+}
+
+async function openQuickCreateAccountModal() {
+    const user = prompt('Nhập tên tài khoản mới:');
+    if (!user || !user.trim()) return;
+    const pass = prompt('Nhập mật khẩu:');
+    if (!pass || !pass.trim()) return;
+
+    try {
+        const resp = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: user.trim(), password: pass.trim() })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        loadAccountData();
+    } catch (e) {
+        showToast('Lỗi khi tạo tài khoản', 'error');
+    }
+}
+
+// --- PLAYER TABLE RENDER WITH IN-GAME AVATARS ---
+async function changePlayerName(playerId, currentName) {
+    const newName = prompt(`Nhập TÊN MỚI cho nhân vật [${currentName}]:`, currentName);
+    if (!newName || !newName.trim() || newName.trim() === currentName) return;
+
+    try {
+        const resp = await fetch('/api/admin/player/change-name', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId, newName: newName.trim() })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        await loadPlayers();
+        renderPlayerTable();
+    } catch (e) {
+        showToast('Lỗi khi đổi tên nhân vật', 'error');
+    }
+}
+
+async function nextPlayerTask(playerName) {
+    if (!confirm(`Bạn có chắc chắn muốn chuyển/qua nhiệm vụ tiếp theo cho nhân vật [${playerName}]?`)) return;
+
+    try {
+        const resp = await fetch('/api/admin/player/next-task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerName })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        await loadPlayers();
+    } catch (e) {
+        showToast('Lỗi khi chuyển nhiệm vụ', 'error');
+    }
+}
+
+function renderPlayerTable() {
+    const tbody = document.getElementById('player-table-body');
+    const query = document.getElementById('player-table-search').value.toLowerCase().trim();
+    tbody.innerHTML = '';
+
+    const filtered = playersList.filter(p => !query || (p.name && p.name.toLowerCase().includes(query)));
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Không có dữ liệu nhân vật</td></tr>';
+        return;
+    }
+
+    filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+        
+        const genderText = p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda';
+        const statusBadge = p.online 
+            ? '<span class="badge-online">ONLINE</span>' 
+            : '<span class="badge-offline">OFFLINE</span>';
+
+        const avatarSrc = p.avatarUrl || `/icons/${p.avatarId || 64}.png`;
+        const taskBadge = `<span style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid rgba(255, 215, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">#${p.taskId !== undefined ? p.taskId : 0} - ${escapeHtml(p.taskName || 'Nhiệm vụ')}</span>`;
+
+        tr.innerHTML = `
+            <td style="padding: 12px; color: var(--text-muted);">#${p.id}</td>
+            <td style="padding: 12px; font-weight: 700; color: #fff;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="${avatarSrc}" onerror="this.src='/icons/64.png';" style="width: 38px; height: 38px; object-fit: contain; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,215,0,0.3);" />
+                    <span>${escapeHtml(p.name)}</span>
+                </div>
+            </td>
+            <td style="padding: 12px; color: var(--gold); font-size: 13px;">${escapeHtml(p.username || 'N/A')}</td>
+            <td style="padding: 12px; color: var(--cyan);">${genderText}</td>
+            <td style="padding: 12px;">${taskBadge}</td>
+            <td style="padding: 12px;">${statusBadge}</td>
+            <td style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="quickSelectPlayer('${escapeHtml(p.name)}')">
+                    <i class="fa-solid fa-gift"></i> Cấp Đồ
+                </button>
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: rgba(0, 243, 255, 0.15); color: var(--cyan);" onclick="changePlayerName(${p.id}, '${escapeHtml(p.name)}')">
+                    <i class="fa-solid fa-pen-to-square"></i> Đổi Tên
+                </button>
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: rgba(255, 215, 0, 0.2); color: var(--gold); font-weight: 700; border: 1px solid var(--gold);" onclick="nextPlayerTask('${escapeHtml(p.name)}')">
+                    <i class="fa-solid fa-forward-step"></i> Qua NV
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// --- TAB SWITCHING ---
+function switchTab(tabName) {
+    currentTab = tabName;
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('header .nav-btn').forEach(btn => btn.classList.remove('active'));
+
+    const tabMap = {
+        'grant': 0,
+        'pet': 1,
+        'events': 2,
+        'drops': 3,
+        'shops': 4,
+        'accounts': 5,
+        'players': 6
+    };
+
+    const targetIndex = tabMap[tabName];
+    const headerBtns = document.querySelectorAll('header .nav-btn');
+
+    const targetTabEl = document.getElementById(`tab-${tabName}`);
+    if (targetTabEl) {
+        targetTabEl.style.display = 'block';
+    }
+
+    if (targetIndex !== undefined && headerBtns[targetIndex]) {
+        headerBtns[targetIndex].classList.add('active');
+    }
+
+    if (tabName === 'events') loadServerEvents();
+    else if (tabName === 'drops') loadDropRules();
+    else if (tabName === 'shops') loadNpcShops();
+    else if (tabName === 'accounts') loadAccountData();
+    else if (tabName === 'players') loadPlayers();
+}
+
+// --- UTILS ---
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHtml(message)}</span>`;
+    
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    });
+}

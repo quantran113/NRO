@@ -1,0 +1,17 @@
+# Node & dependencies
+WEB_ADMIN/node_modules/
+npm-debug.log*
+
+# Large Client & Heavy Assets (> 100MB)
+PC_srcnrofree/
+*.resS
+*.assets
+*.exe
+*.dll
+*.apk
+*.zip
+*.log
+.DS_Store
+*.bak
+SRC/dist/
+SRC/data/
