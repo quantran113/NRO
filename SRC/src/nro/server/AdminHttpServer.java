@@ -593,15 +593,29 @@ public class AdminHttpServer {
                         }
                     }
 
-                    // Set custom power and tiemNang if provided
-                    if (power > 0) {
+                    // Set custom power, tiemNang, and limitPower if provided
+                    if (power >= 0) {
                         final Player plTarget = targetPlayer;
+                        final long pVal = power;
+                        final long tVal = tiemNang;
                         new Thread(() -> {
                             try {
-                                Thread.sleep(1500);
+                                Thread.sleep(1200);
                                 if (plTarget.pet != null) {
-                                    plTarget.pet.nPoint.power = power;
-                                    plTarget.pet.nPoint.tiemNang = tiemNang;
+                                    byte calcLimit = 0;
+                                    if (pVal >= 80000000000L) calcLimit = 9;
+                                    else if (pVal >= 70000000000L) calcLimit = 8;
+                                    else if (pVal >= 60000000000L) calcLimit = 7;
+                                    else if (pVal >= 50000000000L) calcLimit = 6;
+                                    else if (pVal >= 39000000000L) calcLimit = 5;
+                                    else if (pVal >= 29000000000L) calcLimit = 4;
+                                    else if (pVal >= 24000000000L) calcLimit = 3;
+                                    else if (pVal >= 19000000000L) calcLimit = 2;
+                                    else if (pVal >= 17000000000L) calcLimit = 1;
+
+                                    plTarget.pet.nPoint.limitPower = calcLimit;
+                                    plTarget.pet.nPoint.power = pVal;
+                                    plTarget.pet.nPoint.tiemNang = tVal;
                                     nro.models.services.Service.gI().point(plTarget);
                                     nro.models.database.PlayerDAO.updatePlayer(plTarget);
                                 }
