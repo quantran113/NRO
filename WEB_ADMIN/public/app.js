@@ -416,7 +416,7 @@ async function handleShopItemSearchInput() {
 }
 
 function addShopOptionRow() {
-    newShopItemOptions.push({ id: 0, param: 10 });
+    newShopItemOptions.unshift({ id: 0, param: 10 });
     renderShopOptionsList();
 }
 
@@ -924,7 +924,7 @@ function setCartStar(cartIndex, starCount) {
 
 function addCartOptionRow(cartIndex) {
     if (cartItems[cartIndex]) {
-        cartItems[cartIndex].options.push({ id: 0, param: 10 });
+        cartItems[cartIndex].options.unshift({ id: 0, param: 10 });
         renderCartList();
     }
 }
@@ -980,9 +980,9 @@ function filterOptionSelect(inputEl, cartIndex, optIndex, shopOptIndex) {
 
 function addQuickOptionToCart(cartIndex, optId, paramVal) {
     if (cartItems[cartIndex]) {
-        cartItems[cartIndex].options.push({ id: optId, param: paramVal });
+        cartItems[cartIndex].options.unshift({ id: optId, param: paramVal });
         renderCartList();
-        showToast('Đã thêm option nhanh!', 'success');
+        showToast('Đã thêm option mới vào đầu danh sách!', 'success');
     }
 }
 
