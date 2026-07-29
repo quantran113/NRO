@@ -104,10 +104,15 @@ function checkLoginState() {
             if (currentLoggedUser.admin >= 1) {
                 const header = document.querySelector('header');
                 if (header) header.style.display = 'flex';
+                const stats = document.querySelector('.stats-grid');
+                if (stats) stats.style.display = 'grid';
                 initAdminData();
             } else {
                 const header = document.querySelector('header');
                 if (header) header.style.display = 'none';
+                const stats = document.querySelector('.stats-grid');
+                if (stats) stats.style.display = 'none';
+
                 document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
                 const portal = document.getElementById('player-portal-view');
                 if (portal) portal.style.display = 'block';
@@ -158,12 +163,17 @@ function setupLoginForm() {
                 if (data.user.admin >= 1) {
                     const header = document.querySelector('header');
                     if (header) header.style.display = 'flex';
+                    const stats = document.querySelector('.stats-grid');
+                    if (stats) stats.style.display = 'grid';
                     const portal = document.getElementById('player-portal-view');
                     if (portal) portal.style.display = 'none';
                     initAdminData();
                 } else {
                     const header = document.querySelector('header');
                     if (header) header.style.display = 'none';
+                    const stats = document.querySelector('.stats-grid');
+                    if (stats) stats.style.display = 'none';
+
                     document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
                     const portal = document.getElementById('player-portal-view');
                     if (portal) portal.style.display = 'block';
