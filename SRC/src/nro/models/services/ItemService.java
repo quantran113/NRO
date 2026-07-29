@@ -92,6 +92,19 @@ public class ItemService {
         if (item == null || item.template == null || !item.itemOptions.isEmpty()) {
             return;
         }
+
+        // 1. Try to copy default options from NPC Shops!
+        try {
+            List<Item.ItemOption> shopOptions = getListOptionItemShop(item.template.id);
+            if (shopOptions != null && !shopOptions.isEmpty()) {
+                for (Item.ItemOption io : shopOptions) {
+                    item.itemOptions.add(new Item.ItemOption(io));
+                }
+                return;
+            }
+        } catch (Exception e) {}
+
+        // 2. Default options for Star Crystals
         int tempId = item.template.id;
         switch (tempId) {
             case 441 -> item.itemOptions.add(new ItemOption(95, 5));
@@ -118,6 +131,26 @@ public class ItemService {
             case 1431 -> item.itemOptions.add(new ItemOption(100, 5));
             case 1432 -> item.itemOptions.add(new ItemOption(101, 5));
             case 1433 -> item.itemOptions.add(new ItemOption(153, 5));
+        }
+
+        if (!item.itemOptions.isEmpty()) {
+            return;
+        }
+
+        // 3. Fallback default base options for Equipment (Áo, Quần, Găng, Giày, Radar, Cải Trang)
+        if (item.template.type == 0) { // Áo
+            item.itemOptions.add(new ItemOption(47, Util.nextInt(50, 500)));
+        } else if (item.template.type == 1) { // Quần
+            item.itemOptions.add(new ItemOption(22, Util.nextInt(500, 5000)));
+        } else if (item.template.type == 2) { // Găng
+            item.itemOptions.add(new ItemOption(0, Util.nextInt(100, 2000)));
+        } else if (item.template.type == 3) { // Giày
+            item.itemOptions.add(new ItemOption(23, Util.nextInt(500, 5000)));
+        } else if (item.template.type == 4) { // Radar
+            item.itemOptions.add(new ItemOption(14, Util.nextInt(1, 10)));
+        } else if (item.template.type == 5) { // Cải trang
+            item.itemOptions.add(new ItemOption(50, 10)); // +10% SD
+            item.itemOptions.add(new ItemOption(77, 10)); // +10% HP/MP
         }
     }
 

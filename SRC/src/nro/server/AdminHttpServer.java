@@ -481,7 +481,7 @@ public class AdminHttpServer {
                                     starOpt.add(starCount);
                                     optionsArr.add(starOpt.toJSONString());
                                 }
-                                if (optionsReq != null) {
+                                if (optionsReq != null && !optionsReq.isEmpty()) {
                                     for (Object o : optionsReq) {
                                         JSONObject optObj = (JSONObject) o;
                                         int optId = ((Number) optObj.get("id")).intValue();
@@ -490,6 +490,16 @@ public class AdminHttpServer {
                                         customOpt.add(optId);
                                         customOpt.add(param);
                                         optionsArr.add(customOpt.toJSONString());
+                                    }
+                                } else {
+                                    Item tempItem = ItemService.gI().createNewItem((short) itemId, 1);
+                                    if (tempItem != null && tempItem.itemOptions != null) {
+                                        for (Item.ItemOption io : tempItem.itemOptions) {
+                                            JSONArray baseOpt = new JSONArray();
+                                            baseOpt.add(io.optionTemplate.id);
+                                            baseOpt.add(io.param);
+                                            optionsArr.add(baseOpt.toJSONString());
+                                        }
                                     }
                                 }
                                 dataItem.add(optionsArr.toJSONString());
