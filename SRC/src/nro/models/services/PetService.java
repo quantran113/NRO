@@ -217,6 +217,18 @@ public class PetService {
         createJirenPet(player, gender, limitPower);
     }
 
+    public void changeUubPet(Player player) {
+        changeUubPet(player, player.gender);
+    }
+
+    public void changeKidBeerPet(Player player) {
+        changeKidBeerPet(player, player.gender);
+    }
+
+    public void changeJirenPet(Player player) {
+        changeJirenPet(player, player.gender);
+    }
+
     public void changeNamePet(Player player, String name) {
         try {
             if (!InventoryService.gI().isExistItemBag(player, 400)) {

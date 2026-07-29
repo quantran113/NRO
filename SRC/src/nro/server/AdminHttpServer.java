@@ -716,6 +716,10 @@ public class AdminHttpServer {
                         try {
                             EventManager.gI().init();
                         } catch (Exception ex) {}
+
+                        try {
+                            nro.models.services.Service.gI().sendThongBaoAllPlayer("🎉 Máy chủ vừa kích hoạt X" + Manager.RATE_EXP_SERVER + " Tiềm Năng Sức Mạnh và cập nhật Sự Kiện Server!");
+                        } catch (Exception ex) {}
                         
                         JSONObject res = new JSONObject();
                         res.put("status", "success");

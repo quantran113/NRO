@@ -37,22 +37,22 @@ public class EventManager {
     public void init() {
         new Default().init();
         if (LUNNAR_NEW_YEAR) {
-           // new LunarNewYear().init();
+            new LunarNewYear().init();
         }
         if (INTERNATIONAL_WOMANS_DAY) {
-           // new InternationalWomensDay().init();
+            new InternationalWomensDay().init();
         }
         if (HALLOWEEN) {
-          //  new Halloween().init();
+            new Halloween().init();
         }
         if (CHRISTMAS) {
-          //  new Christmas().init();
+            new Christmas().init();
         }
         if (HUNG_VUONG) {
             new HungVuong().init();
         }
         if (TRUNG_THU) {
-           // new TrungThu().init();
+            new TrungThu().init();
         }
         if (TOP_UP) {
             new TopUp().init();
