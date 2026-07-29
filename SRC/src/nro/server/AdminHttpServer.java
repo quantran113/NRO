@@ -574,9 +574,21 @@ public class AdminHttpServer {
                 if (targetPlayer != null) {
                     // ONLINE Player
                     if (targetPlayer.pet != null) {
-                        nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender);
+                        switch (petType) {
+                            case 1 -> nro.models.services.PetService.gI().changeMabuPet(targetPlayer, petGender);
+                            case 2 -> nro.models.services.PetService.gI().changeUubPet(targetPlayer, petGender);
+                            case 3 -> nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer, petGender);
+                            case 4 -> nro.models.services.PetService.gI().changeJirenPet(targetPlayer, petGender);
+                            default -> nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender);
+                        }
                     } else {
-                        nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender);
+                        switch (petType) {
+                            case 1 -> nro.models.services.PetService.gI().createMabuPet(targetPlayer, petGender);
+                            case 2 -> nro.models.services.PetService.gI().createUubPet(targetPlayer, petGender);
+                            case 3 -> nro.models.services.PetService.gI().createKidBeerPet(targetPlayer, petGender);
+                            case 4 -> nro.models.services.PetService.gI().createJirenPet(targetPlayer, petGender);
+                            default -> nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender);
+                        }
                     }
 
                     // Set custom power if provided
