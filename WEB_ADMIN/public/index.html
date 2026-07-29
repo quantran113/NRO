@@ -264,60 +264,87 @@
 
                 <!-- PET SKILL BOOKS QUICK GRANT SECTION -->
                 <div style="margin-top: 32px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 20px;">
-                    <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-book-bookmark"></i> SÁCH & BÍ KÍP ĐỔI SKILL ĐỆ TỬ 1, 2, 3, 4, 5
-                    </h3>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Click 1-chạm để thêm ngay Sách Đổi Chiêu 1, 2, 3, 4, 5 hoặc Item Đổi Đệ Tử vào danh sách cấp:</p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--cyan); border-color: var(--cyan);" onclick="quickAddPetSkillBook(402)">
-                            <span style="font-size: 18px;">📜</span>
+                    <!-- SECTION 1: CHANGE SKILL BOOKS (SÁCH ĐỔI SKILL) -->
+                    <h3 style="color: var(--cyan); font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-arrows-rotate"></i> BỘ SÁCH ĐỔI / TẨY SKILL ĐỆ TỬ (ĐỔI CHIÊU 2, 3, 4, 5)
+                    </h3>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Click 1-chạm để thêm Sách Đổi Chiêu (Tẩy / Reset lại Skill Đệ Tử ngẫu nhiên):</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--cyan); border-color: var(--cyan);" onclick="quickAddPetSkillBook(1758)">
+                            <span style="font-size: 18px;">🔄</span>
                             <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 1</div>
+                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 2</div>
+                                <div style="font-size: 11px; opacity: 0.8;">Item #1758</div>
+                            </div>
+                        </button>
+
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--cyan); border-color: var(--cyan);" onclick="quickAddPetSkillBook(1759)">
+                            <span style="font-size: 18px;">🔄</span>
+                            <div style="text-align: left;">
+                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 3</div>
+                                <div style="font-size: 11px; opacity: 0.8;">Item #1759</div>
+                            </div>
+                        </button>
+
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--gold); border-color: var(--gold);" onclick="quickAddPetSkillBook(1760)">
+                            <span style="font-size: 18px;">🔄</span>
+                            <div style="text-align: left;">
+                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 4</div>
+                                <div style="font-size: 11px; opacity: 0.8;">Item #1760</div>
+                            </div>
+                        </button>
+
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #ff4757; border-color: #ff4757;" onclick="quickAddPetSkillBook(1795)">
+                            <span style="font-size: 18px;">🔁</span>
+                            <div style="text-align: left;">
+                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Đệ Tử RAM</div>
+                                <div style="font-size: 11px; opacity: 0.8;">Item #1795</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- SECTION 2: UPGRADE SKILL BOOKS (SÁCH NÂNG SKILL) -->
+                    <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-arrow-up-right-dots"></i> BỘ SÁCH NÂNG CẤP SKILL ĐỆ TỬ (TĂNG LEVEL SKILL 1, 2, 3, 4)
+                    </h3>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Click 1-chạm để thêm Sách Nâng Cấp Level Skill Đệ Tử:</p>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(402)">
+                            <span style="font-size: 18px;">⬆️</span>
+                            <div style="text-align: left;">
+                                <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 1</div>
                                 <div style="font-size: 11px; opacity: 0.8;">Item #402</div>
                             </div>
                         </button>
 
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--cyan); border-color: var(--cyan);" onclick="quickAddPetSkillBook(403)">
-                            <span style="font-size: 18px;">📜</span>
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(403)">
+                            <span style="font-size: 18px;">⬆️</span>
                             <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 2</div>
+                                <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 2</div>
                                 <div style="font-size: 11px; opacity: 0.8;">Item #403</div>
                             </div>
                         </button>
 
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--cyan); border-color: var(--cyan);" onclick="quickAddPetSkillBook(404)">
-                            <span style="font-size: 18px;">📜</span>
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(404)">
+                            <span style="font-size: 18px;">⬆️</span>
                             <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 3</div>
+                                <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 3</div>
                                 <div style="font-size: 11px; opacity: 0.8;">Item #404</div>
                             </div>
                         </button>
 
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--gold); border-color: var(--gold);" onclick="quickAddPetSkillBook(759)">
-                            <span style="font-size: 18px;">📜</span>
+                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(759)">
+                            <span style="font-size: 18px;">⬆️</span>
                             <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Sách Đổi Skill 4</div>
+                                <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 4</div>
                                 <div style="font-size: 11px; opacity: 0.8;">Item #759</div>
                             </div>
                         </button>
-
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--gold); border-color: var(--gold);" onclick="quickAddPetSkillBook(1795)">
-                            <span style="font-size: 18px;">✨</span>
-                            <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Bí Kíp Đổi Skill 5</div>
-                                <div style="font-size: 11px; opacity: 0.8;">Item #1795</div>
-                            </div>
-                        </button>
-
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #ff4757; border-color: #ff4757;" onclick="quickAddPetSkillBook(401)">
-                            <span style="font-size: 18px;">🔁</span>
-                            <div style="text-align: left;">
-                                <div style="font-weight: 700; font-size: 13px;">Item Đổi Đệ Tử</div>
-                                <div style="font-size: 11px; opacity: 0.8;">Item #401</div>
-                            </div>
-                        </button>
                     </div>
+
                 </div>
             </div>
         </div>
