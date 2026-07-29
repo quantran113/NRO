@@ -1763,8 +1763,9 @@ function switchTab(tabName) {
         'events': 2,
         'drops': 3,
         'shops': 4,
-        'accounts': 5,
-        'players': 6
+        'giftcode': 5,
+        'accounts': 6,
+        'players': 7
     };
 
     const targetIndex = tabMap[tabName];
@@ -1782,8 +1783,312 @@ function switchTab(tabName) {
     if (tabName === 'events') loadServerEvents();
     else if (tabName === 'drops') loadDropRules();
     else if (tabName === 'shops') loadNpcShops();
+    else if (tabName === 'giftcode') loadAdminGiftcodes();
     else if (tabName === 'accounts') loadAccountData();
     else if (tabName === 'players') loadPlayers();
+}
+
+// --- GIFTCODE MANAGER LOGIC ---
+let currentGcItems = [];
+
+function generateRandomGcCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = 'NRO-';
+    for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const input = document.getElementById('gc-code-input');
+    if (input) input.value = code;
+}
+
+function addQuickGcCurrency(id, quantity, name) {
+    const existing = currentGcItems.find(item => item.id === id);
+    if (existing) {
+        existing.quantity += quantity;
+    } else {
+        currentGcItems.unshift({
+            id: id,
+            quantity: quantity,
+            name: name,
+            options: []
+        });
+    }
+    renderGcItemsRows();
+    showToast(`Đã thêm ${name} vào GiftCode!`, 'success');
+}
+
+function addGcItemRow() {
+    currentGcItems.unshift({
+        id: 190,
+        quantity: 1,
+        name: 'Vật phẩm',
+        options: []
+    });
+    renderGcItemsRows();
+}
+
+function removeGcItemRow(index) {
+    currentGcItems.splice(index, 1);
+    renderGcItemsRows();
+}
+
+function updateGcItemField(index, field, val) {
+    if (!currentGcItems[index]) return;
+    if (field === 'id') {
+        currentGcItems[index].id = parseInt(val) || 0;
+        const itemObj = itemTemplates.find(i => i.id === currentGcItems[index].id);
+        if (itemObj) currentGcItems[index].name = itemObj.name;
+    } else if (field === 'quantity') {
+        currentGcItems[index].quantity = parseInt(val) || 1;
+    }
+}
+
+function addGcItemOption(index) {
+    if (!currentGcItems[index]) return;
+    currentGcItems[index].options.unshift({ id: 50, param: 10 });
+    renderGcItemsRows();
+}
+
+function removeGcItemOption(itemIndex, optIndex) {
+    if (!currentGcItems[itemIndex]) return;
+    currentGcItems[itemIndex].options.splice(optIndex, 1);
+    renderGcItemsRows();
+}
+
+function updateGcOptionField(itemIndex, optIndex, field, val) {
+    if (!currentGcItems[itemIndex] || !currentGcItems[itemIndex].options[optIndex]) return;
+    currentGcItems[itemIndex].options[optIndex][field] = parseInt(val) || 0;
+}
+
+function renderGcItemsRows() {
+    const container = document.getElementById('gc-items-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (currentGcItems.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 10px 0;">Chưa có phần quà nào. Hãy bấm các nút bên trên để thêm Tiền / Vật phẩm vào GiftCode!</div>';
+        return;
+    }
+
+    currentGcItems.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'glass';
+        row.style.padding = '12px';
+        row.style.marginBottom = '10px';
+        row.style.border = '1px solid rgba(255,255,255,0.1)';
+
+        const isCurrency = item.id < 0;
+
+        let optionsHtml = '';
+        if (!isCurrency) {
+            optionsHtml = `
+                <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 11px; color: var(--cyan);"><i class="fa-solid fa-bolt"></i> Option của vật phẩm này</span>
+                        <button type="button" class="btn-secondary" style="font-size: 10px; padding: 2px 6px;" onclick="addGcItemOption(${index})">+ Thêm Option</button>
+                    </div>
+                    ${item.options.map((opt, optIdx) => `
+                        <div style="display: flex; gap: 6px; margin-bottom: 4px; align-items: center;">
+                            <select class="input-field" style="font-size: 11px; padding: 4px;" onchange="updateGcOptionField(${index}, ${optIdx}, 'id', this.value)">
+                                ${optionTemplates.map(o => `<option value="${o.id}" ${o.id === opt.id ? 'selected' : ''}>#${o.id} - ${escapeHtml(o.name)}</option>`).join('')}
+                            </select>
+                            <input type="number" class="input-field" style="width: 80px; font-size: 11px; padding: 4px;" value="${opt.param}" placeholder="Param" onchange="updateGcOptionField(${index}, ${optIdx}, 'param', this.value)">
+                            <button type="button" class="btn-secondary" style="font-size: 10px; padding: 2px 6px; color: var(--red);" onclick="removeGcItemOption(${index}, ${optIdx})">&times;</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        row.innerHTML = `
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <span style="font-weight: bold; color: ${isCurrency ? 'var(--gold)' : 'var(--cyan)'}; font-size: 13px;">
+                    ${isCurrency ? (item.id === -1 ? '💰 VÀNG' : item.id === -2 ? '💎 NGỌC' : '🔴 NGỌC KHÓA') : '📦 ID Item:'}
+                </span>
+                ${!isCurrency ? `
+                    <select class="input-field" style="flex: 1; min-width: 180px; font-size: 12px;" onchange="updateGcItemField(${index}, 'id', this.value)">
+                        ${itemTemplates.map(t => `<option value="${t.id}" ${t.id === item.id ? 'selected' : ''}>#${t.id} - ${escapeHtml(t.name)}</option>`).join('')}
+                    </select>
+                ` : `<span style="font-weight: bold; color: #fff;">${item.name || ''}</span>`}
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <span style="font-size: 12px; color: var(--text-muted);">Số lượng:</span>
+                    <input type="number" class="input-field" style="width: 100px; font-weight: bold;" value="${item.quantity}" onchange="updateGcItemField(${index}, 'quantity', this.value)">
+                </div>
+                <button type="button" class="btn-secondary" style="color: var(--red); padding: 6px 10px;" onclick="removeGcItemRow(${index})">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+            ${optionsHtml}
+        `;
+        container.appendChild(row);
+    });
+}
+
+async function handleCreateGiftCode(e) {
+    e.preventDefault();
+    const code = document.getElementById('gc-code-input').value.trim();
+    const countLeft = parseInt(document.getElementById('gc-count-input').value) || 100;
+    const expDate = document.getElementById('gc-exp-input').value;
+
+    if (!code) {
+        showToast('Vui lòng nhập mã GiftCode!', 'error');
+        return;
+    }
+
+    if (currentGcItems.length === 0) {
+        showToast('Vui lòng thêm ít nhất 1 phần quà vào GiftCode!', 'error');
+        return;
+    }
+
+    const detailArray = currentGcItems.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        options: item.options || []
+    }));
+
+    try {
+        const resp = await fetch('/api/admin/giftcodes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: code,
+                countLeft: countLeft,
+                dateexpired: expDate || null,
+                detail: detailArray
+            })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message, 'success');
+            currentGcItems = [];
+            renderGcItemsRows();
+            document.getElementById('create-giftcode-form').reset();
+            loadAdminGiftcodes();
+        } else {
+            showToast(data.message || 'Lỗi khi tạo GiftCode', 'error');
+        }
+    } catch (err) {
+        showToast('Không thể kết nối Server', 'error');
+    }
+}
+
+async function loadAdminGiftcodes() {
+    try {
+        const resp = await fetch('/api/admin/giftcodes');
+        const rows = await resp.json();
+
+        const badge = document.getElementById('gc-count-badge');
+        if (badge) badge.innerText = `${rows.length} Mã`;
+
+        const tbody = document.getElementById('gc-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (!Array.isArray(rows) || rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">Chưa có mã GiftCode nào được tạo!</td></tr>';
+            return;
+        }
+
+        rows.forEach(gc => {
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+
+            let detailStr = '';
+            try {
+                const detailArr = typeof gc.detail === 'string' ? JSON.parse(gc.detail) : gc.detail;
+                if (Array.isArray(detailArr)) {
+                    detailStr = detailArr.map(item => {
+                        if (item.id === -1) return `<span style="color: var(--gold); font-weight: bold;">💰 ${Number(item.quantity).toLocaleString('vi-VN')} Vàng</span>`;
+                        if (item.id === -2) return `<span style="color: var(--cyan); font-weight: bold;">💎 ${Number(item.quantity).toLocaleString('vi-VN')} Ngọc</span>`;
+                        if (item.id === -3) return `<span style="color: #f87171; font-weight: bold;">🔴 ${Number(item.quantity).toLocaleString('vi-VN')} Ngọc Khóa</span>`;
+                        const temp = itemTemplates.find(t => t.id === item.id);
+                        const name = temp ? temp.name : `Item #${item.id}`;
+                        return `<span style="color: #fff;">📦 x${item.quantity} ${escapeHtml(name)}</span>`;
+                    }).join(', ');
+                }
+            } catch (e) {
+                detailStr = 'Phần quà';
+            }
+
+            const expDateStr = gc.expired ? new Date(gc.expired).toLocaleDateString('vi-VN') : 'Không hạn';
+
+            tr.innerHTML = `
+                <td style="padding: 12px; font-weight: 800; color: var(--gold); font-size: 15px;">${escapeHtml(gc.code)}</td>
+                <td style="padding: 12px; color: var(--cyan); font-weight: bold;">${gc.count_left === -1 || gc.count_left >= 999999 ? 'Vô hạn' : gc.count_left + ' lượt'}</td>
+                <td style="padding: 12px; font-size: 13px;">${detailStr}</td>
+                <td style="padding: 12px; color: var(--text-muted); font-size: 12px;">${expDateStr}</td>
+                <td style="padding: 12px;">
+                    <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(239, 68, 68, 0.2); color: #f87171;" onclick="deleteAdminGiftcode(${gc.id}, '${escapeHtml(gc.code)}')">
+                        <i class="fa-solid fa-trash"></i> Xóa
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (err) {
+        console.error('Lỗi load giftcodes:', err);
+    }
+}
+
+function deleteAdminGiftcode(id, code) {
+    customConfirm(
+        'XÓA GIFTCODE',
+        `Bạn có chắc chắn muốn xóa mã GiftCode <strong style="color: var(--gold);">${code}</strong> không?`,
+        async () => {
+            try {
+                const resp = await fetch(`/api/admin/giftcodes/${id}`, { method: 'DELETE' });
+                const data = await resp.json();
+                showToast(data.message, data.status === 'success' ? 'success' : 'error');
+                loadAdminGiftcodes();
+            } catch (e) {
+                showToast('Lỗi khi xóa GiftCode', 'error');
+            }
+        }
+    );
+}
+
+async function handleUserRedeemGiftcode(e) {
+    e.preventDefault();
+    if (!currentLoggedUser) {
+        showToast('Vui lòng đăng nhập lại!', 'error');
+        return;
+    }
+    if (!currentLoggedUser.hasPlayer) {
+        customConfirm(
+            'CHƯA CÓ NHÂN VẬT',
+            'Tài khoản của bạn <strong style="color: var(--red);">chưa tạo nhân vật</strong> trong game.<br>Vui lòng mở Game Ngọc Rồng, đăng nhập và <strong>tạo nhân vật mới</strong> trước khi nhập mã quà tặng nhé!',
+            null
+        );
+        return;
+    }
+
+    const input = document.getElementById('user-gc-input');
+    const code = input ? input.value.trim() : '';
+
+    if (!code) {
+        showToast('Vui lòng nhập mã GiftCode!', 'error');
+        return;
+    }
+
+    try {
+        const resp = await fetch('/api/user/use-giftcode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                playerName: currentLoggedUser.player.name,
+                code: code
+            })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message, 'success');
+            if (input) input.value = '';
+        } else {
+            showToast(data.message || 'Lỗi khi nhập GiftCode', 'error');
+        }
+    } catch (err) {
+        showToast('Không thể kết nối Server Game', 'error');
+    }
 }
 
 // --- UTILS ---

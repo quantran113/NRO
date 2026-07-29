@@ -95,6 +95,9 @@
             <button class="nav-btn" onclick="switchTab('shops')">
                 <i class="fa-solid fa-store"></i> QUẢN LÝ SHOP NPC
             </button>
+            <button class="nav-btn" onclick="switchTab('giftcode')">
+                <i class="fa-solid fa-gift"></i> TỰ TẠO GIFTCODE
+            </button>
             <button class="nav-btn" onclick="switchTab('accounts')">
                 <i class="fa-solid fa-users-gear"></i> QUẢN LÝ TÀI KHOẢN
             </button>
@@ -624,6 +627,89 @@
             </div>
         </div>
 
+        <!-- TAB GIFTCODE: TỰ TẠO & PHÁT GIFTCODE -->
+        <div id="tab-giftcode" class="tab-content" style="display: none;">
+            <div class="glass" style="padding: 24px;">
+                <div class="panel-header" style="border: none; padding: 0 0 16px 0;">
+                    <h2><i class="fa-solid fa-gift"></i> TỰ TẠO & PHÁT MÃ GIFTCODE CHO NGƯỜI CHƠI</h2>
+                </div>
+
+                <!-- Form Tạo GiftCode -->
+                <div class="glass" style="padding: 20px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); margin-bottom: 24px;">
+                    <form id="create-giftcode-form" onsubmit="handleCreateGiftCode(event)">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-barcode"></i> Mã Code (Ví dụ: TRIAN2026)</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="gc-code-input" class="input-field" placeholder="Nhập mã code..." style="font-weight: 800; color: var(--gold);" required>
+                                    <button type="button" class="btn-secondary" style="font-size: 11px; white-space: nowrap;" onclick="generateRandomGcCode()">🎲 Ngẫu nhiên</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-hashtag"></i> Số Lượt Nhập (-1 = Vô hạn)</label>
+                                <input type="number" id="gc-count-input" class="input-field" value="100" placeholder="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-calendar-days"></i> Hạn Sử Dụng (Mặc định 1 Năm)</label>
+                                <input type="date" id="gc-exp-input" class="input-field">
+                            </div>
+                        </div>
+
+                        <!-- Quick Add Currency Buttons -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-size: 12px; margin-bottom: 6px; display: block; color: var(--text-muted);"><i class="fa-solid fa-bolt"></i> Thêm Nhanh Tiền Vàng / Ngọc Vào GiftCode</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-secondary" style="font-size: 12px; background: rgba(255,215,0,0.15); color: var(--gold);" onclick="addQuickGcCurrency(-1, 10000000, '10,000,000 Vàng')">
+                                    💰 +10 Tr Vàng
+                                </button>
+                                <button type="button" class="btn-secondary" style="font-size: 12px; background: rgba(0,243,255,0.15); color: var(--cyan);" onclick="addQuickGcCurrency(-2, 1000, '1,000 Ngọc')">
+                                    💎 +1,000 Ngọc
+                                </button>
+                                <button type="button" class="btn-secondary" style="font-size: 12px; background: rgba(239,68,68,0.15); color: #f87171;" onclick="addQuickGcCurrency(-3, 5000, '5,000 Ngọc Khóa')">
+                                    🔴 +5,000 Ngọc Khóa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Custom Item Picker for GiftCode -->
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 12px; margin: 0;"><i class="fa-solid fa-box-open"></i> Thêm Vật Phẩm Bất Kỳ Vào GiftCode</label>
+                                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="addGcItemRow()">
+                                    <i class="fa-solid fa-plus"></i> Thêm Vật Phẩm
+                                </button>
+                            </div>
+                            <div id="gc-items-list"></div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; font-weight: 800; width: 100%;">
+                            🎁 TẠO & PHÁT MÃ GIFTCODE NGAY
+                        </button>
+                    </form>
+                </div>
+
+                <!-- GiftCodes Table -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> DANH SÁCH GIFTCODE ĐANG KÍCH HOẠT</h3>
+                    <span id="gc-count-badge" class="badge-online" style="background: rgba(255,215,0,0.15); color: var(--gold); border-color: var(--gold);">0 Mã</span>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
+                            <th style="padding: 12px;">MÃ GIFTCODE</th>
+                            <th style="padding: 12px;">SỐ LƯỢNG CÒN LẠI</th>
+                            <th style="padding: 12px;">CHI TIẾT PHẦN QUÀ</th>
+                            <th style="padding: 12px;">HẠN SỬ DỤNG</th>
+                            <th style="padding: 12px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gc-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- TAB 6: QUẢN LÝ TÀI KHOẢN & ĐĂNG KÝ -->
         <div id="tab-accounts" class="tab-content" style="display: none;">
             <div class="glass" style="padding: 24px;">
@@ -728,6 +814,22 @@
                             <div id="portal-char-id" style="font-size: 16px; font-weight: 800; color: var(--cyan);">-</div>
                         </div>
                     </div>
+                </div>
+
+                <!-- REDEEM GIFTCODE CARD FOR PLAYER -->
+                <div class="glass" style="padding: 20px; border: 1px solid rgba(255, 215, 0, 0.4); margin-bottom: 28px;">
+                    <h3 style="color: var(--gold); font-size: 17px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-gift"></i> NHẬP MÃ GIFTCODE NHẬN QUÀ GAME
+                    </h3>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+                        Nhập mã GiftCode do Admin phát để nhận ngay Tiền Vàng, Ngọc và Trang Bị VIP trực tiếp vào nhân vật!
+                    </p>
+                    <form onsubmit="handleUserRedeemGiftcode(event)" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <input type="text" id="user-gc-input" class="input-field" placeholder="Nhập mã Giftcode..." style="flex: 1; min-width: 220px; font-weight: 800; color: var(--gold); text-transform: uppercase;" required>
+                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; font-weight: 800; padding: 10px 24px;">
+                            🎁 NHẬN QUÀ NGAY
+                        </button>
+                    </form>
                 </div>
 
                 <!-- BUY GOLD STORE -->

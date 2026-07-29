@@ -14,8 +14,12 @@ import nro.models.event.EventManager;
 import nro.models.server.Manager;
 import nro.models.services.InventoryService;
 import nro.models.services.ItemService;
+import nro.models.managers.GiftCodeManager;
+import nro.models.player_system.GiftCode;
+import nro.models.services.GiftCodeService;
 import nro.models.services.Service;
 import nro.models.services.TaskService;
+import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -59,6 +63,8 @@ public class AdminHttpServer {
             server.createContext("/api/map-templates", new MapTemplatesHandler());
             server.createContext("/api/npc-shops", new NpcShopsHandler());
             server.createContext("/api/next-task", new NextTaskHandler());
+            server.createContext("/api/reload-giftcode", new ReloadGiftCodeHandler());
+            server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
             
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -568,21 +574,9 @@ public class AdminHttpServer {
                 if (targetPlayer != null) {
                     // ONLINE Player
                     if (targetPlayer.pet != null) {
-                        switch (petType) {
-                            case 1: nro.models.services.PetService.gI().changeMabuPet(targetPlayer, petGender); break;
-                            case 2: nro.models.services.PetService.gI().changeUubPet(targetPlayer, petGender); break;
-                            case 3: nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer, petGender); break;
-                            case 4: nro.models.services.PetService.gI().changeJirenPet(targetPlayer, petGender); break;
-                            default: nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender); break;
-                        }
+                        nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender);
                     } else {
-                        switch (petType) {
-                            case 1: nro.models.services.PetService.gI().createMabuPet(targetPlayer, petGender); break;
-                            case 2: nro.models.services.PetService.gI().createUubPet(targetPlayer, petGender); break;
-                            case 3: nro.models.services.PetService.gI().createKidBeerPet(targetPlayer, petGender); break;
-                            case 4: nro.models.services.PetService.gI().createJirenPet(targetPlayer, petGender); break;
-                            default: nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender); break;
-                        }
+                        nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender);
                     }
 
                     // Set custom power if provided
@@ -1044,6 +1038,104 @@ public class AdminHttpServer {
                 }
 
                 sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "]\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/reload-giftcode ---
+    private static class ReloadGiftCodeHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                GiftCodeManager.gI().listGiftCode.clear();
+                try (Connection conn = LocalManager.getConnection();
+                     PreparedStatement ps = conn.prepareStatement("SELECT * FROM giftcode");
+                     ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        GiftCode giftcode = new GiftCode();
+                        giftcode.code = rs.getString("code");
+                        giftcode.id = rs.getInt("id");
+                        giftcode.countLeft = rs.getInt("count_left");
+                        if (giftcode.countLeft == -1) {
+                            giftcode.countLeft = 999999999;
+                        }
+                        giftcode.datecreate = rs.getTimestamp("datecreate");
+                        giftcode.dateexpired = rs.getTimestamp("expired");
+                        JSONArray jar = (JSONArray) JSONValue.parse(rs.getString("detail"));
+                        if (jar != null) {
+                            for (int i = 0; i < jar.size(); ++i) {
+                                JSONObject jsonObj = (JSONObject) jar.get(i);
+                                int id = Integer.parseInt(jsonObj.get("id").toString());
+                                int quantity = Integer.parseInt(jsonObj.get("quantity").toString());
+
+                                JSONArray option = (JSONArray) jsonObj.get("options");
+                                ArrayList<Item.ItemOption> optionList = new ArrayList<>();
+                                if (option != null) {
+                                    for (int u = 0; u < option.size(); u++) {
+                                        JSONObject jsonobject = (JSONObject) option.get(u);
+                                        int optionId = Integer.parseInt(jsonobject.get("id").toString());
+                                        int param = Integer.parseInt(jsonobject.get("param").toString());
+                                        optionList.add(new Item.ItemOption(optionId, param));
+                                    }
+                                }
+                                giftcode.option.put(id, optionList);
+                                giftcode.detail.put(id, quantity);
+                            }
+                        }
+                        GiftCodeManager.gI().listGiftCode.add(giftcode);
+                    }
+                }
+                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tải lại danh sách GiftCode (" + GiftCodeManager.gI().listGiftCode.size() + " mã)!\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/use-giftcode ---
+    private static class UseGiftCodeHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStream is = exchange.getRequestBody();
+                String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
+
+                String playerName = body != null && body.get("playerName") != null ? body.get("playerName").toString().trim() : "";
+                String code = body != null && body.get("code") != null ? body.get("code").toString().trim() : "";
+
+                if (playerName.isEmpty() || code.isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật hoặc mã giftcode\"}");
+                    return;
+                }
+
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName)) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                if (player == null) {
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] phải ONLINE trong game để nhập giftcode!\"}");
+                    return;
+                }
+
+                GiftCodeService.gI().giftCode(player, code);
+                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xử lý nhập GiftCode cho [" + player.name + "]!\"}");
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");

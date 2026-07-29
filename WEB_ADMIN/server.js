@@ -744,6 +744,81 @@ app.post('/api/drop-rules', async (req, res) => {
     }
 });
 
+// --- GIFTCODE ENDPOINTS ---
+app.get('/api/admin/giftcodes', async (req, res) => {
+    try {
+        const [rows] = await pool.execute('SELECT id, code, count_left, datecreate, expired, detail FROM giftcode ORDER BY id DESC');
+        return res.json(rows);
+    } catch (err) {
+        return res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/api/admin/giftcodes', async (req, res) => {
+    try {
+        const { code, countLeft, dateexpired, detail } = req.body;
+        if (!code || !code.trim()) {
+            return res.status(400).json({ status: 'error', message: 'Vui lòng nhập mã GiftCode' });
+        }
+        const cleanCode = code.trim();
+        const count = countLeft !== undefined ? parseInt(countLeft) : 100;
+        const detailJson = JSON.stringify(detail || []);
+        const expDate = dateexpired ? new Date(dateexpired) : new Date(Date.now() + 365*24*60*60*1000);
+
+        // Check duplicate
+        const [exist] = await pool.execute('SELECT id FROM giftcode WHERE code = ?', [cleanCode]);
+        if (exist.length > 0) {
+            return res.status(400).json({ status: 'error', message: `Mã GiftCode [${cleanCode}] đã tồn tại!` });
+        }
+
+        await pool.execute(
+            'INSERT INTO giftcode (code, count_left, datecreate, expired, detail) VALUES (?, ?, NOW(), ?, ?)',
+            [cleanCode, count, expDate, detailJson]
+        );
+
+        // Call Java server reload API
+        try {
+            await fetch(`${JAVA_API_URL}/api/reload-giftcode`, { method: 'POST' });
+        } catch (e) {}
+
+        return res.json({ status: 'success', message: `Đã tạo và kích hoạt GiftCode [${cleanCode}] thành công!` });
+    } catch (err) {
+        return res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.delete('/api/admin/giftcodes/:id', async (req, res) => {
+    try {
+        const giftId = req.params.id;
+        await pool.execute('DELETE FROM giftcode WHERE id = ?', [giftId]);
+        try {
+            await fetch(`${JAVA_API_URL}/api/reload-giftcode`, { method: 'POST' });
+        } catch (e) {}
+        return res.json({ status: 'success', message: 'Đã xóa GiftCode thành công!' });
+    } catch (err) {
+        return res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/api/user/use-giftcode', async (req, res) => {
+    try {
+        const { playerName, code } = req.body;
+        if (!playerName || !code) {
+            return res.status(400).json({ status: 'error', message: 'Vui lòng nhập mã GiftCode' });
+        }
+
+        const resp = await fetch(`${JAVA_API_URL}/api/use-giftcode`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerName, code: code.trim() })
+        });
+        const data = await resp.json();
+        return res.status(resp.status).json(data);
+    } catch (err) {
+        return res.status(500).json({ status: 'error', message: 'Không thể gửi mã đến Game Server. Hãy chắc chắn Game Server đang chạy.' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`=================================================`);
     console.log(`🔥 WEB ADMIN PANEL NRO READY!`);
