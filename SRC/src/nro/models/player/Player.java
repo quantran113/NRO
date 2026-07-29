@@ -730,17 +730,41 @@ public class Player implements Runnable {
     }
 
     public byte getAura() {
-        if (!isPl() || this.Cards.isEmpty()) {
+        if (!isPl()) {
             return -1;
         }
-        for (Card card : this.Cards) {
-            if (card != null && (card.Id == 956 || card.Id == 1792 || card.Id == 1793 || card.Id == 1791 || card.Id == 1204 || card.Id == 1142) && card.Level > 1) {
-                RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == card.Id).findFirst().orElse(null);
-                if (radarTemplate != null) {
-                    return (byte) radarTemplate.AuraId;
+
+        // 1. Check items worn on body (itemsBody) for explicit Aura options (Option 112, 159, 209, 211)
+        if (this.inventory != null && this.inventory.itemsBody != null) {
+            for (Item item : this.inventory.itemsBody) {
+                if (item != null && item.isNotNullItem() && item.itemOptions != null) {
+                    for (Item.ItemOption io : item.itemOptions) {
+                        if (io != null && (io.optionTemplate.id == 112 || io.optionTemplate.id == 159 || io.optionTemplate.id == 209 || io.optionTemplate.id == 211)) {
+                            return (byte) io.param;
+                        }
+                    }
                 }
             }
         }
+
+        // 2. Check Radar Sách sưu tầm / Cards
+        if (this.Cards != null && !this.Cards.isEmpty()) {
+            for (Card card : this.Cards) {
+                if (card != null && (card.Id == 956 || card.Id == 1792 || card.Id == 1793 || card.Id == 1791 || card.Id == 1204 || card.Id == 1142) && card.Level > 1) {
+                    RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == card.Id).findFirst().orElse(null);
+                    if (radarTemplate != null && radarTemplate.AuraId > 0) {
+                        return (byte) radarTemplate.AuraId;
+                    }
+                }
+            }
+        }
+
+        // 3. Fallback Aura based on Equipment Star Level / Set Kích Hoạt (getEffFront)
+        byte effFront = getEffFront();
+        if (effFront > 0) {
+            return effFront;
+        }
+
         return -1;
     }
 
