@@ -91,10 +91,23 @@ app.get('/api/admin/stats', async (req, res) => {
     }
 });
 
-// Auto-repair account table schema on startup
+// Auto-repair all NOT NULL account table columns on startup
 (async () => {
     try {
-        await pool.execute("ALTER TABLE account MODIFY COLUMN email VARCHAR(255) NULL DEFAULT ''");
+        const [cols] = await pool.execute('SHOW COLUMNS FROM account');
+        for (const c of cols) {
+            if (c.Extra && c.Extra.includes('auto_increment')) continue;
+            if (c.Field === 'username' || c.Field === 'password') continue;
+            
+            if (c.Null === 'NO' && c.Default === null) {
+                let defaultVal = "''";
+                if (c.Type.includes('int')) defaultVal = "0";
+                else if (c.Type.includes('time') || c.Type.includes('date')) defaultVal = "NOW()";
+                try {
+                    await pool.execute(`ALTER TABLE account MODIFY COLUMN \`${c.Field}\` ${c.Type} NULL DEFAULT ${defaultVal}`);
+                } catch (err) {}
+            }
+        }
     } catch (e) {}
 })();
 
@@ -120,35 +133,37 @@ app.post('/api/register', async (req, res) => {
 
         // Dynamically inspect columns of account table
         const [cols] = await pool.execute('SHOW COLUMNS FROM account');
-        const colNames = cols.map(c => c.Field);
-
+        
         const fields = ['username', 'password'];
         const values = [cleanUser, cleanPass];
 
-        if (colNames.includes('email')) {
-            fields.push('email');
-            values.push(cleanEmail);
-        }
+        for (const c of cols) {
+            const field = c.Field;
+            if (field === 'id' || (c.Extra && c.Extra.includes('auto_increment')) || field === 'username' || field === 'password') continue;
 
-        if (colNames.includes('active')) {
-            fields.push('active');
-            values.push(1);
-        }
-
-        if (colNames.includes('admin')) {
-            fields.push('admin');
-            values.push(0);
-        } else if (colNames.includes('is_admin')) {
-            fields.push('is_admin');
-            values.push(0);
-        }
-
-        if (colNames.includes('create_time')) {
-            fields.push('create_time');
-            values.push(new Date());
-        } else if (colNames.includes('created_at')) {
-            fields.push('created_at');
-            values.push(new Date());
+            if (field === 'email') {
+                fields.push(field);
+                values.push(cleanEmail);
+            } else if (field === 'active') {
+                fields.push(field);
+                values.push(1);
+            } else if (field === 'admin' || field === 'is_admin') {
+                fields.push(field);
+                values.push(0);
+            } else if (field === 'create_time' || field === 'created_at') {
+                fields.push(field);
+                values.push(new Date());
+            } else if (c.Null === 'NO' && c.Default === null) {
+                // Handle any required column (like token, phone, ip) that lacks a default value
+                fields.push(field);
+                if (c.Type.includes('int')) {
+                    values.push(0);
+                } else if (c.Type.includes('time') || c.Type.includes('date')) {
+                    values.push(new Date());
+                } else {
+                    values.push('');
+                }
+            }
         }
 
         const placeholders = fields.map(() => '?').join(', ');
