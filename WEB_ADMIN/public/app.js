@@ -1268,11 +1268,18 @@ function setPetPowerPreset(val) {
 async function executeGrantPet(e) {
     e.preventDefault();
 
-    const playerName = document.getElementById('target-player-pet').value.trim();
+    const playerNameInput = document.getElementById('target-player-pet');
+    const playerName = playerNameInput ? playerNameInput.value.trim() : '';
     const petType = parseInt(document.getElementById('pet-type-select').value) || 0;
     const petGender = parseInt(document.getElementById('pet-gender-select').value) || 0;
-    const power = parseInt(document.getElementById('pet-power-input').value) || 2000;
-    const tiemNang = parseInt(document.getElementById('pet-tiemnang-input').value) || power;
+
+    const pEl = document.getElementById('pet-power-input');
+    const tEl = document.getElementById('pet-tiemnang-input');
+    const powerRaw = pEl ? pEl.value.toString().replace(/,/g, '').replace(/\./g, '').trim() : '2000';
+    const tiemNangRaw = tEl ? tEl.value.toString().replace(/,/g, '').replace(/\./g, '').trim() : powerRaw;
+
+    const power = parseInt(powerRaw) || 2000;
+    const tiemNang = parseInt(tiemNangRaw) || power;
 
     if (!playerName) {
         showToast('Vui lòng nhập tên nhân vật nhận đệ tử!', 'error');
@@ -1284,10 +1291,14 @@ async function executeGrantPet(e) {
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG GỬI CẤP/ĐỔI ĐỆ TỬ...';
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
         const resp = await fetch('/api/grant-pet', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
             body: JSON.stringify({
                 playerName: playerName,
                 petType: petType,
@@ -1296,6 +1307,7 @@ async function executeGrantPet(e) {
                 tiemNang: tiemNang
             })
         });
+        clearTimeout(timeoutId);
 
         const result = await resp.json();
 
@@ -1306,7 +1318,12 @@ async function executeGrantPet(e) {
             showToast(result.message || 'Cấp đệ tử thất bại', 'error');
         }
     } catch (err) {
-        showToast('Lỗi kết nối API Server: ' + err.message, 'error');
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            showToast('Quá thời gian chờ (Timeout 10s). Hãy đảm bảo Game Server đang chạy!', 'error');
+        } else {
+            showToast('Lỗi kết nối API Server: ' + err.message, 'error');
+        }
     } finally {
         btn.disabled = false;
         btn.innerHTML = origText;
