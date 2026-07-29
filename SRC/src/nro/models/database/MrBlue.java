@@ -361,6 +361,7 @@ public class MrBlue {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1) {
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.itemOptions.clear(); // Clear defaults - will load actual options from DB
                     JSONArray options = (JSONArray) JSONValue
                             .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
@@ -390,6 +391,7 @@ public class MrBlue {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1) {
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.itemOptions.clear(); // Clear defaults - will load actual options from DB
                     JSONArray options = (JSONArray) JSONValue
                             .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
@@ -416,6 +418,7 @@ public class MrBlue {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1) {
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.itemOptions.clear(); // Clear defaults - will load actual options from DB
                     JSONArray options = (JSONArray) JSONValue
                             .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
@@ -456,6 +459,7 @@ public class MrBlue {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1) {
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.itemOptions.clear(); // Clear defaults - will load actual options from DB
                     JSONArray options = (JSONArray) JSONValue
                             .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
@@ -476,6 +480,7 @@ public class MrBlue {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1) {
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.itemOptions.clear(); // Clear defaults - will load actual options from DB
                     JSONArray options = (JSONArray) JSONValue
                             .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
@@ -857,6 +862,7 @@ public class MrBlue {
                     if (tempId != -1) {
                         item = ItemService.gI().createNewItem(tempId,
                                 Integer.parseInt(String.valueOf(dataItem.get(1))));
+                        item.itemOptions.clear(); // Clear defaults - will load actual options from DB
                         JSONArray options = (JSONArray) JSONValue
                                 .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                         for (int j = 0; j < options.size(); j++) {

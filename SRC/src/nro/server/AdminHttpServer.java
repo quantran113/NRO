@@ -254,8 +254,8 @@ public class AdminHttpServer {
                         return;
                     }
 
-                    // If user provided custom options -> clear defaults (đồ trắng) and use only custom
-                    // If no custom options -> keep default base game options (đồ gốc)
+                    // Custom options -> clear defaults (đồ trắng) and use only custom
+                    // No custom options -> keep defaults from createNewItem (đồ gốc game)
                     if (optionsReq != null && !optionsReq.isEmpty()) {
                         item.itemOptions.clear(); // Đồ trắng
                         for (Object o : optionsReq) {
@@ -318,8 +318,9 @@ public class AdminHttpServer {
                                     optionsArr.add(customOpt.toJSONString());
                                 }
                             } else {
-                                // No custom -> đồ gốc game (get default options from createNewItem)
+                                // No custom -> đồ gốc game (get default options)
                                 Item tempItem = ItemService.gI().createNewItem((short) itemId, 1);
+                                ItemService.gI().initDefaultItemOptions(tempItem);
                                 if (tempItem != null && tempItem.itemOptions != null) {
                                     for (Item.ItemOption io : tempItem.itemOptions) {
                                         JSONArray baseOpt = new JSONArray();
@@ -433,7 +434,7 @@ public class AdminHttpServer {
 
                         Item item = ItemService.gI().createNewItem((short) itemId, quantity);
                         if (item != null) {
-                            // Custom options -> đồ trắng + chỉ custom; Không custom -> đồ gốc game
+                            // Custom options -> đồ trắng; Không custom -> đồ gốc game (already from createNewItem)
                             if (optionsReq != null && !optionsReq.isEmpty()) {
                                 item.itemOptions.clear(); // Đồ trắng
                                 for (Object o : optionsReq) {
@@ -509,6 +510,7 @@ public class AdminHttpServer {
                                     }
                                 } else {
                                     Item tempItem = ItemService.gI().createNewItem((short) itemId, 1);
+                                    ItemService.gI().initDefaultItemOptions(tempItem);
                                     if (tempItem != null && tempItem.itemOptions != null) {
                                         for (Item.ItemOption io : tempItem.itemOptions) {
                                             JSONArray baseOpt = new JSONArray();
