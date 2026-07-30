@@ -1666,14 +1666,12 @@ public class AdminHttpServer {
 
                     if (customHp > 0) {
                         boss.nPoint.hpg = customHp;
-                        boss.nPoint.hpMax = customHp;
-                        boss.nPoint.hp = customHp;
                     }
                     if (customDame > 0) {
                         boss.nPoint.dameg = customDame;
-                        boss.nPoint.dame = customDame;
                     }
                     boss.nPoint.calPoint();
+                    boss.nPoint.hp = boss.nPoint.hpMax;
 
                     nro.models.map.Zone targetZone = null;
                     if (mapId >= 0) {

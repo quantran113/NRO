@@ -2707,36 +2707,19 @@ public class BossesData {
     );
 
     public static final BossData BOSS_MABU_SAN_DE = new BossData(
-            "Ma Bư Săn Đệ Tử",
+            "Kid Bư Săn Đệ Tử",
             ConstPlayer.XAYDA,
             new short[]{297, 298, 299, -1, -1, -1},
-            25000,
+            30000,
             new int[]{50000000},
             new int[]{5, 13, 20, 27, 28, 29, 30},
             new int[][]{
                 {Skill.MASENKO, 7, 1000},
                 {Skill.KAMEJOKO, 7, 1000},
                 {Skill.THAI_DUONG_HA_SAN, 1, 30000}},
-            new String[]{"|-1|Bư bư bư... Ta đến để tặng Trứng Đệ Tử đây!"},
-            new String[]{"|-1|Ai dám thách thức Ma Bư để lấy Trứng Đệ Tử?", "|-1|Đánh thắng ta sẽ có Trứng Đệ Tử!"},
+            new String[]{"|-1|Bư bư bư... Kid Bư xuất hiện mang Trứng Đệ Tử đây!"},
+            new String[]{"|-1|Ai dám thách thức Kid Bư để lấy Trứng Đệ Tử?", "|-1|Đánh thắng ta sẽ có Trứng Đệ Tử!"},
             new String[]{"|-1|Ôi không... Ngươi quá mạnh! Trứng Đệ Tử thuộc về ngươi!"},
-            REST_15_M
-    );
-
-    public static final BossData BOSS_BEERUS_SAN_DE = new BossData(
-            "Beerus Săn Đệ Tử",
-            ConstPlayer.XAYDA,
-            new short[]{507, 508, 509, -1, -1, -1},
-            40000,
-            new int[]{100000000},
-            new int[]{5, 13, 20, 27, 28, 29, 30},
-            new int[][]{
-                {Skill.ANTOMIC, 7, 1000},
-                {Skill.KAMEJOKO, 7, 1000},
-                {Skill.THAI_DUONG_HA_SAN, 2, 30000}},
-            new String[]{"|-1|Thần Hủy Diệt Beerus đã giáng thế mang Trứng Đệ Tử VIP!"},
-            new String[]{"|-1|Hãy cho ta thấy sức mạnh của ngươi nếu muốn lấy Trứng Đệ!"},
-            new String[]{"|-1|Khá lắm! Trận đấu tuyệt vời, hãy nhận lấy phần thưởng của ngươi!"},
             REST_15_M
     );
 }

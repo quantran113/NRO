@@ -71,7 +71,6 @@ public class BossID {
     public static final int Virut = -79;
     public static final int MAT_TROI = -799;
     public static final int BOSS_MABU_SAN_DE = -9991;
-    public static final int BOSS_BEERUS_SAN_DE = -9992;
 
     //========================BOSS 12H========================
     public static final int DRABURA = -233;

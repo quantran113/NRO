@@ -1388,8 +1388,7 @@
                     <select id="preset-boss-select" class="select-field" onchange="onSelectPresetBoss()">
                         <option value="">-- Chọn Boss từ danh sách mẫu --</option>
                         <optgroup label="✨ BOSS SĂN ĐỆ TỬ (RỚT TRỨNG ĐỆ TỬ)">
-                            <option value="-9991">🐣 Boss Ma Bư Săn Đệ (ID: -9991) - Rớt Trứng Đệ Bư</option>
-                            <option value="-9992">🐱 Boss Beerus Săn Đệ (ID: -9992) - Rớt Trứng Đệ Beerus</option>
+                            <option value="-9991">👶 Boss Kid Bư Săn Đệ (ID: -9991) - Rớt Trứng Đệ Tử</option>
                         </optgroup>
                         <optgroup label="🐉 BOSS GAME THƯỜNG">
                             <option value="-20">🐉 Kuku (ID: -20)</option>
@@ -1419,8 +1418,8 @@
                 <div class="form-group">
                     <label><i class="fa-solid fa-map-location-dot" style="color: var(--cyan);"></i> Bản Đồ Xuất Hiện (Map Spawn)</label>
                     <select id="spawn-map-select" class="select-field">
-                        <option value="-2" selected>🔀 Ngẫu Nhiên Bản Đồ (Random Map)</option>
-                        <option value="-1">🎲 Mặc Định Của Boss</option>
+                        <option value="-1" selected>🎲 Mặc Định Của Boss</option>
+                        <option value="-2">🔀 Ngẫu Nhiên Bản Đồ (Random Map)</option>
                         <option value="0">🏡 Làng Aru (0)</option>
                         <option value="5">🌴 Đảo Kame (5)</option>
                         <option value="1">🌲 Rừng Bambo (1)</option>
@@ -1437,14 +1436,17 @@
                     </div>
                     <div class="form-group">
                         <label><i class="fa-solid fa-door-open"></i> Khu Vực (Zone ID)</label>
+                        <input type="number" id="custom-zone-id-input" class="input-field" placeholder="Zone ID (mặc định ngẫu nhiên)">
+                    </div>
+                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
                     <div class="form-group">
                         <label><i class="fa-solid fa-heart" style="color: #ff4757;"></i> Tùy Chỉnh HP Boss</label>
-                        <input type="number" id="custom-boss-hp-input" class="input-field" placeholder="Mặc định của Boss (VD: 50000000)">
+                        <input type="number" id="custom-boss-hp-input" class="input-field" placeholder="Mặc định (VD: 50000000)">
                     </div>
                     <div class="form-group">
                         <label><i class="fa-solid fa-hand-fist" style="color: #ffa502;"></i> Sức Đánh (Dame)</label>
-                        <input type="number" id="custom-boss-dame-input" class="input-field" placeholder="Mặc định của Boss (VD: 25000)">
+                        <input type="number" id="custom-boss-dame-input" class="input-field" placeholder="Mặc định (VD: 25000)">
                     </div>
                 </div>
             </div>
@@ -1493,7 +1495,7 @@
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
 
-    <script src="app.js?v=20260730_boss_v6"></script>
+    <script src="app.js?v=20260730_boss_v9"></script>
 </body>
 
 </html>

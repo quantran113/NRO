@@ -18,20 +18,20 @@ public class BossMabuSanDe extends Boss {
     @Override
     public void reward(Player plKill) {
         if (plKill == null) return;
-        Service.gI().sendThongBao(plKill, "Chúc mừng bạn đã đánh bại Ma Bư Săn Đệ và nhận được Trứng Đệ Tử!");
+        Service.gI().sendThongBao(plKill, "Chúc mừng bạn đã đánh bại Kid Bư và đoạt lấy Trứng Đệ Tử!");
 
         // Drop Item 568 (Quả Trứng)
         Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 568, 1,
                 this.location.x, this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));
 
-        // Drop 5 Thỏi Vàng (Item 457)
-        Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 457, 5,
+        // Drop 10 Thỏi Vàng (Item 457)
+        Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 457, 10,
                 this.location.x + 20, this.zone.map.yPhysicInTop(this.location.x + 20, this.location.y - 24), plKill.id));
 
-        // If player has no pet yet, automatically gift Mabu pet
+        // If player has no pet yet, automatically gift Mabu/Kid pet
         if (plKill.pet == null) {
             PetService.gI().createMabuPet(plKill, plKill.gender);
-            Service.gI().sendThongBao(plKill, "Bạn đã nhận được Đệ Tử Ma Bư Mới!");
+            Service.gI().sendThongBao(plKill, "Bạn đã nhận được Đệ Tử Mới!");
         }
     }
 }
