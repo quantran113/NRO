@@ -2443,14 +2443,24 @@ function renderBosses(bossList) {
     const gridContainer = document.getElementById('boss-grid-container');
     if (!gridContainer) return;
 
+    const spawnCardHtml = `
+    <div onclick="openSpawnBossModal()" style="background: rgba(255, 71, 87, 0.08); border: 2px dashed rgba(255, 71, 87, 0.5); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; min-height: 220px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255, 71, 87, 0.18)'; this.style.borderColor='#ff4757';" onmouseout="this.style.background='rgba(255, 71, 87, 0.08)'; this.style.borderColor='rgba(255, 71, 87, 0.5)';">
+        <div style="width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #ff4757, #ff6b81); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);">
+            <i class="fa-solid fa-plus"></i>
+        </div>
+        <h3 style="font-size: 16px; color: #ff4757; margin: 0 0 6px 0; font-weight: 700;">TRIỆU HỒI BOSS MỚI</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0; max-width: 210px; line-height: 1.4;">Bấm vào đây để chọn Boss Săn Đệ Tử, Boss Ma Bư, Beerus,... và Map xuất hiện</p>
+    </div>
+    `;
+
     if (!bossList || bossList.length === 0) {
-        gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 30px;">
-            <i class="fa-solid fa-ghost" style="font-size: 32px; opacity: 0.5;"></i><br><br>Không tìm thấy Boss nào phù hợp điều kiện lọc.
+        gridContainer.innerHTML = spawnCardHtml + `<div style="grid-column: 2 / -1; text-align: center; color: var(--text-muted); padding: 40px;">
+            <i class="fa-solid fa-ghost" style="font-size: 36px; opacity: 0.5;"></i><br><br>Không có Boss nào phù hợp bộ lọc. Hãy ấn ô bên trái để triệu hồi Boss mới!
         </div>`;
         return;
     }
 
-    gridContainer.innerHTML = bossList.map(boss => {
+    gridContainer.innerHTML = spawnCardHtml + bossList.map(boss => {
         const hp = boss.hp || 0;
         const maxHp = boss.maxHp || 1;
         const hpPercent = Math.min(100, Math.max(0, Math.round((hp / maxHp) * 100)));
@@ -2520,17 +2530,26 @@ function renderBosses(bossList) {
             </div>
 
             <!-- ACTION BUTTONS -->
-            <div style="display: flex; gap: 8px;">
-                <button type="button" class="btn-primary" onclick="handleBossAction('respawn', ${boss.id})" style="flex: 1; padding: 6px 10px; font-size: 12px; background: linear-gradient(135deg, #2ed573, #1e90ff); color: #fff;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                <button type="button" class="btn-primary" onclick="handleBossAction('respawn', ${boss.id})" style="padding: 6px 4px; font-size: 11px; background: linear-gradient(135deg, #2ed573, #1e90ff); color: #fff;" title="Hồi sinh Boss & kích hoạt ngay">
                     <i class="fa-solid fa-bolt"></i> Hồi Sinh
                 </button>
-                <button type="button" class="btn-secondary" onclick="handleBossAction('kill', ${boss.id})" style="flex: 1; padding: 6px 10px; font-size: 12px; border-color: #ff4757; color: #ff4757;">
+                <button type="button" class="btn-secondary" onclick="handleBossAction('kill', ${boss.id})" style="padding: 6px 4px; font-size: 11px; border-color: #ffab00; color: #ffab00;" title="Tiêu diệt Boss trong game">
                     <i class="fa-solid fa-skull"></i> Tiêu Diệt
+                </button>
+                <button type="button" class="btn-secondary" onclick="confirmDeleteBoss(${boss.id}, '${escapeHtml(boss.name || 'Boss')}')" style="padding: 6px 4px; font-size: 11px; border-color: #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1);" title="Xóa Boss khỏi danh sách">
+                    <i class="fa-solid fa-trash"></i> Xóa
                 </button>
             </div>
         </div>
         `;
     }).join('');
+}
+
+function confirmDeleteBoss(bossId, bossName) {
+    customConfirm('XÓA BOSS KHỎI HỆ THỐNG', `Bạn có chắc chắn muốn xóa Boss <strong>${bossName}</strong> (ID: ${bossId}) khỏi danh sách?`, () => {
+        handleBossAction('delete', bossId);
+    });
 }
 
 async function handleBossAction(action, bossId) {

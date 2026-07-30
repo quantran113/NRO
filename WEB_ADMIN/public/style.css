@@ -125,7 +125,9 @@ header {
 
 .nav-links {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
 }
 
 .nav-btn {

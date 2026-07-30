@@ -1661,6 +1661,8 @@ public class AdminHttpServer {
                 nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
 
                 if (boss != null) {
+                    boss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
+
                     if (mapId >= 0) {
                         try {
                             nro.models.map.Map targetMap = nro.models.map.service.MapService.gI().getMapById(mapId);
@@ -1671,6 +1673,8 @@ public class AdminHttpServer {
                             }
                         } catch (Exception ex) {}
                     }
+
+                    boss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
 
                     String mapLocationInfo = (boss.zone != null && boss.zone.map != null) ? boss.zone.map.mapName + " (Khu " + boss.zone.zoneId + ")" : "Bản đồ ngẫu nhiên";
                     JSONObject res = new JSONObject();
@@ -1727,13 +1731,28 @@ public class AdminHttpServer {
                     } else {
                         sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss đang xuất hiện!\"}");
                     }
+                } else if ("delete".equalsIgnoreCase(action) || "remove".equalsIgnoreCase(action)) {
+                    if (targetBoss != null) {
+                        try {
+                            targetBoss.changeStatus(nro.models.consts.BossStatus.LEAVE_MAP);
+                            if (nro.models.boss.Boss_Manager.BossManager.gI() != null && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
+                                nro.models.boss.Boss_Manager.BossManager.gI().getBosses().remove(targetBoss);
+                            }
+                        } catch (Exception ex) {}
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xóa Boss hoàn toàn khỏi danh sách!\"}");
+                    } else {
+                        sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss cần xóa!\"}");
+                    }
                 } else if ("respawn".equalsIgnoreCase(action)) {
                     if (targetBoss != null) {
                         targetBoss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã khởi động hồi sinh Boss!\"}");
+                        targetBoss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã hồi sinh và kích hoạt Boss ngay lập tức!\"}");
                     } else {
                         nro.models.boss.Boss newBoss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
                         if (newBoss != null) {
+                            newBoss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
+                            newBoss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
                             sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tạo mới và triệu hồi Boss thành công!\"}");
                         } else {
                             sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể tạo mới Boss!\"}");
