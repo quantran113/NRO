@@ -1168,6 +1168,133 @@
 
     </div>
 
+    <!-- TAB 8: QUẢN LÝ BOSS REALTIME -->
+    <div id="tab-bosses" class="tab-content" style="display: none;">
+        <div class="glass" style="margin-bottom: 20px;">
+            <div class="panel-header" style="justify-content: space-between;">
+                <h2><i class="fa-solid fa-skull" style="color: #ff4757;"></i> HỆ THỐNG QUẢN LÝ BOSS REALTIME</h2>
+                <div style="display: flex; gap: 10px;">
+                    <span id="boss-total-badge" class="badge-online" style="background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid #ffc107;">
+                        <i class="fa-solid fa-dragon"></i> 0 Boss Trong Hệ Thống
+                    </span>
+                    <span id="boss-active-badge" class="badge-online" style="background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid #ff4757;">
+                        <i class="fa-solid fa-fire"></i> 0 Boss Đang Sống
+                    </span>
+                </div>
+            </div>
+            <div class="panel-body">
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+                    Quản lý toàn bộ Boss trên Server. Hỗ trợ tạo Boss mới, gọi Boss về người chơi, điều chỉnh tỷ lệ rớt đồ và hồi sinh Boss nhanh chóng.
+                </p>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 1;">
+                        <div class="search-box" style="flex: 1; min-width: 200px;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="boss-search-input" class="input-field" placeholder="Tìm tên Boss hoặc Map..." oninput="filterBossList()">
+                        </div>
+                        <select id="boss-filter-status" class="select-field" style="width: 180px;" onchange="filterBossList()">
+                            <option value="ALL">Tất cả trạng thái</option>
+                            <option value="ACTIVE">🔥 Đang Sống (Active)</option>
+                            <option value="WAIT">⏳ Đang Chờ / Nghỉ ngơi</option>
+                            <option value="DIE">☠️ Đã Chết</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div class="form-group" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <label style="margin: 0; font-size: 13px; color: var(--gold);">Tỷ lệ rớt đồ Boss:</label>
+                            <input type="number" id="boss-ratio-input" class="input-field" style="width: 70px; padding: 4px 8px; text-align: center;" min="1" max="100" value="10">
+                            <span style="color: var(--text-muted);">%</span>
+                            <button class="btn-secondary" onclick="updateBossRatio()" style="padding: 4px 10px; font-size: 12px;"><i class="fa-solid fa-save"></i> LƯU</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="openSpawnBossModal()" style="background: linear-gradient(135deg, #f0932b, #ffbe76); color: #000; font-weight: 700;">
+                        <i class="fa-solid fa-dragon"></i> GỌI BOSS XUẤT HIỆN
+                    </button>
+                    <button class="btn-secondary" onclick="confirmRespawnAllBosses()" style="border-color: #2ed573; color: #2ed573;">
+                        <i class="fa-solid fa-bolt"></i> HỒI SINH TẤT CẢ BOSS
+                    </button>
+                    <button class="btn-secondary" onclick="confirmKillAllBosses()" style="border-color: #ff4757; color: #ff4757;">
+                        <i class="fa-solid fa-skull-crossbones"></i> XÓA TOÀN BỘ BOSS ACTIVE
+                    </button>
+                    <button class="btn-secondary" onclick="loadBossesList()" style="margin-left: auto;">
+                        <i class="fa-solid fa-rotate"></i> LÀM MỚI DANH SÁCH
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>AVATAR</th>
+                                <th>THÔNG TIN BOSS</th>
+                                <th>CHỈ SỐ (HP/DAME)</th>
+                                <th>VỊ TRÍ (MAP/KHU)</th>
+                                <th>TRẠNG THÁI</th>
+                                <th style="text-align: center;">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bosses-table-body">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                                    Đang tải dữ liệu Boss...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GỌI BOSS -->
+    <div id="modal-spawn-boss" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-dragon" style="color: var(--gold);"></i> GỌI BOSS XUẤT HIỆN</h3>
+                <button type="button" class="modal-close-btn" onclick="closeModal('modal-spawn-boss')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Loại Boss</label>
+                    <select id="spawn-boss-id" class="select-field">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Số Lượng</label>
+                        <input type="number" id="spawn-boss-count" class="input-field" value="1" min="1" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Tên nhân vật (Triệu hồi đến)</label>
+                        <input type="text" id="spawn-boss-player" class="input-field" placeholder="Bỏ trống nếu không cần...">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Map ID (Tùy chọn)</label>
+                        <input type="number" id="spawn-boss-map" class="input-field" placeholder="Mặc định của Boss...">
+                    </div>
+                    <div class="form-group">
+                        <label>Khu Vực (Zone)</label>
+                        <input type="number" id="spawn-boss-zone" class="input-field" placeholder="Mặc định là 0..." value="0">
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px; line-height: 1.5;">
+                    * Lưu ý: Nếu nhập "Tên nhân vật", Boss sẽ lập tức dịch chuyển đến chỗ nhân vật đó. Nếu để trống và nhập Map ID, Boss sẽ xuất hiện tại Map đó. Để trống tất cả thì hệ thống lấy Map mặc định của Boss.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-spawn-boss')">HỦY BỎ</button>
+                <button type="button" class="btn-primary" onclick="submitSpawnBoss()" style="background: linear-gradient(135deg, #f0932b, #ffbe76); color: #000; font-weight: 700;">🚀 TRIỆU HỒI BOSS</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CUSTOM MODAL: CHANGE PASSWORD -->
     <div id="modal-change-password" class="modal-overlay" style="display: none;">
         <div class="modal-card glass">
