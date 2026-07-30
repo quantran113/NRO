@@ -1429,24 +1429,18 @@
                         <option value="68">🏙️ Thành Phố Veget (68)</option>
                     </select>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
                     <div class="form-group">
-                        <label><i class="fa-solid fa-map"></i> Tùy Chỉnh Map ID</label>
-                        <input type="number" id="custom-map-id-input" class="input-field" placeholder="ID Map (để trống nếu dùng trên)">
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fa-solid fa-door-open"></i> Khu Vực (Zone ID)</label>
-                        <input type="number" id="custom-zone-id-input" class="input-field" placeholder="Zone ID (mặc định ngẫu nhiên)">
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
-                    <div class="form-group">
-                        <label><i class="fa-solid fa-heart" style="color: #ff4757;"></i> Tùy Chỉnh HP Boss</label>
+                        <label><i class="fa-solid fa-heart" style="color: #ff4757;"></i> Máu (HP)</label>
                         <input type="number" id="custom-boss-hp-input" class="input-field" placeholder="Mặc định (VD: 50000000)">
                     </div>
                     <div class="form-group">
-                        <label><i class="fa-solid fa-hand-fist" style="color: #ffa502;"></i> Sức Đánh (Dame)</label>
+                        <label><i class="fa-solid fa-hand-fist" style="color: #ffa502;"></i> Sức Đánh</label>
                         <input type="number" id="custom-boss-dame-input" class="input-field" placeholder="Mặc định (VD: 25000)">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-shield-halved" style="color: #1e90ff;"></i> Giáp (Def)</label>
+                        <input type="number" id="custom-boss-def-input" class="input-field" placeholder="Mặc định (VD: 1000)">
                     </div>
                 </div>
             </div>
@@ -1482,6 +1476,10 @@
                     <label><i class="fa-solid fa-hand-fist" style="color: #ff4757;"></i> Sức Đánh (Dame)</label>
                     <input type="number" id="edit-boss-dame-input" class="input-field" placeholder="Nhập Sức Đánh...">
                 </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-shield-halved" style="color: #1e90ff;"></i> Giáp (Def)</label>
+                    <input type="number" id="edit-boss-def-input" class="input-field" placeholder="Nhập Giáp Boss...">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('modal-edit-boss-stats')">HỦY BỎ</button>
@@ -1495,7 +1493,7 @@
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
 
-    <script src="app.js?v=20260730_boss_v10"></script>
+    <script src="app.js?v=20260730_boss_v11"></script>
 </body>
 
 </html>

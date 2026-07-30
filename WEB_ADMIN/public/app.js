@@ -2579,12 +2579,14 @@ function openEditBossStatsModal(bossId) {
     const hpInput = document.getElementById('edit-boss-hp-input');
     const maxHpInput = document.getElementById('edit-boss-maxhp-input');
     const dameInput = document.getElementById('edit-boss-dame-input');
+    const defInput = document.getElementById('edit-boss-def-input');
 
     if (nameEl) nameEl.innerText = boss ? (boss.name || 'Boss') : ('Boss ID: ' + bossId);
     if (idEl) idEl.innerText = bossId;
     if (hpInput) hpInput.value = (boss && boss.hp !== undefined) ? boss.hp : '';
     if (maxHpInput) maxHpInput.value = (boss && boss.maxHp !== undefined) ? boss.maxHp : '';
-    if (dameInput) dameInput.value = '';
+    if (dameInput) dameInput.value = (boss && boss.dame !== undefined) ? boss.dame : '';
+    if (defInput) defInput.value = (boss && boss.def !== undefined) ? boss.def : '';
 
     showModal('modal-edit-boss-stats');
 }
@@ -2595,20 +2597,23 @@ async function submitEditBossStats() {
     const hpInput = document.getElementById('edit-boss-hp-input');
     const maxHpInput = document.getElementById('edit-boss-maxhp-input');
     const dameInput = document.getElementById('edit-boss-dame-input');
+    const defInput = document.getElementById('edit-boss-def-input');
 
     let hp = hpInput && hpInput.value.trim() !== '' ? parseInt(hpInput.value.trim()) : -1;
     let maxHp = maxHpInput && maxHpInput.value.trim() !== '' ? parseInt(maxHpInput.value.trim()) : -1;
     let dame = dameInput && dameInput.value.trim() !== '' ? parseInt(dameInput.value.trim()) : -1;
+    let def = defInput && defInput.value.trim() !== '' ? parseInt(defInput.value.trim()) : -1;
 
     if (hp > 2000000000) hp = 2000000000;
     if (maxHp > 2000000000) maxHp = 2000000000;
     if (dame > 2000000000) dame = 2000000000;
+    if (def > 2000000000) def = 2000000000;
 
     try {
         const resp = await fetch('/api/admin/bosses/action', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'set_stats', bossId: currentEditBossId, hp, maxHp, dame })
+            body: JSON.stringify({ action: 'set_stats', bossId: currentEditBossId, hp, maxHp, dame, def })
         });
         const data = await resp.json();
         if (data.status === 'success') {
@@ -2663,10 +2668,9 @@ function onSelectPresetBoss() {
 async function submitSpawnBoss() {
     const customBossInput = document.getElementById('custom-boss-id-input');
     const mapSelect = document.getElementById('spawn-map-select');
-    const customMapInput = document.getElementById('custom-map-id-input');
-    const customZoneInput = document.getElementById('custom-zone-id-input');
     const customHpInput = document.getElementById('custom-boss-hp-input');
     const customDameInput = document.getElementById('custom-boss-dame-input');
+    const customDefInput = document.getElementById('custom-boss-def-input');
 
     const bossId = customBossInput ? parseInt(customBossInput.value) : null;
     if (!bossId || isNaN(bossId)) {
@@ -2674,13 +2678,10 @@ async function submitSpawnBoss() {
     }
 
     let mapId = mapSelect ? parseInt(mapSelect.value) : -1;
-    if (customMapInput && customMapInput.value.trim() !== '') {
-        const parsedMap = parseInt(customMapInput.value.trim());
-        if (!isNaN(parsedMap)) mapId = parsedMap;
-    }
 
     let hp = customHpInput && customHpInput.value.trim() !== '' ? parseInt(customHpInput.value.trim()) : 0;
     let dame = customDameInput && customDameInput.value.trim() !== '' ? parseInt(customDameInput.value.trim()) : 0;
+    let def = customDefInput && customDefInput.value.trim() !== '' ? parseInt(customDefInput.value.trim()) : 0;
 
     if (hp > 2000000000) {
         hp = 2000000000;
@@ -2690,12 +2691,16 @@ async function submitSpawnBoss() {
         dame = 2000000000;
         showToast('Giới hạn Sức Đánh tối đa của Game NRO là 2 tỷ. Hệ thống đã tự động đặt 2 tỷ Dame!', 'warning');
     }
+    if (def > 2000000000) {
+        def = 2000000000;
+        showToast('Giới hạn Giáp tối đa của Game NRO là 2 tỷ. Hệ thống đã tự động đặt 2 tỷ Giáp!', 'warning');
+    }
 
     try {
         const resp = await fetch('/api/admin/bosses/spawn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bossId, mapId, zoneId, hp, dame })
+            body: JSON.stringify({ bossId, mapId, hp, dame, def })
         });
         const data = await resp.json();
         if (data.status === 'success') {

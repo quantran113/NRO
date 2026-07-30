@@ -1597,9 +1597,13 @@ public class AdminHttpServer {
                         if (boss.nPoint != null) {
                             obj.put("hp", boss.nPoint.hp);
                             obj.put("maxHp", boss.nPoint.hpMax);
+                            obj.put("dame", boss.nPoint.dame);
+                            obj.put("def", boss.nPoint.defg);
                         } else {
                             obj.put("hp", 0);
                             obj.put("maxHp", 0);
+                            obj.put("dame", 0);
+                            obj.put("def", 0);
                         }
 
                         obj.put("status", boss.bossStatus != null ? boss.bossStatus.name() : "REST");
@@ -1651,12 +1655,13 @@ public class AdminHttpServer {
 
                 int bossId = ((Number) body.get("bossId")).intValue();
                 int mapId = body.containsKey("mapId") ? ((Number) body.get("mapId")).intValue() : -1;
-                int zoneId = body.containsKey("zoneId") ? ((Number) body.get("zoneId")).intValue() : -1;
                 long rawHp = body.containsKey("hp") ? ((Number) body.get("hp")).longValue() : 0;
                 long rawDame = body.containsKey("dame") ? ((Number) body.get("dame")).longValue() : 0;
+                long rawDef = body.containsKey("def") ? ((Number) body.get("def")).longValue() : 0;
 
                 int customHp = (rawHp > 2_000_000_000L) ? 2_000_000_000 : (int) rawHp;
                 int customDame = (rawDame > 2_000_000_000L) ? 2_000_000_000 : (int) rawDame;
+                int customDef = (rawDef > 2_000_000_000L) ? 2_000_000_000 : (int) rawDef;
 
                 nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
 
@@ -1673,6 +1678,9 @@ public class AdminHttpServer {
                     if (customDame > 0) {
                         boss.nPoint.dameg = customDame;
                     }
+                    if (customDef > 0) {
+                        boss.nPoint.defg = customDef;
+                    }
                     boss.nPoint.calPoint();
                     boss.nPoint.hp = boss.nPoint.hpMax;
 
@@ -1681,8 +1689,7 @@ public class AdminHttpServer {
                         try {
                             nro.models.map.Map targetMap = nro.models.map.service.MapService.gI().getMapById(mapId);
                             if (targetMap != null && targetMap.zones != null && !targetMap.zones.isEmpty()) {
-                                int zId = (zoneId >= 0 && zoneId < targetMap.zones.size()) ? zoneId : nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1);
-                                targetZone = targetMap.zones.get(zId);
+                                targetZone = targetMap.zones.get(nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1));
                             }
                         } catch (Exception ex) {}
                     } else if (mapId == -2) {
@@ -1786,6 +1793,7 @@ public class AdminHttpServer {
                     if (targetBoss != null) {
                         int savedHpg = targetBoss.nPoint.hpg;
                         int savedDameg = targetBoss.nPoint.dameg;
+                        int savedDefg = targetBoss.nPoint.defg;
 
                         if (targetBoss.currentLevel < 0) {
                             targetBoss.currentLevel = 0;
@@ -1798,6 +1806,9 @@ public class AdminHttpServer {
                         }
                         if (savedDameg > 0) {
                             targetBoss.nPoint.dameg = savedDameg;
+                        }
+                        if (savedDefg > 0) {
+                            targetBoss.nPoint.defg = savedDefg;
                         }
                         targetBoss.nPoint.calPoint();
                         targetBoss.nPoint.hp = targetBoss.nPoint.hpMax;
@@ -1835,10 +1846,12 @@ public class AdminHttpServer {
                         long rawHp = body.containsKey("hp") ? ((Number) body.get("hp")).longValue() : -1;
                         long rawMaxHp = body.containsKey("maxHp") ? ((Number) body.get("maxHp")).longValue() : -1;
                         long rawDame = body.containsKey("dame") ? ((Number) body.get("dame")).longValue() : -1;
+                        long rawDef = body.containsKey("def") ? ((Number) body.get("def")).longValue() : -1;
 
                         int newHp = (rawHp > 2_000_000_000L) ? 2_000_000_000 : (int) rawHp;
                         int newMaxHp = (rawMaxHp > 2_000_000_000L) ? 2_000_000_000 : (int) rawMaxHp;
                         int newDame = (rawDame > 2_000_000_000L) ? 2_000_000_000 : (int) rawDame;
+                        int newDef = (rawDef > 2_000_000_000L) ? 2_000_000_000 : (int) rawDef;
 
                         if (newMaxHp > 0) {
                             targetBoss.nPoint.hpg = newMaxHp;
@@ -1851,9 +1864,12 @@ public class AdminHttpServer {
                             targetBoss.nPoint.dameg = newDame;
                             targetBoss.nPoint.dame = newDame;
                         }
+                        if (newDef >= 0) {
+                            targetBoss.nPoint.defg = newDef;
+                        }
                         targetBoss.nPoint.calPoint();
 
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật chỉ số Boss [" + targetBoss.name + "] thành công! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ", Dame: " + targetBoss.nPoint.dame + ")\"}");
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật chỉ số Boss [" + targetBoss.name + "] thành công! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ", Dame: " + targetBoss.nPoint.dame + ", Giáp: " + targetBoss.nPoint.defg + ")\"}");
                     } else {
                         sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss!\"}");
                     }
