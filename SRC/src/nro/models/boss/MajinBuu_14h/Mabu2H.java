@@ -1,6 +1,5 @@
 package nro.models.boss.MajinBuu_14h;
 
-
 import nro.models.boss.Boss;
 import nro.models.boss.Boss_Manager.FinalBossManager;
 import nro.models.boss.BossID;
@@ -32,7 +31,8 @@ public class Mabu2H extends Boss {
     public List<Player> maBuEat = new ArrayList<>();
 
     public Mabu2H() throws Exception {
-        super(FINAL, BossID.MABU, BossesData.MABU, BossesData.SUPER_BU, BossesData.BU_TENK, BossesData.BU_HAN, BossesData.KID_BU);
+        super(FINAL, BossID.MABU, BossesData.MABU, BossesData.SUPER_BU, BossesData.BU_TENK, BossesData.BU_HAN,
+                BossesData.KID_BU);
     }
 
     @Override
@@ -94,7 +94,8 @@ public class Mabu2H extends Boss {
                         return;
                     }
                 }
-                this.playerSkill.skillSelect = this.playerSkill.skills.get(Util.nextInt(0, this.playerSkill.skills.size() - 1));
+                this.playerSkill.skillSelect = this.playerSkill.skills
+                        .get(Util.nextInt(0, this.playerSkill.skills.size() - 1));
                 if (Util.getDistance(this, pl) <= this.getRangeCanAttackWithSkillSelect()) {
                     if (Util.isTrue(5, 20)) {
                         if (SkillUtil.isUseSkillChuong(this)) {
@@ -121,12 +122,6 @@ public class Mabu2H extends Boss {
         plKill.event.addEventPoint(diem);
         Service.gI().sendThongBao(plKill, "+5 Point");
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
-
-        if (plKill != null && this.zone != null) {
-            nro.models.map.ItemMap itemMap = new nro.models.map.ItemMap(this.zone, 568, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
-            Service.gI().dropItemMap(this.zone, itemMap);
-            Service.gI().sendThongBao(plKill, "Bạn đã tiêu diệt " + this.name + " và nhận được Quả Trứng Ma Bư!");
-        }
     }
 
     @Override

@@ -50,7 +50,7 @@ public class AdminHttpServer {
     public void start(int port) {
         try {
             server = HttpServer.create(new InetSocketAddress(port), 0);
-            
+
             // Handlers
             server.createContext("/api/players", new PlayersHandler());
             server.createContext("/api/item-templates", new ItemTemplatesHandler());
@@ -67,9 +67,7 @@ public class AdminHttpServer {
             server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
             server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
             server.createContext("/api/manage-bots", new ManageBotsHandler());
-            server.createContext("/api/spawn-mabu", new SpawnMabuHandler());
-            server.createContext("/api/manage-bosses", new ManageBossesHandler());
-            
+
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
             System.out.println(">>> [Web Admin API Server] Running on http://127.0.0.1:" + port);
@@ -120,16 +118,16 @@ public class AdminHttpServer {
                         arr.add(obj);
                     }
                 }
-                
+
                 // Fetch offline players from DB (top 100)
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender FROM player LIMIT 100")) {
+                        PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender FROM player LIMIT 100")) {
                     ResultSet rs = ps.executeQuery();
                     while (rs.next()) {
                         long pid = rs.getLong("id");
                         String name = rs.getString("name");
                         int gender = rs.getInt("gender");
-                        
+
                         boolean isOnline = false;
                         for (Player p : onlineList) {
                             if (p != null && p.id == pid) {
@@ -147,7 +145,7 @@ public class AdminHttpServer {
                         }
                     }
                 }
-                
+
                 sendJsonResponse(exchange, 200, arr.toJSONString());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -223,9 +221,10 @@ public class AdminHttpServer {
             try {
                 InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                 JSONObject body = (JSONObject) JSONValue.parse(reader);
-                
+
                 if (body == null) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
                     return;
                 }
 
@@ -236,7 +235,8 @@ public class AdminHttpServer {
                 JSONArray optionsReq = (JSONArray) body.get("options");
 
                 if (playerName == null || playerName.trim().isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
                     return;
                 }
 
@@ -253,7 +253,9 @@ public class AdminHttpServer {
                     // --- PLAYER IS ONLINE ---
                     Item item = ItemService.gI().createNewItem((short) itemId, quantity);
                     if (item == null) {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Vật phẩm không tồn tại (ID: " + itemId + ")\"}");
+                        sendJsonResponse(exchange, 400,
+                                "{\"status\": \"error\", \"message\": \"Vật phẩm không tồn tại (ID: " + itemId
+                                        + ")\"}");
                         return;
                     }
 
@@ -277,25 +279,29 @@ public class AdminHttpServer {
                     boolean added = InventoryService.gI().addItemBag(targetPlayer, item);
                     if (added) {
                         InventoryService.gI().sendItemBags(targetPlayer);
-                        Service.gI().sendThongBao(targetPlayer, "Admin vừa cấp cho bạn: " + item.template.name + " (x" + quantity + ")");
-                        
+                        Service.gI().sendThongBao(targetPlayer,
+                                "Admin vừa cấp cho bạn: " + item.template.name + " (x" + quantity + ")");
+
                         JSONObject res = new JSONObject();
                         res.put("status", "success");
-                        res.put("message", "Đã cấp thành công [" + item.template.name + "] cho nhân vật " + targetPlayer.name + " (Đang ONLINE)");
+                        res.put("message", "Đã cấp thành công [" + item.template.name + "] cho nhân vật "
+                                + targetPlayer.name + " (Đang ONLINE)");
                         sendJsonResponse(exchange, 200, res.toJSONString());
                     } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành trang nhân vật " + targetPlayer.name + " đã đầy!\"}");
+                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành trang nhân vật "
+                                + targetPlayer.name + " đã đầy!\"}");
                     }
                 } else {
                     // --- PLAYER IS OFFLINE ---
                     try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement psSelect = conn.prepareStatement("SELECT id, items_bag FROM player WHERE name = ?")) {
+                            PreparedStatement psSelect = conn
+                                    .prepareStatement("SELECT id, items_bag FROM player WHERE name = ?")) {
                         psSelect.setString(1, playerName.trim());
                         ResultSet rs = psSelect.executeQuery();
                         if (rs.next()) {
                             long pid = rs.getLong("id");
                             String itemsBagStr = rs.getString("items_bag");
-                            
+
                             JSONArray bagArray;
                             if (itemsBagStr != null && !itemsBagStr.trim().isEmpty()) {
                                 bagArray = (JSONArray) JSONValue.parse(itemsBagStr);
@@ -358,12 +364,15 @@ public class AdminHttpServer {
                             }
 
                             if (!replaced) {
-                                sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành trang nhân vật " + playerName + " đã đầy! (30/30 ô)\"}");
+                                sendJsonResponse(exchange, 400,
+                                        "{\"status\": \"error\", \"message\": \"Hành trang nhân vật " + playerName
+                                                + " đã đầy! (30/30 ô)\"}");
                                 return;
                             }
 
                             // Save back to DB
-                            try (PreparedStatement psUpdate = conn.prepareStatement("UPDATE player SET items_bag = ? WHERE id = ?")) {
+                            try (PreparedStatement psUpdate = conn
+                                    .prepareStatement("UPDATE player SET items_bag = ? WHERE id = ?")) {
                                 psUpdate.setString(1, bagArray.toJSONString());
                                 psUpdate.setLong(2, pid);
                                 psUpdate.executeUpdate();
@@ -371,10 +380,13 @@ public class AdminHttpServer {
 
                             JSONObject res = new JSONObject();
                             res.put("status", "success");
-                            res.put("message", "Đã cấp thành công vật phẩm cho nhân vật " + playerName + " (Đang OFFLINE)");
+                            res.put("message",
+                                    "Đã cấp thành công vật phẩm cho nhân vật " + playerName + " (Đang OFFLINE)");
                             sendJsonResponse(exchange, 200, res.toJSONString());
                         } else {
-                            sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "] trong dữ liệu\"}");
+                            sendJsonResponse(exchange, 404,
+                                    "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName
+                                            + "] trong dữ liệu\"}");
                         }
                     }
                 }
@@ -397,7 +409,7 @@ public class AdminHttpServer {
             try {
                 InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                 JSONObject body = (JSONObject) JSONValue.parse(reader);
-                
+
                 if (body == null) {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
                     return;
@@ -407,12 +419,14 @@ public class AdminHttpServer {
                 JSONArray itemsReq = (JSONArray) body.get("items");
 
                 if (playerName == null || playerName.trim().isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
                     return;
                 }
 
                 if (itemsReq == null || itemsReq.isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Danh sách vật phẩm cấp trống\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Danh sách vật phẩm cấp trống\"}");
                     return;
                 }
 
@@ -431,13 +445,15 @@ public class AdminHttpServer {
                     for (Object itemObj : itemsReq) {
                         JSONObject itemJson = (JSONObject) itemObj;
                         long itemId = ((Number) itemJson.get("itemId")).longValue();
-                        int quantity = itemJson.containsKey("quantity") ? ((Number) itemJson.get("quantity")).intValue() : 1;
+                        int quantity = itemJson.containsKey("quantity") ? ((Number) itemJson.get("quantity")).intValue()
+                                : 1;
                         int starCount = itemJson.containsKey("stars") ? ((Number) itemJson.get("stars")).intValue() : 0;
                         JSONArray optionsReq = (JSONArray) itemJson.get("options");
 
                         Item item = ItemService.gI().createNewItem((short) itemId, quantity);
                         if (item != null) {
-                            // Custom options -> đồ trắng; Không custom -> đồ gốc game (already from createNewItem)
+                            // Custom options -> đồ trắng; Không custom -> đồ gốc game (already from
+                            // createNewItem)
                             if (optionsReq != null && !optionsReq.isEmpty()) {
                                 item.itemOptions.clear(); // Đồ trắng
                                 for (Object o : optionsReq) {
@@ -451,31 +467,35 @@ public class AdminHttpServer {
                                 item.itemOptions.add(new Item.ItemOption(107, starCount));
                             }
                             boolean added = InventoryService.gI().addItemBag(targetPlayer, item);
-                            if (added) successCount++;
+                            if (added)
+                                successCount++;
                         }
                     }
 
                     if (successCount > 0) {
                         InventoryService.gI().sendItemBags(targetPlayer);
                         Service.gI().sendThongBao(targetPlayer, "Admin vừa cấp cho bạn " + successCount + " vật phẩm!");
-                        
+
                         JSONObject res = new JSONObject();
                         res.put("status", "success");
-                        res.put("message", "Đã cấp thành công " + successCount + " vật phẩm cho nhân vật [" + targetPlayer.name + "] (Đang ONLINE)");
+                        res.put("message", "Đã cấp thành công " + successCount + " vật phẩm cho nhân vật ["
+                                + targetPlayer.name + "] (Đang ONLINE)");
                         sendJsonResponse(exchange, 200, res.toJSONString());
                     } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành trang nhân vật đã đầy!\"}");
+                        sendJsonResponse(exchange, 400,
+                                "{\"status\": \"error\", \"message\": \"Hành trang nhân vật đã đầy!\"}");
                     }
                 } else {
                     // --- OFFLINE PLAYER ---
                     try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement psSelect = conn.prepareStatement("SELECT id, items_bag FROM player WHERE name = ?")) {
+                            PreparedStatement psSelect = conn
+                                    .prepareStatement("SELECT id, items_bag FROM player WHERE name = ?")) {
                         psSelect.setString(1, playerName.trim());
                         ResultSet rs = psSelect.executeQuery();
                         if (rs.next()) {
                             long pid = rs.getLong("id");
                             String itemsBagStr = rs.getString("items_bag");
-                            
+
                             JSONArray bagArray;
                             if (itemsBagStr != null && !itemsBagStr.trim().isEmpty()) {
                                 bagArray = (JSONArray) JSONValue.parse(itemsBagStr);
@@ -486,8 +506,12 @@ public class AdminHttpServer {
                             for (Object itemObj : itemsReq) {
                                 JSONObject itemJson = (JSONObject) itemObj;
                                 long itemId = ((Number) itemJson.get("itemId")).longValue();
-                                int quantity = itemJson.containsKey("quantity") ? ((Number) itemJson.get("quantity")).intValue() : 1;
-                                int starCount = itemJson.containsKey("stars") ? ((Number) itemJson.get("stars")).intValue() : 0;
+                                int quantity = itemJson.containsKey("quantity")
+                                        ? ((Number) itemJson.get("quantity")).intValue()
+                                        : 1;
+                                int starCount = itemJson.containsKey("stars")
+                                        ? ((Number) itemJson.get("stars")).intValue()
+                                        : 0;
                                 JSONArray optionsReq = (JSONArray) itemJson.get("options");
 
                                 JSONArray dataItem = new JSONArray();
@@ -546,7 +570,8 @@ public class AdminHttpServer {
                                 }
                             }
 
-                            try (PreparedStatement psUpdate = conn.prepareStatement("UPDATE player SET items_bag = ? WHERE id = ?")) {
+                            try (PreparedStatement psUpdate = conn
+                                    .prepareStatement("UPDATE player SET items_bag = ? WHERE id = ?")) {
                                 psUpdate.setString(1, bagArray.toJSONString());
                                 psUpdate.setLong(2, pid);
                                 psUpdate.executeUpdate();
@@ -554,10 +579,13 @@ public class AdminHttpServer {
 
                             JSONObject res = new JSONObject();
                             res.put("status", "success");
-                            res.put("message", "Đã cấp thành công " + successCount + " vật phẩm cho nhân vật [" + playerName + "] (Đang OFFLINE)");
+                            res.put("message", "Đã cấp thành công " + successCount + " vật phẩm cho nhân vật ["
+                                    + playerName + "] (Đang OFFLINE)");
                             sendJsonResponse(exchange, 200, res.toJSONString());
                         } else {
-                            sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "]\"}");
+                            sendJsonResponse(exchange, 404,
+                                    "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName
+                                            + "]\"}");
                         }
                     }
                 }
@@ -579,7 +607,7 @@ public class AdminHttpServer {
             try {
                 InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                 JSONObject body = (JSONObject) JSONValue.parse(reader);
-                
+
                 if (body == null) {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
                     return;
@@ -607,7 +635,8 @@ public class AdminHttpServer {
                 }
 
                 if (playerName == null || playerName.trim().isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
                     return;
                 }
 
@@ -623,19 +652,39 @@ public class AdminHttpServer {
                     // ONLINE Player
                     if (targetPlayer.pet != null) {
                         switch (petType) {
-                            case 1: nro.models.services.PetService.gI().changeMabuPet(targetPlayer, petGender); break;
-                            case 2: nro.models.services.PetService.gI().changeUubPet(targetPlayer, petGender); break;
-                            case 3: nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer, petGender); break;
-                            case 4: nro.models.services.PetService.gI().changeJirenPet(targetPlayer, petGender); break;
-                            default: nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender); break;
+                            case 1:
+                                nro.models.services.PetService.gI().changeMabuPet(targetPlayer, petGender);
+                                break;
+                            case 2:
+                                nro.models.services.PetService.gI().changeUubPet(targetPlayer, petGender);
+                                break;
+                            case 3:
+                                nro.models.services.PetService.gI().changeKidBeerPet(targetPlayer, petGender);
+                                break;
+                            case 4:
+                                nro.models.services.PetService.gI().changeJirenPet(targetPlayer, petGender);
+                                break;
+                            default:
+                                nro.models.services.PetService.gI().changeNormalPet(targetPlayer, petGender);
+                                break;
                         }
                     } else {
                         switch (petType) {
-                            case 1: nro.models.services.PetService.gI().createMabuPet(targetPlayer, petGender); break;
-                            case 2: nro.models.services.PetService.gI().createUubPet(targetPlayer); break;
-                            case 3: nro.models.services.PetService.gI().createKidBeerPet(targetPlayer); break;
-                            case 4: nro.models.services.PetService.gI().createJirenPet(targetPlayer); break;
-                            default: nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender); break;
+                            case 1:
+                                nro.models.services.PetService.gI().createMabuPet(targetPlayer, petGender);
+                                break;
+                            case 2:
+                                nro.models.services.PetService.gI().createUubPet(targetPlayer);
+                                break;
+                            case 3:
+                                nro.models.services.PetService.gI().createKidBeerPet(targetPlayer);
+                                break;
+                            case 4:
+                                nro.models.services.PetService.gI().createJirenPet(targetPlayer);
+                                break;
+                            default:
+                                nro.models.services.PetService.gI().createNormalPet(targetPlayer, petGender);
+                                break;
                         }
                     }
 
@@ -650,15 +699,24 @@ public class AdminHttpServer {
                                 Thread.sleep(1200);
                                 if (plTarget.pet != null) {
                                     byte calcLimit = 0;
-                                    if (pVal >= 80000000000L) calcLimit = 9;
-                                    else if (pVal >= 70000000000L) calcLimit = 8;
-                                    else if (pVal >= 60000000000L) calcLimit = 7;
-                                    else if (pVal >= 50000000000L) calcLimit = 6;
-                                    else if (pVal >= 39000000000L) calcLimit = 5;
-                                    else if (pVal >= 29000000000L) calcLimit = 4;
-                                    else if (pVal >= 24000000000L) calcLimit = 3;
-                                    else if (pVal >= 19000000000L) calcLimit = 2;
-                                    else if (pVal >= 17000000000L) calcLimit = 1;
+                                    if (pVal >= 80000000000L)
+                                        calcLimit = 9;
+                                    else if (pVal >= 70000000000L)
+                                        calcLimit = 8;
+                                    else if (pVal >= 60000000000L)
+                                        calcLimit = 7;
+                                    else if (pVal >= 50000000000L)
+                                        calcLimit = 6;
+                                    else if (pVal >= 39000000000L)
+                                        calcLimit = 5;
+                                    else if (pVal >= 29000000000L)
+                                        calcLimit = 4;
+                                    else if (pVal >= 24000000000L)
+                                        calcLimit = 3;
+                                    else if (pVal >= 19000000000L)
+                                        calcLimit = 2;
+                                    else if (pVal >= 17000000000L)
+                                        calcLimit = 1;
 
                                     plTarget.pet.nPoint.limitPower = calcLimit;
                                     plTarget.pet.nPoint.power = pVal;
@@ -675,14 +733,16 @@ public class AdminHttpServer {
                                         if (plTarget.pet.playerSkill.skills.size() > 3 && pVal >= 20000000000L) {
                                             plTarget.pet.openSkill4();
                                         }
-                                        if (plTarget.pet.playerSkill.skills.size() > 4 && pVal >= 40000000000L && pType >= 2) {
+                                        if (plTarget.pet.playerSkill.skills.size() > 4 && pVal >= 40000000000L
+                                                && pType >= 2) {
                                             plTarget.pet.openSkill5();
                                         }
                                     }
 
                                     plTarget.pet.joinMapMaster();
                                     nro.models.services.Service.gI().point(plTarget);
-                                    nro.models.services.Service.gI().sendThongBao(plTarget, "Admin vừa cấp/đổi Đệ Tử mới thành công cho bạn!");
+                                    nro.models.services.Service.gI().sendThongBao(plTarget,
+                                            "Admin vừa cấp/đổi Đệ Tử mới thành công cho bạn!");
                                     nro.models.database.PlayerDAO.updatePlayer(plTarget);
                                 }
                             } catch (Exception e) {
@@ -693,10 +753,12 @@ public class AdminHttpServer {
 
                     JSONObject res = new JSONObject();
                     res.put("status", "success");
-                    res.put("message", "Đã cấp/đổi Đệ tử thành công cho nhân vật [" + targetPlayer.name + "] (Đang ONLINE)");
+                    res.put("message",
+                            "Đã cấp/đổi Đệ tử thành công cho nhân vật [" + targetPlayer.name + "] (Đang ONLINE)");
                     sendJsonResponse(exchange, 200, res.toJSONString());
                 } else {
-                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] đang OFFLINE\"}");
+                    sendJsonResponse(exchange, 404,
+                            "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] đang OFFLINE\"}");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -728,7 +790,7 @@ public class AdminHttpServer {
                 } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                     InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                     JSONObject body = (JSONObject) JSONValue.parse(reader);
-                    
+
                     if (body != null) {
                         if (body.containsKey("expRate")) {
                             byte rate = ((Number) body.get("expRate")).byteValue();
@@ -736,28 +798,40 @@ public class AdminHttpServer {
                                 Manager.RATE_EXP_SERVER = rate;
                             }
                         }
-                        if (body.containsKey("lunarNewYear")) EventManager.LUNNAR_NEW_YEAR = (Boolean) body.get("lunarNewYear");
-                        if (body.containsKey("womensDay")) EventManager.INTERNATIONAL_WOMANS_DAY = (Boolean) body.get("womensDay");
-                        if (body.containsKey("halloween")) EventManager.HALLOWEEN = (Boolean) body.get("halloween");
-                        if (body.containsKey("christmas")) EventManager.CHRISTMAS = (Boolean) body.get("christmas");
-                        if (body.containsKey("hungVuong")) EventManager.HUNG_VUONG = (Boolean) body.get("hungVuong");
-                        if (body.containsKey("trungThu")) EventManager.TRUNG_THU = (Boolean) body.get("trungThu");
-                        if (body.containsKey("topUp")) EventManager.TOP_UP = (Boolean) body.get("topUp");
-                        
-                        try {
-                            EventManager.gI().init();
-                        } catch (Exception ex) {}
+                        if (body.containsKey("lunarNewYear"))
+                            EventManager.LUNNAR_NEW_YEAR = (Boolean) body.get("lunarNewYear");
+                        if (body.containsKey("womensDay"))
+                            EventManager.INTERNATIONAL_WOMANS_DAY = (Boolean) body.get("womensDay");
+                        if (body.containsKey("halloween"))
+                            EventManager.HALLOWEEN = (Boolean) body.get("halloween");
+                        if (body.containsKey("christmas"))
+                            EventManager.CHRISTMAS = (Boolean) body.get("christmas");
+                        if (body.containsKey("hungVuong"))
+                            EventManager.HUNG_VUONG = (Boolean) body.get("hungVuong");
+                        if (body.containsKey("trungThu"))
+                            EventManager.TRUNG_THU = (Boolean) body.get("trungThu");
+                        if (body.containsKey("topUp"))
+                            EventManager.TOP_UP = (Boolean) body.get("topUp");
 
                         try {
-                            nro.models.services.Service.gI().sendThongBaoAllPlayer("🎉 Máy chủ vừa kích hoạt X" + Manager.RATE_EXP_SERVER + " Tiềm Năng Sức Mạnh và cập nhật Sự Kiện Server!");
-                        } catch (Exception ex) {}
-                        
+                            EventManager.gI().init();
+                        } catch (Exception ex) {
+                        }
+
+                        try {
+                            nro.models.services.Service.gI().sendThongBaoAllPlayer("🎉 Máy chủ vừa kích hoạt X"
+                                    + Manager.RATE_EXP_SERVER + " Tiềm Năng Sức Mạnh và cập nhật Sự Kiện Server!");
+                        } catch (Exception ex) {
+                        }
+
                         JSONObject res = new JSONObject();
                         res.put("status", "success");
-                        res.put("message", "Đã cập nhật Hệ số X" + Manager.RATE_EXP_SERVER + " TNSM và Sự Kiện Server thành công!");
+                        res.put("message", "Đã cập nhật Hệ số X" + Manager.RATE_EXP_SERVER
+                                + " TNSM và Sự Kiện Server thành công!");
                         sendJsonResponse(exchange, 200, res.toJSONString());
                     } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
+                        sendJsonResponse(exchange, 400,
+                                "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
                     }
                 }
             } catch (Exception e) {
@@ -787,7 +861,7 @@ public class AdminHttpServer {
                 } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                     InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                     JSONObject body = (JSONObject) JSONValue.parse(reader);
-                    
+
                     if (body != null) {
                         String action = (String) body.get("action");
                         if ("add".equals(action)) {
@@ -796,11 +870,13 @@ public class AdminHttpServer {
                             int quantity = ((Number) body.get("quantity")).intValue();
                             int ratePercent = ((Number) body.get("ratePercent")).intValue();
                             nro.models.item.DropManager.gI().addRule(mapId, itemId, quantity, ratePercent);
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã thêm quy tắc rơi đồ theo map thành công!\"}");
+                            sendJsonResponse(exchange, 200,
+                                    "{\"status\": \"success\", \"message\": \"Đã thêm quy tắc rơi đồ theo map thành công!\"}");
                         } else if ("delete".equals(action)) {
                             int id = ((Number) body.get("id")).intValue();
                             nro.models.item.DropManager.gI().removeRule(id);
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xóa quy tắc rơi đồ!\"}");
+                            sendJsonResponse(exchange, 200,
+                                    "{\"status\": \"success\", \"message\": \"Đã xóa quy tắc rơi đồ!\"}");
                         } else if ("toggle".equals(action)) {
                             int id = ((Number) body.get("id")).intValue();
                             for (nro.models.item.DropManager.DropRule r : nro.models.item.DropManager.dropRules) {
@@ -809,12 +885,15 @@ public class AdminHttpServer {
                                     break;
                                 }
                             }
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã thay đổi trạng thái quy tắc rơi đồ!\"}");
+                            sendJsonResponse(exchange, 200,
+                                    "{\"status\": \"success\", \"message\": \"Đã thay đổi trạng thái quy tắc rơi đồ!\"}");
                         } else {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
+                            sendJsonResponse(exchange, 400,
+                                    "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
                         }
                     } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
+                        sendJsonResponse(exchange, 400,
+                                "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
                     }
                 }
             } catch (Exception e) {
@@ -845,8 +924,8 @@ public class AdminHttpServer {
                     }
                 } else {
                     try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM map_template");
-                         ResultSet rs = ps.executeQuery()) {
+                            PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM map_template");
+                            ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
                             JSONObject obj = new JSONObject();
                             obj.put("id", rs.getInt("id"));
@@ -876,15 +955,16 @@ public class AdminHttpServer {
                     JSONArray shopsArr = new JSONArray();
                     try (Connection conn = LocalManager.getConnection()) {
                         String sqlShop = "SELECT s.id as shop_id, s.npc_id, s.tag_name, s.type_shop, n.name as npc_name "
-                                       + "FROM shop s LEFT JOIN npc_template n ON s.npc_id = n.id ORDER BY s.npc_id ASC";
+                                + "FROM shop s LEFT JOIN npc_template n ON s.npc_id = n.id ORDER BY s.npc_id ASC";
                         try (PreparedStatement ps = conn.prepareStatement(sqlShop);
-                             ResultSet rs = ps.executeQuery()) {
+                                ResultSet rs = ps.executeQuery()) {
                             while (rs.next()) {
                                 JSONObject shopObj = new JSONObject();
                                 int shopId = rs.getInt("shop_id");
                                 shopObj.put("shopId", shopId);
                                 shopObj.put("npcId", rs.getInt("npc_id"));
-                                shopObj.put("npcName", rs.getString("npc_name") != null ? rs.getString("npc_name") : ("NPC #" + rs.getInt("npc_id")));
+                                shopObj.put("npcName", rs.getString("npc_name") != null ? rs.getString("npc_name")
+                                        : ("NPC #" + rs.getInt("npc_id")));
                                 shopObj.put("tagName", rs.getString("tag_name"));
                                 shopObj.put("typeShop", rs.getInt("type_shop"));
 
@@ -901,8 +981,8 @@ public class AdminHttpServer {
 
                                             JSONArray itemsArr = new JSONArray();
                                             String sqlItem = "SELECT i.id, i.temp_id, i.cost, i.icon_spec, i.type_sell, i.is_new, t.name as item_name, t.icon_id "
-                                                           + "FROM item_shop i LEFT JOIN item_template t ON i.temp_id = t.id "
-                                                           + "WHERE i.is_sell = 1 AND i.tab_id = ? ORDER BY i.id DESC";
+                                                    + "FROM item_shop i LEFT JOIN item_template t ON i.temp_id = t.id "
+                                                    + "WHERE i.is_sell = 1 AND i.tab_id = ? ORDER BY i.id DESC";
                                             try (PreparedStatement psItem = conn.prepareStatement(sqlItem)) {
                                                 psItem.setInt(1, tabId);
                                                 try (ResultSet rsItem = psItem.executeQuery()) {
@@ -915,7 +995,10 @@ public class AdminHttpServer {
                                                         itemObj.put("iconSpec", rsItem.getInt("icon_spec"));
                                                         itemObj.put("typeSell", rsItem.getInt("type_sell"));
                                                         itemObj.put("isNew", rsItem.getInt("is_new"));
-                                                        itemObj.put("name", rsItem.getString("item_name") != null ? rsItem.getString("item_name") : ("Item #" + rsItem.getInt("temp_id")));
+                                                        itemObj.put("name",
+                                                                rsItem.getString("item_name") != null
+                                                                        ? rsItem.getString("item_name")
+                                                                        : ("Item #" + rsItem.getInt("temp_id")));
                                                         itemObj.put("iconId", rsItem.getInt("icon_id"));
 
                                                         // Load options
@@ -959,13 +1042,15 @@ public class AdminHttpServer {
                             int tempId = ((Number) body.get("tempId")).intValue();
                             int cost = ((Number) body.get("cost")).intValue();
                             int typeSell = ((Number) body.get("typeSell")).intValue();
-                            int iconSpec = body.containsKey("iconSpec") ? ((Number) body.get("iconSpec")).intValue() : -1;
+                            int iconSpec = body.containsKey("iconSpec") ? ((Number) body.get("iconSpec")).intValue()
+                                    : -1;
                             int isNew = body.containsKey("isNew") ? ((Number) body.get("isNew")).intValue() : 0;
                             JSONArray options = (JSONArray) body.get("options");
 
                             try (Connection conn = LocalManager.getConnection()) {
                                 String sqlInsert = "INSERT INTO item_shop (tab_id, temp_id, is_new, cost, icon_spec, type_sell, is_sell, create_time) VALUES (?, ?, ?, ?, ?, ?, 1, NOW())";
-                                try (PreparedStatement ps = conn.prepareStatement(sqlInsert, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+                                try (PreparedStatement ps = conn.prepareStatement(sqlInsert,
+                                        java.sql.Statement.RETURN_GENERATED_KEYS)) {
                                     ps.setInt(1, tabId);
                                     ps.setInt(2, tempId);
                                     ps.setInt(3, isNew);
@@ -998,32 +1083,40 @@ public class AdminHttpServer {
                                     // Reload in-memory shops if server is running
                                     try {
                                         nro.models.server.Manager.SHOPS = nro.models.database.ShopDAO.getShops(conn);
-                                    } catch (Exception ex) {}
+                                    } catch (Exception ex) {
+                                    }
                                 }
                             }
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã thêm vật phẩm vào Shop NPC thành công!\"}");
+                            sendJsonResponse(exchange, 200,
+                                    "{\"status\": \"success\", \"message\": \"Đã thêm vật phẩm vào Shop NPC thành công!\"}");
                         } else if ("delete_item".equals(action)) {
                             int itemShopId = ((Number) body.get("itemShopId")).intValue();
                             try (Connection conn = LocalManager.getConnection()) {
-                                try (PreparedStatement psOpt = conn.prepareStatement("DELETE FROM item_shop_option WHERE item_shop_id = ?")) {
+                                try (PreparedStatement psOpt = conn
+                                        .prepareStatement("DELETE FROM item_shop_option WHERE item_shop_id = ?")) {
                                     psOpt.setInt(1, itemShopId);
                                     psOpt.executeUpdate();
                                 }
-                                try (PreparedStatement psItem = conn.prepareStatement("DELETE FROM item_shop WHERE id = ?")) {
+                                try (PreparedStatement psItem = conn
+                                        .prepareStatement("DELETE FROM item_shop WHERE id = ?")) {
                                     psItem.setInt(1, itemShopId);
                                     psItem.executeUpdate();
                                 }
                                 // Reload in-memory shops if server is running
                                 try {
                                     nro.models.server.Manager.SHOPS = nro.models.database.ShopDAO.getShops(conn);
-                                } catch (Exception ex) {}
+                                } catch (Exception ex) {
+                                }
                             }
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xóa vật phẩm khỏi Shop NPC!\"}");
+                            sendJsonResponse(exchange, 200,
+                                    "{\"status\": \"success\", \"message\": \"Đã xóa vật phẩm khỏi Shop NPC!\"}");
                         } else {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
+                            sendJsonResponse(exchange, 400,
+                                    "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
                         }
                     } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
+                        sendJsonResponse(exchange, 400,
+                                "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
                     }
                 }
             } catch (Exception e) {
@@ -1046,8 +1139,12 @@ public class AdminHttpServer {
                 String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
 
-                String playerName = body != null && body.get("playerName") != null ? body.get("playerName").toString().trim() : "";
-                int taskId = body != null && body.get("taskId") != null ? Integer.parseInt(body.get("taskId").toString()) : -1;
+                String playerName = body != null && body.get("playerName") != null
+                        ? body.get("playerName").toString().trim()
+                        : "";
+                int taskId = body != null && body.get("taskId") != null
+                        ? Integer.parseInt(body.get("taskId").toString())
+                        : -1;
 
                 if (playerName.isEmpty()) {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật\"}");
@@ -1058,7 +1155,8 @@ public class AdminHttpServer {
                 for (Player p : Client.gI().getPlayers()) {
                     if (p != null) {
                         if ((p.name != null && p.name.equalsIgnoreCase(playerName)) ||
-                            (p.getSession() != null && p.getSession().uu != null && p.getSession().uu.equalsIgnoreCase(playerName))) {
+                                (p.getSession() != null && p.getSession().uu != null
+                                        && p.getSession().uu.equalsIgnoreCase(playerName))) {
                             player = p;
                             break;
                         }
@@ -1080,15 +1178,19 @@ public class AdminHttpServer {
 
                     TaskService.gI().sendTaskMain(player);
                     TaskService.gI().sendUpdateCountSubTask(player);
-                    Service.gI().sendThongBao(player, "Admin đã chuyển nhiệm vụ cho bạn: " + player.playerTask.taskMain.name);
+                    Service.gI().sendThongBao(player,
+                            "Admin đã chuyển nhiệm vụ cho bạn: " + player.playerTask.taskMain.name);
 
                     try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement psUpdate = conn.prepareStatement("UPDATE player SET data_task = ? WHERE id = ?")) {
+                            PreparedStatement psUpdate = conn
+                                    .prepareStatement("UPDATE player SET data_task = ? WHERE id = ?")) {
                         JSONArray taskArr = new JSONArray();
                         taskArr.add(player.playerTask.taskMain.id);
                         taskArr.add(player.playerTask.taskMain.index);
-                        if (player.playerTask.taskMain.subTasks != null && !player.playerTask.taskMain.subTasks.isEmpty()) {
-                            taskArr.add(player.playerTask.taskMain.subTasks.get(player.playerTask.taskMain.index).count);
+                        if (player.playerTask.taskMain.subTasks != null
+                                && !player.playerTask.taskMain.subTasks.isEmpty()) {
+                            taskArr.add(
+                                    player.playerTask.taskMain.subTasks.get(player.playerTask.taskMain.index).count);
                         } else {
                             taskArr.add(0);
                         }
@@ -1096,15 +1198,19 @@ public class AdminHttpServer {
                         psUpdate.setString(1, taskArr.toJSONString());
                         psUpdate.setLong(2, player.id);
                         psUpdate.executeUpdate();
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                    }
 
-                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã chuyển qua nhiệm vụ LIVE (Online) cho [" + player.name + "] sang nhiệm vụ #" + player.playerTask.taskMain.id + "!\"}");
+                    sendJsonResponse(exchange, 200,
+                            "{\"status\": \"success\", \"message\": \"Đã chuyển qua nhiệm vụ LIVE (Online) cho ["
+                                    + player.name + "] sang nhiệm vụ #" + player.playerTask.taskMain.id + "!\"}");
                     return;
                 }
 
                 // If offline or player not in memory, update MySQL directly
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement psSelect = conn.prepareStatement("SELECT id, gender, data_task FROM player WHERE name = ?")) {
+                        PreparedStatement psSelect = conn
+                                .prepareStatement("SELECT id, gender, data_task FROM player WHERE name = ?")) {
                     psSelect.setString(1, playerName);
                     ResultSet rs = psSelect.executeQuery();
                     if (rs.next()) {
@@ -1115,7 +1221,9 @@ public class AdminHttpServer {
                             taskArr = (JSONArray) JSONValue.parse(dataTaskStr);
                         } catch (Exception e) {
                             taskArr = new JSONArray();
-                            taskArr.add(0); taskArr.add(0); taskArr.add(0);
+                            taskArr.add(0);
+                            taskArr.add(0);
+                            taskArr.add(0);
                         }
                         int currentTaskId = Integer.parseInt(taskArr.get(0).toString());
                         int nextTaskId = taskId >= 0 ? taskId : (currentTaskId + 1);
@@ -1124,18 +1232,22 @@ public class AdminHttpServer {
                         taskArr.set(1, 0);
                         taskArr.set(2, 0);
 
-                        try (PreparedStatement psUpdate = conn.prepareStatement("UPDATE player SET data_task = ? WHERE id = ?")) {
+                        try (PreparedStatement psUpdate = conn
+                                .prepareStatement("UPDATE player SET data_task = ? WHERE id = ?")) {
                             psUpdate.setString(1, taskArr.toJSONString());
                             psUpdate.setInt(2, pId);
                             psUpdate.executeUpdate();
                         }
 
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã chuyển nhiệm vụ (offline) cho [" + playerName + "] sang nhiệm vụ #" + nextTaskId + "!\"}");
+                        sendJsonResponse(exchange, 200,
+                                "{\"status\": \"success\", \"message\": \"Đã chuyển nhiệm vụ (offline) cho ["
+                                        + playerName + "] sang nhiệm vụ #" + nextTaskId + "!\"}");
                         return;
                     }
                 }
 
-                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "]\"}");
+                sendJsonResponse(exchange, 404,
+                        "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "]\"}");
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
@@ -1154,8 +1266,8 @@ public class AdminHttpServer {
             try {
                 GiftCodeManager.gI().listGiftCode.clear();
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("SELECT * FROM giftcode");
-                     ResultSet rs = ps.executeQuery()) {
+                        PreparedStatement ps = conn.prepareStatement("SELECT * FROM giftcode");
+                        ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         GiftCode giftcode = new GiftCode();
                         giftcode.code = rs.getString("code");
@@ -1190,7 +1302,9 @@ public class AdminHttpServer {
                         GiftCodeManager.gI().listGiftCode.add(giftcode);
                     }
                 }
-                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tải lại danh sách GiftCode (" + GiftCodeManager.gI().listGiftCode.size() + " mã)!\"}");
+                sendJsonResponse(exchange, 200,
+                        "{\"status\": \"success\", \"message\": \"Đã tải lại danh sách GiftCode ("
+                                + GiftCodeManager.gI().listGiftCode.size() + " mã)!\"}");
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
@@ -1211,11 +1325,14 @@ public class AdminHttpServer {
                 String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
 
-                String playerName = body != null && body.get("playerName") != null ? body.get("playerName").toString().trim() : "";
+                String playerName = body != null && body.get("playerName") != null
+                        ? body.get("playerName").toString().trim()
+                        : "";
                 String code = body != null && body.get("code") != null ? body.get("code").toString().trim() : "";
 
                 if (playerName.isEmpty() || code.isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật hoặc mã giftcode\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật hoặc mã giftcode\"}");
                     return;
                 }
 
@@ -1228,12 +1345,14 @@ public class AdminHttpServer {
                 }
 
                 if (player == null) {
-                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] phải ONLINE trong game để nhập giftcode!\"}");
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName
+                            + "] phải ONLINE trong game để nhập giftcode!\"}");
                     return;
                 }
 
                 GiftCodeService.gI().giftCode(player, code);
-                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xử lý nhập GiftCode cho [" + player.name + "]!\"}");
+                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xử lý nhập GiftCode cho ["
+                        + player.name + "]!\"}");
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
@@ -1265,7 +1384,8 @@ public class AdminHttpServer {
                 long tiemNang = body.containsKey("tiemNang") ? ((Number) body.get("tiemNang")).longValue() : 0L;
 
                 if (playerName == null || playerName.trim().isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
                     return;
                 }
 
@@ -1290,12 +1410,16 @@ public class AdminHttpServer {
                     }
 
                     nro.models.services.Service.gI().point(player);
-                    nro.models.services.Service.gI().sendThongBao(player, "Admin vừa điều chỉnh Sức mạnh & Tiềm năng cho bạn!");
+                    nro.models.services.Service.gI().sendThongBao(player,
+                            "Admin vừa điều chỉnh Sức mạnh & Tiềm năng cho bạn!");
                     nro.models.database.PlayerDAO.updatePlayer(player);
 
-                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã điều chỉnh SM & Tiềm năng cho nhân vật [" + player.name + "] (ONLINE)!\"}");
+                    sendJsonResponse(exchange, 200,
+                            "{\"status\": \"success\", \"message\": \"Đã điều chỉnh SM & Tiềm năng cho nhân vật ["
+                                    + player.name + "] (ONLINE)!\"}");
                 } else {
-                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] phải ONLINE trong game để điều chỉnh Sức Mạnh!\"}");
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName
+                            + "] phải ONLINE trong game để điều chỉnh Sức Mạnh!\"}");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1323,7 +1447,8 @@ public class AdminHttpServer {
                             obj.put("name", b.name);
                             obj.put("gender", b.gender);
                             obj.put("power", b.nPoint != null ? b.nPoint.power : 0);
-                            obj.put("mapName", b.zone != null && b.zone.map != null ? b.zone.map.mapName : "Đang di chuyển");
+                            obj.put("mapName",
+                                    b.zone != null && b.zone.map != null ? b.zone.map.mapName : "Đang di chuyển");
                             obj.put("zoneId", b.zone != null ? b.zone.zoneId : 0);
                             arr.add(obj);
                         }
@@ -1335,9 +1460,11 @@ public class AdminHttpServer {
                     sendJsonResponse(exchange, 200, res.toJSONString());
                 } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                     InputStream is = exchange.getRequestBody();
-                    JSONObject requestObj = (JSONObject) JSONValue.parse(new InputStreamReader(is, StandardCharsets.UTF_8));
+                    JSONObject requestObj = (JSONObject) JSONValue
+                            .parse(new InputStreamReader(is, StandardCharsets.UTF_8));
                     if (requestObj == null) {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                        sendJsonResponse(exchange, 400,
+                                "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
                         return;
                     }
                     String action = (String) requestObj.get("action");
@@ -1351,151 +1478,49 @@ public class AdminHttpServer {
                             type = Integer.parseInt(String.valueOf(requestObj.get("type")));
                         }
                         nro.models.Bot.NewBot.gI().runBot(type, null, count);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tạo thêm " + count + " Bot giả thành công!\"}");
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tạo thêm " + count
+                                + " Bot giả thành công!\"}");
                     } else if ("clear".equalsIgnoreCase(action)) {
                         List<nro.models.Bot.Bot> botList = new ArrayList<>(nro.models.Bot.BotManager.gI().bot);
                         for (nro.models.Bot.Bot b : botList) {
                             if (b != null) {
                                 try {
                                     nro.models.map.service.ChangeMapService.gI().exitMap(b);
-                                } catch (Exception ex) {}
+                                } catch (Exception ex) {
+                                }
                             }
                         }
                         nro.models.Bot.BotManager.gI().bot.clear();
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã dọn dẹp và xóa toàn bộ Bot giả khỏi server!\"}");
+                        sendJsonResponse(exchange, 200,
+                                "{\"status\": \"success\", \"message\": \"Đã dọn dẹp và xóa toàn bộ Bot giả khỏi server!\"}");
                     } else if ("kick_one".equalsIgnoreCase(action)) {
-                        long botId = requestObj.get("botId") != null ? Long.parseLong(String.valueOf(requestObj.get("botId"))) : -1;
+                        long botId = requestObj.get("botId") != null
+                                ? Long.parseLong(String.valueOf(requestObj.get("botId")))
+                                : -1;
                         List<nro.models.Bot.Bot> botList = new ArrayList<>(nro.models.Bot.BotManager.gI().bot);
                         boolean found = false;
                         for (nro.models.Bot.Bot b : botList) {
                             if (b != null && b.id == botId) {
                                 try {
                                     nro.models.map.service.ChangeMapService.gI().exitMap(b);
-                                } catch (Exception ex) {}
+                                } catch (Exception ex) {
+                                }
                                 nro.models.Bot.BotManager.gI().bot.remove(b);
                                 found = true;
                                 break;
                             }
                         }
                         if (found) {
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã kích thành công Bot ID: " + botId + "!\"}");
+                            sendJsonResponse(exchange, 200,
+                                    "{\"status\": \"success\", \"message\": \"Đã kích thành công Bot ID: " + botId
+                                            + "!\"}");
                         } else {
-                            sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Bot với ID chỉ định!\"}");
+                            sendJsonResponse(exchange, 404,
+                                    "{\"status\": \"error\", \"message\": \"Không tìm thấy Bot với ID chỉ định!\"}");
                         }
                     } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
-            }
-        }
-    }
-
-    // --- /api/spawn-mabu ---
-    private static class SpawnMabuHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange exchange) {
-            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
-                sendJsonResponse(exchange, 200, "{}");
-                return;
-            }
-            try {
-                nro.models.boss.Boss_Manager.BossManager.gI().createBoss(nro.models.boss.BossID.MABU);
-                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã gọi Boss Ma Bư Mập xuất hiện thành công trong Game cho người chơi đánh rớt Trứng!\"}");
-            } catch (Exception e) {
-                e.printStackTrace();
-                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
-            }
-        }
-    }
-
-    // --- /api/manage-bosses ---
-    private static class ManageBossesHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange exchange) {
-            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
-                sendJsonResponse(exchange, 200, "{}");
-                return;
-            }
-            try {
-                if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                    List<nro.models.boss.Boss> bosses = nro.models.boss.Boss_Manager.BossManager.gI().getBosses();
-                    JSONArray arr = new JSONArray();
-                    if (bosses != null) {
-                        for (nro.models.boss.Boss b : bosses) {
-                            if (b != null) {
-                                JSONObject obj = new JSONObject();
-                                obj.put("id", b.id);
-                                obj.put("name", b.name != null ? b.name : "Boss");
-                                obj.put("hp", b.nPoint != null ? b.nPoint.hp : 0);
-                                obj.put("hpMax", b.nPoint != null ? b.nPoint.hpMax : 0);
-                                obj.put("mapId", b.zone != null && b.zone.map != null ? b.zone.map.mapId : -1);
-                                obj.put("mapName", b.zone != null && b.zone.map != null ? b.zone.map.mapName : "Không rõ");
-                                obj.put("zoneId", b.zone != null ? b.zone.zoneId : -1);
-                                obj.put("x", b.location != null ? b.location.x : 0);
-                                obj.put("y", b.location != null ? b.location.y : 0);
-                                arr.add(obj);
-                            }
-                        }
-                    }
-                    sendJsonResponse(exchange, 200, arr.toJSONString());
-                } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                    InputStream is = exchange.getRequestBody();
-                    JSONObject requestObj = (JSONObject) JSONValue.parse(new InputStreamReader(is, StandardCharsets.UTF_8));
-                    if (requestObj == null) {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
-                        return;
-                    }
-                    String action = (String) requestObj.get("action");
-
-                    if ("spawn".equalsIgnoreCase(action)) {
-                        int bossId = requestObj.get("bossId") != null ? Integer.parseInt(String.valueOf(requestObj.get("bossId"))) : nro.models.boss.BossID.MABU;
-                        nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
-                        String name = (boss != null && boss.name != null) ? boss.name : ("Boss ID " + bossId);
-                        JSONObject res = new JSONObject();
-                        res.put("status", "success");
-                        res.put("message", "Đã gọi thành công " + name + " xuất hiện trong Game!");
-                        sendJsonResponse(exchange, 200, res.toJSONString());
-                    } else if ("kill_one".equalsIgnoreCase(action)) {
-                        int bossId = requestObj.get("bossId") != null ? Integer.parseInt(String.valueOf(requestObj.get("bossId"))) : 0;
-                        List<nro.models.boss.Boss> bosses = new ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
-                        boolean found = false;
-                        for (nro.models.boss.Boss b : bosses) {
-                            if (b != null && b.id == bossId) {
-                                try {
-                                    b.changeStatus(nro.models.consts.BossStatus.DIE);
-                                } catch (Exception ex) {}
-                                found = true;
-                                break;
-                            }
-                        }
-                        JSONObject res = new JSONObject();
-                        if (found) {
-                            res.put("status", "success");
-                            res.put("message", "Đã tiêu diệt Boss ID " + bossId + "!");
-                            sendJsonResponse(exchange, 200, res.toJSONString());
-                        } else {
-                            res.put("status", "error");
-                            res.put("message", "Không tìm thấy Boss đang sống với ID này!");
-                            sendJsonResponse(exchange, 404, res.toJSONString());
-                        }
-                    } else if ("clear_all".equalsIgnoreCase(action)) {
-                        List<nro.models.boss.Boss> bosses = new ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
-                        for (nro.models.boss.Boss b : bosses) {
-                            if (b != null) {
-                                try {
-                                    b.changeStatus(nro.models.consts.BossStatus.DIE);
-                                } catch (Exception ex) {}
-                            }
-                        }
-                        JSONObject res = new JSONObject();
-                        res.put("status", "success");
-                        res.put("message", "Đã tiêu diệt toàn bộ Boss đang sống trên Server!");
-                        sendJsonResponse(exchange, 200, res.toJSONString());
-                    } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
+                        sendJsonResponse(exchange, 400,
+                                "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
                     }
                 }
             } catch (Exception e) {
@@ -1505,4 +1530,3 @@ public class AdminHttpServer {
         }
     }
 }
-

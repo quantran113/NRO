@@ -131,7 +131,7 @@ function checkLoginState() {
                 }
             }
             return;
-        } catch (e) {}
+        } catch (e) { }
     }
     document.getElementById('login-screen').style.display = 'flex';
     clearLoginInputs();
@@ -308,7 +308,7 @@ async function loadOptionTemplates() {
                 return;
             }
         }
-    } catch (e) {}
+    } catch (e) { }
     optionTemplates = POPULAR_OPTIONS;
 }
 
@@ -663,7 +663,7 @@ async function handleMapSearchInput() {
     }
 
     dropdown.innerHTML = '';
-    
+
     // Add "All Maps" option at top
     const allItem = document.createElement('div');
     allItem.className = 'suggestion-item';
@@ -754,7 +754,7 @@ function renderDropRulesTable() {
 
         const itemObj = itemTemplates.find(i => i.id === rule.itemId);
         const itemName = itemObj ? itemObj.name : `Vật phẩm #${rule.itemId}`;
-        
+
         let mapText = '';
         if (rule.mapId === -1) {
             mapText = '<span style="color: var(--gold); font-weight: 700;"><i class="fa-solid fa-earth-americas"></i> TẤT CẢ MAP (-1)</span>';
@@ -764,8 +764,8 @@ function renderDropRulesTable() {
             mapText = `<span style="color: var(--cyan); font-weight: 700;"><i class="fa-solid fa-map-location-dot"></i> #${rule.mapId} - ${escapeHtml(mapName)}</span>`;
         }
 
-        const statusBadge = rule.active 
-            ? '<span class="badge-online" style="cursor: pointer;" onclick="toggleDropRule(' + rule.id + ')">ĐANG BẬT</span>' 
+        const statusBadge = rule.active
+            ? '<span class="badge-online" style="cursor: pointer;" onclick="toggleDropRule(' + rule.id + ')">ĐANG BẬT</span>'
             : '<span class="badge-offline" style="cursor: pointer;" onclick="toggleDropRule(' + rule.id + ')">ĐÃ TẮT</span>';
 
         tr.innerHTML = `
@@ -947,7 +947,7 @@ function renderItemCatalog(items) {
         const div = document.createElement('div');
         div.className = 'item-card';
         div.onclick = () => addItemToCart(item.id);
-        
+
         div.innerHTML = `
             <div class="item-img-badge">
                 <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" class="nro-item-sprite" alt="${escapeHtml(item.name)}">
@@ -970,7 +970,7 @@ function filterItems() {
         renderItemCatalog(itemTemplates.slice(0, 120));
         return;
     }
-    const filtered = itemTemplates.filter(item => 
+    const filtered = itemTemplates.filter(item =>
         item.id.toString() === query ||
         (item.name && item.name.toLowerCase().includes(query))
     );
@@ -1048,9 +1048,9 @@ function filterOptionSelect(inputEl, cartIndex, optIndex, shopOptIndex) {
 
     const listToUse = (optionTemplates && optionTemplates.length > 0) ? optionTemplates : POPULAR_OPTIONS;
 
-    const matches = listToUse.filter(o => 
-        !val || 
-        o.id.toString().includes(val) || 
+    const matches = listToUse.filter(o =>
+        !val ||
+        o.id.toString().includes(val) ||
         (o.name && o.name.toLowerCase().includes(val))
     );
 
@@ -1126,7 +1126,7 @@ function renderCartList() {
             </div>
         `;
         const listToUse = (optionTemplates && optionTemplates.length > 0) ? optionTemplates : POPULAR_OPTIONS;
-        
+
         cartItem.options.forEach((opt, optIdx) => {
             let selectOptions = '';
             listToUse.forEach(o => {
@@ -1236,7 +1236,7 @@ function handlePetPlayerSearchInput() {
 function checkPetPlayerStatus() {
     const name = document.getElementById('target-player-pet').value.trim();
     const badge = document.getElementById('pet-player-status-badge');
-    
+
     if (!name) {
         badge.className = 'badge-offline';
         badge.innerText = 'Chưa chọn';
@@ -1415,7 +1415,7 @@ function setupOutsideClickListener() {
 function checkTargetPlayerStatus() {
     const name = document.getElementById('target-player').value.trim();
     const badge = document.getElementById('player-status-badge');
-    
+
     if (!name) {
         badge.className = 'badge-offline';
         badge.innerText = 'Chưa chọn';
@@ -1528,10 +1528,10 @@ function renderAccountTable() {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
 
-        const adminBadge = a.admin === 1 
+        const adminBadge = a.admin === 1
             ? '<span style="background: rgba(255,215,0,0.2); color: var(--gold); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">ADMIN</span>'
             : '<span style="color: var(--text-muted); font-size: 11px;">User</span>';
-        
+
         const activeBadge = a.active === 1
             ? '<span class="badge-online">HOẠT ĐỘNG</span>'
             : '<span class="badge-offline">BỊ KHÓA</span>';
@@ -1597,7 +1597,7 @@ function changeAccountPassword(id, username) {
     if (nameEl) nameEl.innerText = username;
     const input = document.getElementById('modal-new-password-input');
     if (input) input.value = '';
-    
+
     const confirmBtn = document.getElementById('modal-confirm-change-pass-btn');
     if (confirmBtn) {
         confirmBtn.onclick = async () => {
@@ -1753,10 +1753,10 @@ function renderPlayerTable() {
     filtered.forEach(p => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
-        
+
         const genderText = p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda';
-        const statusBadge = p.online 
-            ? '<span class="badge-online">ONLINE</span>' 
+        const statusBadge = p.online
+            ? '<span class="badge-online">ONLINE</span>'
             : '<span class="badge-offline">OFFLINE</span>';
 
         const avatarSrc = p.avatarUrl || `/icons/${p.avatarId || 64}.png`;
@@ -1803,7 +1803,7 @@ function setModalPowerPreset(val) {
 function openAdjustPlayerPowerModal(playerName) {
     const nameEl = document.getElementById('adjust-power-player-name');
     if (nameEl) nameEl.innerText = playerName;
-    
+
     showModal('modal-adjust-power');
 
     const confirmBtn = document.getElementById('modal-confirm-adjust-power-btn');
@@ -1844,8 +1844,7 @@ function switchTab(tabName) {
         'giftcode': 5,
         'accounts': 6,
         'players': 7,
-        'bots': 8,
-        'bosses': 9
+        'bots': 8
     };
 
     const targetIndex = tabMap[tabName];
@@ -1867,7 +1866,6 @@ function switchTab(tabName) {
     else if (tabName === 'accounts') loadAccountData();
     else if (tabName === 'players') loadPlayers();
     else if (tabName === 'bots') loadBotsList();
-    else if (tabName === 'bosses') loadBossesList();
 }
 
 // --- GIFTCODE MANAGER LOGIC ---
@@ -2178,10 +2176,10 @@ function showToast(message, type = 'success') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
     toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHtml(message)}</span>`;
-    
+
     container.appendChild(toast);
 
     setTimeout(() => {
@@ -2194,14 +2192,9 @@ function showToast(message, type = 'success') {
 
 function escapeHtml(text) {
     if (!text) return '';
-    return text.replace(/[&<>"']/g, function(m) {
+    return text.replace(/[&<>"']/g, function (m) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
-}
-
-function formatNumber(num) {
-    if (num === null || num === undefined) return '0';
-    return Number(num).toLocaleString('vi-VN');
 }
 
 // --- FIX DUPLICATE ITEM OPTIONS ---
@@ -2353,171 +2346,6 @@ async function kickBotFromWeb(botId) {
             loadBotsList();
         } else {
             showToast(data.message || 'Lỗi khi kích Bot', 'error');
-        }
-    } catch (err) {
-        showToast('Lỗi kết nối Server: ' + err.message, 'error');
-    }
-}
-
-async function spawnMabuBossFromWeb() {
-    try {
-        const resp = await fetch('/api/admin/spawn-mabu', { method: 'POST' });
-        const data = await resp.json();
-        if (data.status === 'success') {
-            showToast(data.message || 'Đã gọi Boss Ma Bư Mập xuất hiện!', 'success');
-            if (document.getElementById('tab-bosses') && document.getElementById('tab-bosses').style.display !== 'none') {
-                loadBossesList();
-            }
-        } else {
-            showToast(data.message || 'Lỗi khi gọi Boss Ma Bư', 'error');
-        }
-    } catch (err) {
-        showToast('Lỗi kết nối Server: ' + err.message, 'error');
-    }
-}
-
-// --- BOSS MANAGEMENT SYSTEM ---
-function onBossPresetChange() {
-    const val = document.getElementById('boss-preset-select').value;
-    const customGroup = document.getElementById('custom-boss-id-group');
-    if (val === 'custom') {
-        customGroup.style.display = 'block';
-    } else {
-        customGroup.style.display = 'none';
-    }
-}
-
-async function loadBossesList() {
-    const tbody = document.getElementById('bosses-table-body');
-    const badge = document.getElementById('active-boss-count');
-    if (!tbody) return;
-
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
-                <i class="fa-solid fa-spinner fa-spin"></i> Đang cập nhật danh sách Boss...
-            </td>
-        </tr>
-    `;
-
-    try {
-        const resp = await fetch('/api/admin/bosses');
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        const bosses = await resp.json();
-
-        if (badge) badge.innerText = bosses.length;
-
-        if (!bosses || bosses.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
-                        Hiện chưa có Boss nào đang xuất hiện trên Map.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = bosses.map(b => {
-            const hpPercent = b.hpMax > 0 ? Math.round((b.hp / b.hpMax) * 100) : 0;
-            return `
-                <tr>
-                    <td><strong style="color: var(--gold);">${b.id}</strong></td>
-                    <td><strong style="color: #ff9f43;">${escapeHtml(b.name)}</strong></td>
-                    <td>
-                        <span style="font-size: 12px; color: var(--cyan);">${(b.hp || 0).toLocaleString('vi-VN')} / ${(b.hpMax || 0).toLocaleString('vi-VN')}</span>
-                        <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 4px; width: 100%; margin-top: 4px; overflow: hidden;">
-                            <div style="background: linear-gradient(90deg, #ff4757, #ffa502); height: 100%; width: ${hpPercent}%;"></div>
-                        </div>
-                    </td>
-                    <td><span class="badge" style="background: rgba(0, 243, 255, 0.1); color: var(--cyan);">${escapeHtml(b.mapName)} (Map ${b.mapId})</span></td>
-                    <td>Khu ${b.zoneId}</td>
-                    <td><span style="font-family: monospace;">(${b.x}, ${b.y})</span></td>
-                    <td>
-                        <button class="btn-secondary" onclick="killBossFromWeb(${b.id})" style="padding: 4px 10px; font-size: 11px; color: #ff4757; border-color: #ff4757;">
-                            <i class="fa-solid fa-skull"></i> TIÊU DIỆT
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    } catch (err) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" style="text-align: center; color: #ff4757; padding: 20px;">
-                    Lỗi kết nối Game Server API: ${err.message}
-                </td>
-            </tr>
-        `;
-    }
-}
-
-async function spawnBossFromWeb() {
-    let bossId = document.getElementById('boss-preset-select').value;
-    if (bossId === 'custom') {
-        bossId = document.getElementById('custom-boss-id-input').value;
-    }
-    if (!bossId) {
-        showToast('Vui lòng chọn hoặc nhập ID Boss!', 'error');
-        return;
-    }
-
-    try {
-        const resp = await fetch('/api/admin/bosses', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'spawn', bossId: parseInt(bossId) })
-        });
-        const data = await resp.json();
-        if (data.status === 'success') {
-            showToast(data.message || 'Đã gọi Boss xuất hiện thành công!', 'success');
-            loadBossesList();
-        } else {
-            showToast(data.message || 'Lỗi khi gọi Boss', 'error');
-        }
-    } catch (err) {
-        showToast('Lỗi kết nối Server: ' + err.message, 'error');
-    }
-}
-
-function confirmClearAllBosses() {
-    if (confirm('Bạn có chắc chắn muốn TIÊU DIỆT TOÀN BỘ BOSS đang sống trên tất cả Map trong Server?')) {
-        clearAllBossesFromWeb();
-    }
-}
-
-async function clearAllBossesFromWeb() {
-    try {
-        const resp = await fetch('/api/admin/bosses', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'clear_all' })
-        });
-        const data = await resp.json();
-        if (data.status === 'success') {
-            showToast(data.message || 'Đã dọn dẹp và tiêu diệt sạch Boss!', 'success');
-            loadBossesList();
-        } else {
-            showToast(data.message || 'Lỗi khi tiêu diệt Boss', 'error');
-        }
-    } catch (err) {
-        showToast('Lỗi kết nối Server: ' + err.message, 'error');
-    }
-}
-
-async function killBossFromWeb(bossId) {
-    try {
-        const resp = await fetch('/api/admin/bosses', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'kill_one', bossId })
-        });
-        const data = await resp.json();
-        if (data.status === 'success') {
-            showToast(data.message || `Đã tiêu diệt Boss ID ${bossId}`, 'success');
-            loadBossesList();
-        } else {
-            showToast(data.message || 'Lỗi khi tiêu diệt Boss', 'error');
         }
     } catch (err) {
         showToast('Lỗi kết nối Server: ' + err.message, 'error');

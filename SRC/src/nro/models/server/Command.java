@@ -60,10 +60,10 @@ public class Command {
         adminCommands.put("d", player -> Service.gI().setPos(player, player.location.x, player.location.y + 10));
         adminCommands.put("a", player -> NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN, -1,
                 "|0|Time start: " + ServerManager.timeStart
-                + "\nClients: " + Client.gI().getPlayers().size()
-                + "\n Sessions: " + SessionManager.gI().getNumSession()
-                + "\nThreads: " + Thread.activeCount()
-                + " luồng" + "\n" + SystemMetrics.ToString(),
+                        + "\nClients: " + Client.gI().getPlayers().size()
+                        + "\n Sessions: " + SessionManager.gI().getNumSession()
+                        + "\nThreads: " + Thread.activeCount()
+                        + " luồng" + "\n" + SystemMetrics.ToString(),
                 "Ngọc rồng", "Đệ tử", "Bảo trì", "Tìm kiếm\nngười chơi", "Boss", "Đóng"));
     }
 
@@ -81,15 +81,6 @@ public class Command {
             Service.gI().sendThongBaoOK(player, "x: " + player.location.x + " - y: " + player.location.y);
         });
 
-        parameterizedCommands.put("mabu", (player, text) -> {
-            try {
-                nro.models.boss.Boss_Manager.BossManager.gI().createBoss(nro.models.boss.BossID.MABU);
-                Service.gI().sendThongBao(player, "Đã gọi Boss Ma Bư Mập xuất hiện!");
-            } catch (Exception e) {
-                Service.gI().sendThongBao(player, "Lỗi gọi Boss Ma Bư: " + e.getMessage());
-            }
-        });
-
         parameterizedCommands.put("1", (player, text) -> {
             NpcService.gI().createMenuConMeo(player, 206783, 206783, "|7| Menu bot\n"
                     + "Player online : " + Client.gI().getPlayers().size() + "\n"
@@ -105,7 +96,8 @@ public class Command {
             PlayerService.gI().changeAndSendTypePK(player, ConstPlayer.PK_ALL);
             player.originalName = player.name;
             Service.gI().Send_Caitrang(player);
-            BotAttackplayer bot = new BotAttackplayer((short) 1624, (short) 1628, (short) 1629, 1, "đánh nhau không?", (short) 0);
+            BotAttackplayer bot = new BotAttackplayer((short) 1624, (short) 1628, (short) 1629, 1, "đánh nhau không?",
+                    (short) 0);
             bot.player = player;
             bot.zone = player.zone;
             bot.location.x = player.location.x;
@@ -145,68 +137,66 @@ public class Command {
             }
         });
         // dmg <value>
-parameterizedCommands.put("dm", (player, text) -> {
-    try {
-        int dmg = Integer.parseInt(text.replace("dm", "").trim());
-        player.nPoint.dameg = dmg;
-        Service.gI().point(player);
-        Service.gI().sendThongBao(player, "SET DAMAGE = " + dmg);
-    } catch (Exception e) {
-        Service.gI().sendThongBao(player, "Sai cú pháp: dmg <số>");
-    }
-});
+        parameterizedCommands.put("dm", (player, text) -> {
+            try {
+                int dmg = Integer.parseInt(text.replace("dm", "").trim());
+                player.nPoint.dameg = dmg;
+                Service.gI().point(player);
+                Service.gI().sendThongBao(player, "SET DAMAGE = " + dmg);
+            } catch (Exception e) {
+                Service.gI().sendThongBao(player, "Sai cú pháp: dmg <số>");
+            }
+        });
 
-// hpg <value>
-parameterizedCommands.put("hp", (player, text) -> {
-    try {
-        int hpg = Integer.parseInt(text.replace("hp", "").trim());
-        player.nPoint.hpg = hpg;
-        Service.gI().point(player);
-        Service.gI().sendThongBao(player, "SET HP GỐC = " + hpg);
-    } catch (Exception e) {
-        Service.gI().sendThongBao(player, "Sai cú pháp: hpg <số>");
-    }
-});
+        // hpg <value>
+        parameterizedCommands.put("hp", (player, text) -> {
+            try {
+                int hpg = Integer.parseInt(text.replace("hp", "").trim());
+                player.nPoint.hpg = hpg;
+                Service.gI().point(player);
+                Service.gI().sendThongBao(player, "SET HP GỐC = " + hpg);
+            } catch (Exception e) {
+                Service.gI().sendThongBao(player, "Sai cú pháp: hpg <số>");
+            }
+        });
 
-// ki <value>
-parameterizedCommands.put("ki", (player, text) -> {
-    try {
-        int ki = Integer.parseInt(text.replace("ki", "").trim());
-        player.nPoint.mpg = ki;
-        Service.gI().point(player);
-        Service.gI().sendThongBao(player, "SET KI GỐC = " + ki);
-    } catch (Exception e) {
-        Service.gI().sendThongBao(player, "Sai cú pháp: ki <số>");
-    }
-});
-// up <power>
-parameterizedCommands.put("up", (player, text) -> {
-    try {
-        long power = Long.parseLong(text.replace("up", "").trim());
-        Service.gI().addSMTN(player, (byte) 2, power, false);
-        Service.gI().sendThongBao(player, "UP SMTN = " + power);
-    } catch (Exception e) {
-        Service.gI().sendThongBao(player, "Sai cú pháp: up <số>");
-    }
-});
-parameterizedCommands.put("upp", (player, text) -> {
-    try {
-        if (player.pet == null) {
-            Service.gI().sendThongBao(player, "Bạn chưa có đệ tử");
-            return;
-        }
+        // ki <value>
+        parameterizedCommands.put("ki", (player, text) -> {
+            try {
+                int ki = Integer.parseInt(text.replace("ki", "").trim());
+                player.nPoint.mpg = ki;
+                Service.gI().point(player);
+                Service.gI().sendThongBao(player, "SET KI GỐC = " + ki);
+            } catch (Exception e) {
+                Service.gI().sendThongBao(player, "Sai cú pháp: ki <số>");
+            }
+        });
+        // up <power>
+        parameterizedCommands.put("up", (player, text) -> {
+            try {
+                long power = Long.parseLong(text.replace("up", "").trim());
+                Service.gI().addSMTN(player, (byte) 2, power, false);
+                Service.gI().sendThongBao(player, "UP SMTN = " + power);
+            } catch (Exception e) {
+                Service.gI().sendThongBao(player, "Sai cú pháp: up <số>");
+            }
+        });
+        parameterizedCommands.put("upp", (player, text) -> {
+            try {
+                if (player.pet == null) {
+                    Service.gI().sendThongBao(player, "Bạn chưa có đệ tử");
+                    return;
+                }
 
-        long power = Long.parseLong(text.replace("upp", "").trim());
-        Service.gI().addSMTN(player.pet, (byte) 2, power, false);
-        Service.gI().sendThongBao(
-            player,
-            "UP TNSM cho đệ tử = " + power
-        );
-    } catch (Exception e) {
-        Service.gI().sendThongBao(player, "Sai cú pháp: upp <số>");
-    }
-});
-
+                long power = Long.parseLong(text.replace("upp", "").trim());
+                Service.gI().addSMTN(player.pet, (byte) 2, power, false);
+                Service.gI().sendThongBao(
+                        player,
+                        "UP TNSM cho đệ tử = " + power);
+            } catch (Exception e) {
+                Service.gI().sendThongBao(player, "Sai cú pháp: upp <số>");
+            }
+        });
 
         parameterizedCommands.put("i ", (player, text) -> {
             try {
@@ -243,7 +233,8 @@ parameterizedCommands.put("upp", (player, text) -> {
                 }
 
                 InventoryService.gI().sendItemBags(player);
-                Service.gI().sendThongBao(player, "GET " + quantity + " x " + ItemService.gI().getTemplate(itemId).name + " [" + itemId + "] SUCCESS!");
+                Service.gI().sendThongBao(player, "GET " + quantity + " x " + ItemService.gI().getTemplate(itemId).name
+                        + " [" + itemId + "] SUCCESS!");
 
             } catch (Exception e) {
                 Service.gI().sendThongBao(player, "Lỗi cú pháp! Dùng: i <itemId> <số lượng> [optionId:value]");
@@ -313,7 +304,8 @@ parameterizedCommands.put("upp", (player, text) -> {
                             }
                         }
                     } else {
-                        Service.gI().sendThongBaoOK(player, "Chỉ đệ tử (Goku vô cực, Kid Beerus, Jiren) mới có thể dùng sách tuyệt kỹ.");
+                        Service.gI().sendThongBaoOK(player,
+                                "Chỉ đệ tử (Goku vô cực, Kid Beerus, Jiren) mới có thể dùng sách tuyệt kỹ.");
                     }
                 }
             }

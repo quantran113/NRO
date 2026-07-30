@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
 </head>
+
 <body>
 
     <!-- ADMIN LOGIN & REGISTRATION MODAL -->
@@ -18,30 +20,37 @@
                 <i class="fa-solid fa-dragon"></i>
             </div>
             <h2>NRO SERVER PORTAL</h2>
-            
+
             <!-- Auth Switcher Tabs -->
-            <div style="display: flex; gap: 8px; margin: 16px 0; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px;">
-                <button id="auth-tab-login" class="nav-btn active" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 13px;" onclick="switchAuthTab('login')">
+            <div
+                style="display: flex; gap: 8px; margin: 16px 0; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px;">
+                <button id="auth-tab-login" class="nav-btn active"
+                    style="flex: 1; padding: 8px; border-radius: 6px; font-size: 13px;"
+                    onclick="switchAuthTab('login')">
                     <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP
                 </button>
-                <button id="auth-tab-register" class="nav-btn" style="flex: 1; padding: 8px; border-radius: 6px; font-size: 13px;" onclick="switchAuthTab('register')">
+                <button id="auth-tab-register" class="nav-btn"
+                    style="flex: 1; padding: 8px; border-radius: 6px; font-size: 13px;"
+                    onclick="switchAuthTab('register')">
                     <i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ MỚI
                 </button>
             </div>
-            
+
             <!-- Login Form -->
             <form id="login-form" autocomplete="off" action="javascript:void(0);">
                 <!-- Fake inputs to trick Chrome/Safari Autofill -->
                 <input type="text" name="fakeusernameremembered" style="display:none;" tabindex="-1" />
                 <input type="password" name="fakepasswordremembered" style="display:none;" tabindex="-1" />
-                
+
                 <div class="form-group">
                     <label><i class="fa-solid fa-user"></i> Tài khoản Admin</label>
-                    <input type="text" id="admin-user" name="admin_username_real_sec" class="input-field" placeholder="Nhập tài khoản admin..." autocomplete="off" value="" required>
+                    <input type="text" id="admin-user" name="admin_username_real_sec" class="input-field"
+                        placeholder="Nhập tài khoản admin..." autocomplete="off" value="" required>
                 </div>
                 <div class="form-group">
                     <label><i class="fa-solid fa-key"></i> Mật khẩu</label>
-                    <input type="password" id="admin-pass" name="admin_password_real_sec" class="input-field" placeholder="Nhập mật khẩu..." autocomplete="new-password" value="" required>
+                    <input type="password" id="admin-pass" name="admin_password_real_sec" class="input-field"
+                        placeholder="Nhập mật khẩu..." autocomplete="new-password" value="" required>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">
                     <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP ADMIN
@@ -52,21 +61,26 @@
             <form id="register-form" autocomplete="off" action="javascript:void(0);" style="display: none;">
                 <div class="form-group">
                     <label><i class="fa-solid fa-user-tag"></i> Tên tài khoản mới</label>
-                    <input type="text" id="reg-user" class="input-field" placeholder="Nhập tài khoản (3-30 ký tự)..." autocomplete="off" required>
+                    <input type="text" id="reg-user" class="input-field" placeholder="Nhập tài khoản (3-30 ký tự)..."
+                        autocomplete="off" required>
                 </div>
                 <div class="form-group">
                     <label><i class="fa-solid fa-envelope"></i> Địa chỉ Email</label>
-                    <input type="email" id="reg-email" class="input-field" placeholder="Nhập email (VD: user@gmail.com)..." autocomplete="off" required>
+                    <input type="email" id="reg-email" class="input-field"
+                        placeholder="Nhập email (VD: user@gmail.com)..." autocomplete="off" required>
                 </div>
                 <div class="form-group">
                     <label><i class="fa-solid fa-lock"></i> Mật khẩu</label>
-                    <input type="password" id="reg-pass" class="input-field" placeholder="Nhập mật khẩu..." autocomplete="new-password" required>
+                    <input type="password" id="reg-pass" class="input-field" placeholder="Nhập mật khẩu..."
+                        autocomplete="new-password" required>
                 </div>
                 <div class="form-group">
                     <label><i class="fa-solid fa-shield-check"></i> Xác nhận mật khẩu</label>
-                    <input type="password" id="reg-pass-confirm" class="input-field" placeholder="Nhập lại mật khẩu..." autocomplete="new-password" required>
+                    <input type="password" id="reg-pass-confirm" class="input-field" placeholder="Nhập lại mật khẩu..."
+                        autocomplete="new-password" required>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #10b981, #059669);">
+                <button type="submit" class="btn-primary"
+                    style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #10b981, #059669);">
                     <i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ TÀI KHOẢN
                 </button>
             </form>
@@ -108,9 +122,6 @@
             </button>
             <button class="nav-btn" onclick="switchTab('bots')">
                 <i class="fa-solid fa-robot"></i> QUẢN LÝ BOT GIẢ
-            </button>
-            <button class="nav-btn" onclick="switchTab('bosses')">
-                <i class="fa-solid fa-skull"></i> QUẢN LÝ BOSS
             </button>
             <button class="nav-btn" onclick="logoutAdmin()">
                 <i class="fa-solid fa-power-off"></i> ĐĂNG XUẤT
@@ -165,7 +176,9 @@
                     </div>
                     <div class="panel-body" style="flex: 1;">
                         <div class="item-search-box">
-                            <input type="text" id="item-search" class="input-field" placeholder="🔍 Tìm tên vật phẩm hoặc gõ ID (Áo, Quần, Găng...)..." oninput="filterItems()">
+                            <input type="text" id="item-search" class="input-field"
+                                placeholder="🔍 Tìm tên vật phẩm hoặc gõ ID (Áo, Quần, Găng...)..."
+                                oninput="filterItems()">
                         </div>
                         <div class="item-list-container" id="item-catalog">
                             <!-- Dynamically loaded -->
@@ -177,7 +190,9 @@
                 <div class="glass">
                     <div class="panel-header">
                         <h2><i class="fa-solid fa-cart-flatbed"></i> DANH SÁCH VẬT PHẨM CẦN CẤP</h2>
-                        <span id="cart-count-badge" class="badge-online" style="background: rgba(0, 243, 255, 0.15); color: var(--cyan); border-color: var(--cyan);">0 Món Trong Giỏ</span>
+                        <span id="cart-count-badge" class="badge-online"
+                            style="background: rgba(0, 243, 255, 0.15); color: var(--cyan); border-color: var(--cyan);">0
+                            Món Trong Giỏ</span>
                     </div>
                     <div class="panel-body">
                         <form id="grant-form" onsubmit="executeBatchGrant(event)">
@@ -186,21 +201,27 @@
                             <div class="form-group" style="position: relative;">
                                 <label><i class="fa-solid fa-user-tag"></i> Nhập / Chọn Nhân Vật Nhận Đồ</label>
                                 <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="target-player" class="input-field" placeholder="🔍 Nhập hoặc chọn tên nhân vật (ví dụ: admin)..." autocomplete="off" oninput="handlePlayerSearchInput()" onfocus="showPlayerSuggestions()" required>
-                                    <span id="player-status-badge" class="badge-offline" style="align-self: center; white-space: nowrap;">Chưa chọn</span>
+                                    <input type="text" id="target-player" class="input-field"
+                                        placeholder="🔍 Nhập hoặc chọn tên nhân vật (ví dụ: admin)..."
+                                        autocomplete="off" oninput="handlePlayerSearchInput()"
+                                        onfocus="showPlayerSuggestions()" required>
+                                    <span id="player-status-badge" class="badge-offline"
+                                        style="align-self: center; white-space: nowrap;">Chưa chọn</span>
                                 </div>
                                 <div id="player-suggestions" class="suggestions-dropdown" style="display: none;"></div>
                             </div>
 
                             <!-- DYNAMIC CART ITEMS CONTAINER -->
-                            <div id="cart-items-list" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+                            <div id="cart-items-list"
+                                style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
                                 <!-- Cart item cards rendered dynamically -->
                             </div>
 
                             <!-- Submit Batch Grant Button -->
                             <div style="margin-top: 24px;">
                                 <button type="submit" class="btn-primary" id="btn-grant-action">
-                                    <i class="fa-solid fa-bolt-lightning"></i> CẤP TOÀN BỘ DANH SÁCH (NHẬN LẬP TỨC TRONG GAME)
+                                    <i class="fa-solid fa-bolt-lightning"></i> CẤP TOÀN BỘ DANH SÁCH (NHẬN LẬP TỨC TRONG
+                                    GAME)
                                 </button>
                             </div>
 
@@ -214,7 +235,8 @@
         <!-- TAB 2: CẤP ĐỆ TỬ STUDIO -->
         <div id="tab-pet" class="tab-content" style="display: none;">
             <div class="glass" style="padding: 32px; max-width: 850px; margin: 0 auto;">
-                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                <div class="panel-header"
+                    style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
                     <h2><i class="fa-solid fa-paw" style="color: var(--gold);"></i> QUẢN LÝ & CẤP ĐỆ TỬ REALTIME</h2>
                 </div>
                 <form id="pet-grant-form" onsubmit="executeGrantPet(event)" style="margin-top: 24px;">
@@ -223,8 +245,11 @@
                     <div class="form-group" style="position: relative;">
                         <label><i class="fa-solid fa-user-tag"></i> Tên Nhân Vật Nhận Đệ Tử</label>
                         <div style="display: flex; gap: 8px;">
-                            <input type="text" id="target-player-pet" class="input-field" placeholder="🔍 Nhập hoặc chọn tên nhân vật (ví dụ: admin)..." required autocomplete="off" oninput="handlePetPlayerSearchInput()">
-                            <span id="pet-player-status-badge" class="badge-offline" style="align-self: center; white-space: nowrap;">Chưa chọn</span>
+                            <input type="text" id="target-player-pet" class="input-field"
+                                placeholder="🔍 Nhập hoặc chọn tên nhân vật (ví dụ: admin)..." required
+                                autocomplete="off" oninput="handlePetPlayerSearchInput()">
+                            <span id="pet-player-status-badge" class="badge-offline"
+                                style="align-self: center; white-space: nowrap;">Chưa chọn</span>
                         </div>
                         <div id="pet-player-suggestions" class="suggestions-dropdown" style="display: none;"></div>
                     </div>
@@ -232,7 +257,9 @@
                     <!-- Pet Type Selector -->
                     <div class="form-group">
                         <label><i class="fa-solid fa-dragon"></i> Chọn Loại Đệ Tử</label>
-                        <select id="pet-type-select" class="select-field" style="font-size: 15px; font-weight: 700; color: var(--gold);" onchange="handlePetTypeChange()">
+                        <select id="pet-type-select" class="select-field"
+                            style="font-size: 15px; font-weight: 700; color: var(--gold);"
+                            onchange="handlePetTypeChange()">
                             <option value="0">👦 Đệ Tử Thường (Trái Đất, Namếc, Xayda - Min 2,000 SM)</option>
                             <option value="1">🍬 Đệ Tử Mabư (Mabư béo siêu ngầu - Min 1.5 Tr SM)</option>
                             <option value="2">💥 Đệ Tử Úp (Siêu Cấp Uub - Min 40 Tỷ SM)</option>
@@ -252,34 +279,50 @@
                     </div>
 
                     <!-- Pet Power & Potential Custom Inputs -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
                         <div class="form-group">
-                            <label><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> Sức Mạnh Khởi Tạo Cho Đệ Tử</label>
-                            <input type="number" id="pet-power-input" class="input-field" value="2000" placeholder="Nhập số sức mạnh..." style="font-weight: 800; color: var(--cyan);" required>
+                            <label><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> Sức Mạnh Khởi Tạo Cho Đệ
+                                Tử</label>
+                            <input type="number" id="pet-power-input" class="input-field" value="2000"
+                                placeholder="Nhập số sức mạnh..." style="font-weight: 800; color: var(--cyan);"
+                                required>
                         </div>
                         <div class="form-group">
-                            <label><i class="fa-solid fa-star" style="color: var(--gold);"></i> Tiềm Năng Khởi Tạo Cho Đệ Tử</label>
-                            <input type="number" id="pet-tiemnang-input" class="input-field" value="2000" placeholder="Nhập số tiềm năng..." style="font-weight: 800; color: var(--gold);" required>
+                            <label><i class="fa-solid fa-star" style="color: var(--gold);"></i> Tiềm Năng Khởi Tạo Cho
+                                Đệ Tử</label>
+                            <input type="number" id="pet-tiemnang-input" class="input-field" value="2000"
+                                placeholder="Nhập số tiềm năng..." style="font-weight: 800; color: var(--gold);"
+                                required>
                         </div>
                     </div>
 
                     <!-- Quick Preset Power Pills -->
                     <div style="margin-bottom: 20px;">
-                        <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block;"><i class="fa-solid fa-bolt"></i> Nút Tăng Nhanh Sức Mạnh Đệ Tử</label>
+                        <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block;"><i
+                                class="fa-solid fa-bolt"></i> Nút Tăng Nhanh Sức Mạnh Đệ Tử</label>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(2000)">🌱 2,000 SM</button>
-                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(1500000)">🔥 1.5 Tr SM</button>
-                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(1500000000)">⚡ 1.5 Tỷ SM</button>
-                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(15000000000)">💥 15 Tỷ SM</button>
-                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(40000000000)">👑 40 Tỷ SM</button>
-                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(80000000000)">🌟 80 Tỷ SM</button>
-                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="setPetPowerPreset(90000000000)">🚀 90 Tỷ SM (Max)</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;"
+                                onclick="setPetPowerPreset(2000)">🌱 2,000 SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;"
+                                onclick="setPetPowerPreset(1500000)">🔥 1.5 Tr SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;"
+                                onclick="setPetPowerPreset(1500000000)">⚡ 1.5 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;"
+                                onclick="setPetPowerPreset(15000000000)">💥 15 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;"
+                                onclick="setPetPowerPreset(40000000000)">👑 40 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;"
+                                onclick="setPetPowerPreset(80000000000)">🌟 80 Tỷ SM</button>
+                            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;"
+                                onclick="setPetPowerPreset(90000000000)">🚀 90 Tỷ SM (Max)</button>
                         </div>
                     </div>
 
                     <!-- Submit Button -->
                     <div style="margin-top: 24px;">
-                        <button type="submit" class="btn-primary" id="btn-grant-pet-action" style="background: linear-gradient(135deg, #00f3ff, #b537f2); color: #fff;">
+                        <button type="submit" class="btn-primary" id="btn-grant-pet-action"
+                            style="background: linear-gradient(135deg, #00f3ff, #b537f2); color: #fff;">
                             <i class="fa-solid fa-paw"></i> CẤP / ĐỔI ĐỆ TỬ NGAY (REALTIME TRONG GAME)
                         </button>
                     </div>
@@ -287,16 +330,22 @@
                 </form>
 
                 <!-- PET SKILL BOOKS QUICK GRANT SECTION -->
-                <div style="margin-top: 32px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 20px;">
+                <div
+                    style="margin-top: 32px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 20px;">
 
                     <!-- SECTION 2: UPGRADE SKILL BOOKS (SÁCH NÂNG SKILL) -->
-                    <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-arrow-up-right-dots"></i> BỘ SÁCH NÂNG CẤP SKILL ĐỆ TỬ (TĂNG LEVEL SKILL 1, 2, 3, 4)
+                    <h3
+                        style="color: var(--gold); font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-arrow-up-right-dots"></i> BỘ SÁCH NÂNG CẤP SKILL ĐỆ TỬ (TĂNG LEVEL SKILL
+                        1, 2, 3, 4)
                     </h3>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Click 1-chạm để thêm Sách Nâng Cấp Level Skill Đệ Tử:</p>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Click 1-chạm để thêm Sách
+                        Nâng Cấp Level Skill Đệ Tử:</p>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(402)">
+                        <button type="button" class="btn-secondary"
+                            style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);"
+                            onclick="quickAddPetSkillBook(402)">
                             <span style="font-size: 18px;">⬆️</span>
                             <div style="text-align: left;">
                                 <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 1</div>
@@ -304,7 +353,9 @@
                             </div>
                         </button>
 
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(403)">
+                        <button type="button" class="btn-secondary"
+                            style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);"
+                            onclick="quickAddPetSkillBook(403)">
                             <span style="font-size: 18px;">⬆️</span>
                             <div style="text-align: left;">
                                 <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 2</div>
@@ -312,7 +363,9 @@
                             </div>
                         </button>
 
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(404)">
+                        <button type="button" class="btn-secondary"
+                            style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);"
+                            onclick="quickAddPetSkillBook(404)">
                             <span style="font-size: 18px;">⬆️</span>
                             <div style="text-align: left;">
                                 <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 3</div>
@@ -320,7 +373,9 @@
                             </div>
                         </button>
 
-                        <button type="button" class="btn-secondary" style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="quickAddPetSkillBook(759)">
+                        <button type="button" class="btn-secondary"
+                            style="padding: 10px; display: flex; align-items: center; gap: 8px; color: #fff; border-color: rgba(255,255,255,0.3);"
+                            onclick="quickAddPetSkillBook(759)">
                             <span style="font-size: 18px;">⬆️</span>
                             <div style="text-align: left;">
                                 <div style="font-weight: 700; font-size: 13px;">Sách Nâng Skill 4</div>
@@ -336,87 +391,119 @@
         <!-- TAB 3: QUẢN LÝ SỰ KIỆN & X2 TNSM -->
         <div id="tab-events" class="tab-content" style="display: none;">
             <div class="glass" style="padding: 32px; max-width: 850px; margin: 0 auto;">
-                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
-                    <h2><i class="fa-solid fa-calendar-star" style="color: var(--gold);"></i> QUẢN LÝ SỰ KIỆN & X2 EXP/TNSM REALTIME</h2>
+                <div class="panel-header"
+                    style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                    <h2><i class="fa-solid fa-calendar-star" style="color: var(--gold);"></i> QUẢN LÝ SỰ KIỆN & X2
+                        EXP/TNSM REALTIME</h2>
                 </div>
 
                 <form id="server-events-form" onsubmit="saveServerEvents(event)" style="margin-top: 24px;">
 
                     <!-- EXP / TNSM Multiplier Section -->
-                    <div style="background: rgba(0, 243, 255, 0.05); border: 1px solid var(--cyan); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-                        <h3 style="color: var(--cyan); font-size: 16px; margin-bottom: 12px;"><i class="fa-solid fa-bolt"></i> HỆ SỐ X2/X5/X10 TIỀM NĂNG SỨC MẠNH (TNSM)</h3>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Tất cả người chơi đánh quái, làm nhiệm vụ sẽ nhận được kinh nghiệm x theo hệ số này ngay lập tức.</p>
-                        
+                    <div
+                        style="background: rgba(0, 243, 255, 0.05); border: 1px solid var(--cyan); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                        <h3 style="color: var(--cyan); font-size: 16px; margin-bottom: 12px;"><i
+                                class="fa-solid fa-bolt"></i> HỆ SỐ X2/X5/X10 TIỀM NĂNG SỨC MẠNH (TNSM)</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Tất cả người chơi
+                            đánh quái, làm nhiệm vụ sẽ nhận được kinh nghiệm x theo hệ số này ngay lập tức.</p>
+
                         <div style="display: flex; gap: 12px; align-items: center;">
                             <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                                <label style="font-size: 13px;">Nhập Hệ Số TNSM (1 = Mặc Định, 2 = X2, 5 = X5...)</label>
-                                <input type="number" id="exp-rate-input" class="input-field" value="1" min="1" max="100" style="font-size: 18px; font-weight: 800; color: var(--gold);" required>
+                                <label style="font-size: 13px;">Nhập Hệ Số TNSM (1 = Mặc Định, 2 = X2, 5 =
+                                    X5...)</label>
+                                <input type="number" id="exp-rate-input" class="input-field" value="1" min="1" max="100"
+                                    style="font-size: 18px; font-weight: 800; color: var(--gold);" required>
                             </div>
                             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="setExpPreset(1)">x1 Mặc Định</button>
-                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px; color: var(--cyan); border-color: var(--cyan);" onclick="setExpPreset(2)">⚡ x2 TNSM</button>
-                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px; color: var(--gold); border-color: var(--gold);" onclick="setExpPreset(5)">🔥 x5 TNSM</button>
-                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px; color: #ff4757; border-color: #ff4757;" onclick="setExpPreset(10)">🚀 x10 TNSM</button>
+                                <button type="button" class="btn-secondary" style="padding: 8px 12px; font-size: 12px;"
+                                    onclick="setExpPreset(1)">x1 Mặc Định</button>
+                                <button type="button" class="btn-secondary"
+                                    style="padding: 8px 12px; font-size: 12px; color: var(--cyan); border-color: var(--cyan);"
+                                    onclick="setExpPreset(2)">⚡ x2 TNSM</button>
+                                <button type="button" class="btn-secondary"
+                                    style="padding: 8px 12px; font-size: 12px; color: var(--gold); border-color: var(--gold);"
+                                    onclick="setExpPreset(5)">🔥 x5 TNSM</button>
+                                <button type="button" class="btn-secondary"
+                                    style="padding: 8px 12px; font-size: 12px; color: #ff4757; border-color: #ff4757;"
+                                    onclick="setExpPreset(10)">🚀 x10 TNSM</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Events Toggles Section -->
-                    <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 16px;"><i class="fa-solid fa-gift"></i> BẬT / TẮT CÁC SỰ KIỆN TRONG GAME</h3>
+                    <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 16px;"><i
+                            class="fa-solid fa-gift"></i> BẬT / TẮT CÁC SỰ KIỆN TRONG GAME</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
 
-                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="glass"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: #fff; font-size: 14px;">🧧 Tết Nguyên Đán</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);">Sự kiện lì xì, múa lân, bánh chưng</p>
+                                <p style="font-size: 12px; color: var(--text-muted);">Sự kiện lì xì, múa lân, bánh chưng
+                                </p>
                             </div>
-                            <input type="checkbox" id="evt-lunar-new-year" style="width: 22px; height: 22px; cursor: pointer;">
+                            <input type="checkbox" id="evt-lunar-new-year"
+                                style="width: 22px; height: 22px; cursor: pointer;">
                         </div>
 
-                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="glass"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: #fff; font-size: 14px;">🌸 Quốc Tế Phụ Nữ (8/3)</h4>
                                 <p style="font-size: 12px; color: var(--text-muted);">Tặng hoa, làm nhiệm vụ 8/3</p>
                             </div>
-                            <input type="checkbox" id="evt-womens-day" style="width: 22px; height: 22px; cursor: pointer;">
+                            <input type="checkbox" id="evt-womens-day"
+                                style="width: 22px; height: 22px; cursor: pointer;">
                         </div>
 
-                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="glass"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: #fff; font-size: 14px;">🎃 Sự Kiện Halloween</h4>
                                 <p style="font-size: 12px; color: var(--text-muted);">Bí ngô, kẹo ma quái, cải trang</p>
                             </div>
-                            <input type="checkbox" id="evt-halloween" style="width: 22px; height: 22px; cursor: pointer;">
+                            <input type="checkbox" id="evt-halloween"
+                                style="width: 22px; height: 22px; cursor: pointer;">
                         </div>
 
-                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="glass"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: #fff; font-size: 14px;">🎄 Giáng Sinh / Noel</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);">Cây thông, Ông già Noel phát quà</p>
+                                <p style="font-size: 12px; color: var(--text-muted);">Cây thông, Ông già Noel phát quà
+                                </p>
                             </div>
-                            <input type="checkbox" id="evt-christmas" style="width: 22px; height: 22px; cursor: pointer;">
+                            <input type="checkbox" id="evt-christmas"
+                                style="width: 22px; height: 22px; cursor: pointer;">
                         </div>
 
-                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="glass"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: #fff; font-size: 14px;">👑 Giỗ Tổ Hùng Vương</h4>
                                 <p style="font-size: 12px; color: var(--text-muted);">Dưa hấu, Sơn Tinh Thủy Tinh</p>
                             </div>
-                            <input type="checkbox" id="evt-hung-vuong" style="width: 22px; height: 22px; cursor: pointer;">
+                            <input type="checkbox" id="evt-hung-vuong"
+                                style="width: 22px; height: 22px; cursor: pointer;">
                         </div>
 
-                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="glass"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="color: #fff; font-size: 14px;">🥮 Tết Trung Thu</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);">Bánh trung thu, Chị Hằng Thỏ Ngọc</p>
+                                <p style="font-size: 12px; color: var(--text-muted);">Bánh trung thu, Chị Hằng Thỏ Ngọc
+                                </p>
                             </div>
-                            <input type="checkbox" id="evt-trung-thu" style="width: 22px; height: 22px; cursor: pointer;">
+                            <input type="checkbox" id="evt-trung-thu"
+                                style="width: 22px; height: 22px; cursor: pointer;">
                         </div>
 
-                        <div class="glass" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; grid-column: 1 / -1;">
+                        <div class="glass"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center; grid-column: 1 / -1;">
                             <div>
                                 <h4 style="color: #fff; font-size: 14px;">💳 Sự Kiện Khuyến Mãi Nạp</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);">Tăng % giá trị khuyến mãi nạp ngọc/vàng</p>
+                                <p style="font-size: 12px; color: var(--text-muted);">Tăng % giá trị khuyến mãi nạp
+                                    ngọc/vàng</p>
                             </div>
                             <input type="checkbox" id="evt-top-up" style="width: 22px; height: 22px; cursor: pointer;">
                         </div>
@@ -425,7 +512,8 @@
 
                     <!-- Submit Button -->
                     <div>
-                        <button type="submit" class="btn-primary" id="btn-save-events" style="background: linear-gradient(135deg, #00f3ff, #00ff87); color: #000; font-weight: 800;">
+                        <button type="submit" class="btn-primary" id="btn-save-events"
+                            style="background: linear-gradient(135deg, #00f3ff, #00ff87); color: #000; font-weight: 800;">
                             <i class="fa-solid fa-floppy-disk"></i> LƯU & ÁP DỤNG CÀI ĐẶT SỰ KIỆN / X2 TNSM REALTIME
                         </button>
                     </div>
@@ -433,12 +521,17 @@
                 </form>
 
                 <!-- TOOL: FIX DUPLICATE ITEM OPTIONS -->
-                <div style="margin-top: 28px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 20px;">
-                    <h3 style="color: #f87171; margin-bottom: 8px;"><i class="fa-solid fa-wrench"></i> 🔧 SỬA ĐỒ LỖI TRÙNG CHỈ SỐ (Fix Duplicate Options)</h3>
+                <div
+                    style="margin-top: 28px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 20px;">
+                    <h3 style="color: #f87171; margin-bottom: 8px;"><i class="fa-solid fa-wrench"></i> 🔧 SỬA ĐỒ LỖI
+                        TRÙNG CHỈ SỐ (Fix Duplicate Options)</h3>
                     <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
-                        Quét toàn bộ nhân vật trong Database. Tìm tất cả đồ (Hành Trang + Đồ Mặc + Rương Đồ) có chỉ số bị lặp trùng ID → Tự động xóa bản thừa, chỉ giữ 1 bản duy nhất.
+                        Quét toàn bộ nhân vật trong Database. Tìm tất cả đồ (Hành Trang + Đồ Mặc + Rương Đồ) có chỉ số
+                        bị lặp trùng ID → Tự động xóa bản thừa, chỉ giữ 1 bản duy nhất.
                     </p>
-                    <button type="button" class="btn-primary" id="btn-fix-duplicate-options" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 800; padding: 12px 28px; font-size: 14px;" onclick="fixDuplicateItemOptions()">
+                    <button type="button" class="btn-primary" id="btn-fix-duplicate-options"
+                        style="background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 800; padding: 12px 28px; font-size: 14px;"
+                        onclick="fixDuplicateItemOptions()">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ⚡ QUÉT & SỬA TẤT CẢ ĐỒ LỖI NGAY
                     </button>
                 </div>
@@ -449,19 +542,26 @@
         <!-- TAB 4: QUẢN LÝ TỈ LỆ RƠI VẬT PHẨM THEO MAP -->
         <div id="tab-drops" class="tab-content" style="display: none;">
             <div class="glass" style="padding: 32px; max-width: 950px; margin: 0 auto;">
-                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
-                    <h2><i class="fa-solid fa-dice" style="color: var(--gold);"></i> QUẢN LÝ TỈ LỆ RƠI ĐỒ & VẬT PHẨM THEO MAP REALTIME</h2>
+                <div class="panel-header"
+                    style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                    <h2><i class="fa-solid fa-dice" style="color: var(--gold);"></i> QUẢN LÝ TỈ LỆ RƠI ĐỒ & VẬT PHẨM
+                        THEO MAP REALTIME</h2>
                 </div>
 
                 <!-- Add New Drop Rule Form -->
-                <div class="glass" style="padding: 20px; margin-top: 24px; margin-bottom: 24px; border: 1px dashed var(--cyan);">
-                    <h3 style="color: var(--cyan); font-size: 15px; margin-bottom: 16px;"><i class="fa-solid fa-plus-circle"></i> THÊM QUY TẮC RƠI ĐỒ THEO MAP MỚI</h3>
-                    <form onsubmit="addDropRule(event)" style="display: grid; grid-template-columns: 1.5fr 1.5fr 1fr 1fr auto; gap: 12px; align-items: end;">
-                        
+                <div class="glass"
+                    style="padding: 20px; margin-top: 24px; margin-bottom: 24px; border: 1px dashed var(--cyan);">
+                    <h3 style="color: var(--cyan); font-size: 15px; margin-bottom: 16px;"><i
+                            class="fa-solid fa-plus-circle"></i> THÊM QUY TẮC RƠI ĐỒ THEO MAP MỚI</h3>
+                    <form onsubmit="addDropRule(event)"
+                        style="display: grid; grid-template-columns: 1.5fr 1.5fr 1fr 1fr auto; gap: 12px; align-items: end;">
+
                         <!-- Map Selection Input with Auto-Suggest -->
                         <div class="form-group" style="margin-bottom: 0; position: relative;">
                             <label style="font-size: 11px;">Chọn Map (-1 = Tất Cả Map)</label>
-                            <input type="text" id="rule-map-search" class="input-field" placeholder="🔍 Gõ tên hoặc ID Map..." autocomplete="off" oninput="handleMapSearchInput()" onfocus="handleMapSearchInput()" required>
+                            <input type="text" id="rule-map-search" class="input-field"
+                                placeholder="🔍 Gõ tên hoặc ID Map..." autocomplete="off"
+                                oninput="handleMapSearchInput()" onfocus="handleMapSearchInput()" required>
                             <input type="hidden" id="rule-map-id" value="-1">
                             <div id="map-suggestions" class="suggestions-dropdown" style="display: none;"></div>
                         </div>
@@ -469,7 +569,9 @@
                         <!-- Item Selection Input with Auto-Suggest -->
                         <div class="form-group" style="margin-bottom: 0; position: relative;">
                             <label style="font-size: 11px;">Chọn Vật Phẩm Rơi</label>
-                            <input type="text" id="rule-item-search" class="input-field" placeholder="🔍 Gõ tên hoặc ID Món..." autocomplete="off" oninput="handleRuleItemSearchInput()" onfocus="handleRuleItemSearchInput()" required>
+                            <input type="text" id="rule-item-search" class="input-field"
+                                placeholder="🔍 Gõ tên hoặc ID Món..." autocomplete="off"
+                                oninput="handleRuleItemSearchInput()" onfocus="handleRuleItemSearchInput()" required>
                             <input type="hidden" id="rule-item-id">
                             <div id="rule-item-suggestions" class="suggestions-dropdown" style="display: none;"></div>
                         </div>
@@ -478,12 +580,13 @@
                             <label style="font-size: 11px;">Số Lượng</label>
                             <input type="number" id="rule-quantity" class="input-field" value="1" min="1" required>
                         </div>
-                        
+
                         <div class="form-group" style="margin-bottom: 0;">
                             <label style="font-size: 11px;">Tỉ Lệ Rơi (%)</label>
-                            <input type="number" id="rule-rate-percent" class="input-field" placeholder="Ví dụ: 5" min="1" max="100" required>
+                            <input type="number" id="rule-rate-percent" class="input-field" placeholder="Ví dụ: 5"
+                                min="1" max="100" required>
                         </div>
-                        
+
                         <div>
                             <button type="submit" class="btn-primary" style="padding: 10px 16px; font-size: 13px;">
                                 <i class="fa-solid fa-plus"></i> THÊM RULE
@@ -494,7 +597,8 @@
                 </div>
 
                 <!-- Drop Rules Table -->
-                <h3 style="color: #fff; font-size: 15px; margin-bottom: 12px;"><i class="fa-solid fa-list-check"></i> DANH SÁCH QUY TẮC RƠI ĐỒ ĐANG ÁP DỤNG</h3>
+                <h3 style="color: #fff; font-size: 15px; margin-bottom: 12px;"><i class="fa-solid fa-list-check"></i>
+                    DANH SÁCH QUY TẮC RƠI ĐỒ ĐANG ÁP DỤNG</h3>
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
@@ -517,28 +621,39 @@
         <!-- TAB 5: QUẢN LÝ SHOP NPC REALTIME -->
         <div id="tab-shops" class="tab-content" style="display: none;">
             <div class="glass" style="padding: 32px; max-width: 1000px; margin: 0 auto;">
-                <div class="panel-header" style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
-                    <h2><i class="fa-solid fa-store" style="color: var(--gold);"></i> QUẢN LÝ VẬT PHẨM & GIÁ BÁN TRONG SHOP NPC REALTIME</h2>
+                <div class="panel-header"
+                    style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                    <h2><i class="fa-solid fa-store" style="color: var(--gold);"></i> QUẢN LÝ VẬT PHẨM & GIÁ BÁN TRONG
+                        SHOP NPC REALTIME</h2>
                 </div>
 
                 <!-- Add New Item to NPC Shop Form -->
-                <div class="glass" style="padding: 20px; margin-top: 24px; margin-bottom: 24px; border: 1px dashed var(--gold);">
-                    <h3 style="color: var(--gold); font-size: 15px; margin-bottom: 16px;"><i class="fa-solid fa-cart-plus"></i> THÊM MÓN ĐỒ MỚI VÀO SHOP NPC</h3>
+                <div class="glass"
+                    style="padding: 20px; margin-top: 24px; margin-bottom: 24px; border: 1px dashed var(--gold);">
+                    <h3 style="color: var(--gold); font-size: 15px; margin-bottom: 16px;"><i
+                            class="fa-solid fa-cart-plus"></i> THÊM MÓN ĐỒ MỚI VÀO SHOP NPC</h3>
                     <form onsubmit="addNpcShopItem(event)">
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <!-- NPC Selector -->
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label style="font-size: 12px;"><i class="fa-solid fa-user-ninja"></i> Chọn NPC Bán</label>
-                                <select id="shop-npc-select" class="select-field" style="font-weight: 700; color: var(--cyan);" onchange="handleNpcShopSelectChange()"></select>
+                                <label style="font-size: 12px;"><i class="fa-solid fa-user-ninja"></i> Chọn NPC
+                                    Bán</label>
+                                <select id="shop-npc-select" class="select-field"
+                                    style="font-weight: 700; color: var(--cyan);"
+                                    onchange="handleNpcShopSelectChange()"></select>
                             </div>
                             <!-- Tab Shop Selector -->
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label style="font-size: 12px;"><i class="fa-solid fa-folder-open"></i> Chọn Tab Shop</label>
-                                <select id="shop-tab-select" class="select-field" style="font-weight: 700; color: var(--gold);" onchange="renderSelectedShopItemsTable()"></select>
+                                <label style="font-size: 12px;"><i class="fa-solid fa-folder-open"></i> Chọn Tab
+                                    Shop</label>
+                                <select id="shop-tab-select" class="select-field"
+                                    style="font-weight: 700; color: var(--gold);"
+                                    onchange="renderSelectedShopItemsTable()"></select>
                             </div>
                             <!-- Currency Selector -->
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label style="font-size: 12px;"><i class="fa-solid fa-coins"></i> Loại Tiền Tệ Mua</label>
+                                <label style="font-size: 12px;"><i class="fa-solid fa-coins"></i> Loại Tiền Tệ
+                                    Mua</label>
                                 <select id="shop-currency-select" class="select-field" style="font-weight: 700;">
                                     <option value="0|-1">💰 Vàng (Gold)</option>
                                     <option value="1|-1">💎 Ngọc Xanh (Gem)</option>
@@ -556,31 +671,44 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; margin-bottom: 16px; align-items: end;">
+                        <div
+                            style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; margin-bottom: 16px; align-items: end;">
                             <!-- Item Selection with Auto-Suggest -->
                             <div class="form-group" style="margin-bottom: 0; position: relative;">
-                                <label style="font-size: 12px;"><i class="fa-solid fa-box-open"></i> Chọn Vật Phẩm Bán</label>
-                                <input type="text" id="shop-item-search" class="input-field" placeholder="🔍 Gõ tên hoặc ID món đồ..." autocomplete="off" oninput="handleShopItemSearchInput()" onfocus="handleShopItemSearchInput()" required>
+                                <label style="font-size: 12px;"><i class="fa-solid fa-box-open"></i> Chọn Vật Phẩm
+                                    Bán</label>
+                                <input type="text" id="shop-item-search" class="input-field"
+                                    placeholder="🔍 Gõ tên hoặc ID món đồ..." autocomplete="off"
+                                    oninput="handleShopItemSearchInput()" onfocus="handleShopItemSearchInput()"
+                                    required>
                                 <input type="hidden" id="shop-item-id">
-                                <div id="shop-item-suggestions" class="suggestions-dropdown" style="display: none;"></div>
+                                <div id="shop-item-suggestions" class="suggestions-dropdown" style="display: none;">
+                                </div>
                             </div>
                             <!-- Cost Input -->
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label style="font-size: 12px;"><i class="fa-solid fa-tag"></i> Giá Bán</label>
-                                <input type="number" id="shop-item-cost" class="input-field" value="1000" min="0" required>
+                                <input type="number" id="shop-item-cost" class="input-field" value="1000" min="0"
+                                    required>
                             </div>
                             <!-- Is New Checkbox -->
-                            <div class="form-group" style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                            <div class="form-group"
+                                style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
                                 <input type="checkbox" id="shop-item-isnew" style="width: 20px; height: 20px;">
-                                <label for="shop-item-isnew" style="margin-bottom: 0; font-size: 13px; cursor: pointer; color: var(--cyan);">Gắn Nhãn "NEW"</label>
+                                <label for="shop-item-isnew"
+                                    style="margin-bottom: 0; font-size: 13px; cursor: pointer; color: var(--cyan);">Gắn
+                                    Nhãn "NEW"</label>
                             </div>
                         </div>
 
                         <!-- Item Options Creator -->
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <label style="font-size: 12px; margin: 0;"><i class="fa-solid fa-bolt"></i> Chỉ Số Option Của Đồ Bán Trong Shop</label>
-                                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="addShopOptionRow()">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 12px; margin: 0;"><i class="fa-solid fa-bolt"></i> Chỉ Số
+                                    Option Của Đồ Bán Trong Shop</label>
+                                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 8px;"
+                                    onclick="addShopOptionRow()">
                                     <i class="fa-solid fa-plus"></i> Thêm Chỉ Số
                                 </button>
                             </div>
@@ -588,7 +716,8 @@
                         </div>
 
                         <div>
-                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #00f3ff, #00ff87); color: #000; font-weight: 800;">
+                            <button type="submit" class="btn-primary"
+                                style="background: linear-gradient(135deg, #00f3ff, #00ff87); color: #000; font-weight: 800;">
                                 <i class="fa-solid fa-plus-circle"></i> THÊM MÓN ĐỒ VÀO SHOP NPC REALTIME
                             </button>
                         </div>
@@ -597,8 +726,11 @@
 
                 <!-- Existing Items in Selected Shop Table -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> CÁC MÓN ĐỒ ĐANG BÁN TRONG TAB SHOP</h3>
-                    <span id="shop-items-count-badge" class="badge-online" style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border-color: var(--gold);">0 Món</span>
+                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> CÁC MÓN
+                        ĐỒ ĐANG BÁN TRONG TAB SHOP</h3>
+                    <span id="shop-items-count-badge" class="badge-online"
+                        style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border-color: var(--gold);">0
+                        Món</span>
                 </div>
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
@@ -627,19 +759,26 @@
                 </div>
 
                 <!-- Form Tạo GiftCode -->
-                <div class="glass" style="padding: 20px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); margin-bottom: 24px;">
+                <div class="glass"
+                    style="padding: 20px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); margin-bottom: 24px;">
                     <form id="create-giftcode-form" onsubmit="handleCreateGiftCode(event)">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
                                 <label><i class="fa-solid fa-barcode"></i> Mã Code (Ví dụ: TRIAN2026)</label>
                                 <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="gc-code-input" class="input-field" placeholder="Nhập mã code..." style="font-weight: 800; color: var(--gold);" required>
-                                    <button type="button" class="btn-secondary" style="font-size: 11px; white-space: nowrap;" onclick="generateRandomGcCode()">🎲 Ngẫu nhiên</button>
+                                    <input type="text" id="gc-code-input" class="input-field"
+                                        placeholder="Nhập mã code..." style="font-weight: 800; color: var(--gold);"
+                                        required>
+                                    <button type="button" class="btn-secondary"
+                                        style="font-size: 11px; white-space: nowrap;"
+                                        onclick="generateRandomGcCode()">🎲 Ngẫu nhiên</button>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label><i class="fa-solid fa-hashtag"></i> Số Lượt Nhập (-1 = Vô hạn)</label>
-                                <input type="number" id="gc-count-input" class="input-field" value="100" placeholder="100" required>
+                                <input type="number" id="gc-count-input" class="input-field" value="100"
+                                    placeholder="100" required>
                             </div>
                             <div class="form-group">
                                 <label><i class="fa-solid fa-calendar-days"></i> Hạn Sử Dụng (Mặc định 1 Năm)</label>
@@ -649,15 +788,23 @@
 
                         <!-- Quick Add Currency Buttons -->
                         <div style="margin-bottom: 16px;">
-                            <label style="font-size: 12px; margin-bottom: 6px; display: block; color: var(--text-muted);"><i class="fa-solid fa-bolt"></i> Thêm Nhanh Tiền Vàng / Ngọc Vào GiftCode</label>
+                            <label
+                                style="font-size: 12px; margin-bottom: 6px; display: block; color: var(--text-muted);"><i
+                                    class="fa-solid fa-bolt"></i> Thêm Nhanh Tiền Vàng / Ngọc Vào GiftCode</label>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-secondary" style="font-size: 12px; background: rgba(255,215,0,0.15); color: var(--gold);" onclick="addQuickGcCurrency(-1, 10000000, '10,000,000 Vàng')">
+                                <button type="button" class="btn-secondary"
+                                    style="font-size: 12px; background: rgba(255,215,0,0.15); color: var(--gold);"
+                                    onclick="addQuickGcCurrency(-1, 10000000, '10,000,000 Vàng')">
                                     💰 +10 Tr Vàng
                                 </button>
-                                <button type="button" class="btn-secondary" style="font-size: 12px; background: rgba(0,243,255,0.15); color: var(--cyan);" onclick="addQuickGcCurrency(-2, 1000, '1,000 Ngọc')">
+                                <button type="button" class="btn-secondary"
+                                    style="font-size: 12px; background: rgba(0,243,255,0.15); color: var(--cyan);"
+                                    onclick="addQuickGcCurrency(-2, 1000, '1,000 Ngọc')">
                                     💎 +1,000 Ngọc
                                 </button>
-                                <button type="button" class="btn-secondary" style="font-size: 12px; background: rgba(239,68,68,0.15); color: #f87171;" onclick="addQuickGcCurrency(-3, 5000, '5,000 Ngọc Khóa')">
+                                <button type="button" class="btn-secondary"
+                                    style="font-size: 12px; background: rgba(239,68,68,0.15); color: #f87171;"
+                                    onclick="addQuickGcCurrency(-3, 5000, '5,000 Ngọc Khóa')">
                                     🔴 +5,000 Ngọc Khóa
                                 </button>
                             </div>
@@ -665,16 +812,20 @@
 
                         <!-- Custom Item Picker for GiftCode -->
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <label style="font-size: 12px; margin: 0;"><i class="fa-solid fa-box-open"></i> Thêm Vật Phẩm Bất Kỳ Vào GiftCode</label>
-                                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="addGcItemRow()">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 12px; margin: 0;"><i class="fa-solid fa-box-open"></i> Thêm Vật
+                                    Phẩm Bất Kỳ Vào GiftCode</label>
+                                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 8px;"
+                                    onclick="addGcItemRow()">
                                     <i class="fa-solid fa-plus"></i> Thêm Vật Phẩm
                                 </button>
                             </div>
                             <div id="gc-items-list"></div>
                         </div>
 
-                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; font-weight: 800; width: 100%;">
+                        <button type="submit" class="btn-primary"
+                            style="background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; font-weight: 800; width: 100%;">
                             🎁 TẠO & PHÁT MÃ GIFTCODE NGAY
                         </button>
                     </form>
@@ -682,8 +833,11 @@
 
                 <!-- GiftCodes Table -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> DANH SÁCH GIFTCODE ĐANG KÍCH HOẠT</h3>
-                    <span id="gc-count-badge" class="badge-online" style="background: rgba(255,215,0,0.15); color: var(--gold); border-color: var(--gold);">0 Mã</span>
+                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> DANH
+                        SÁCH GIFTCODE ĐANG KÍCH HOẠT</h3>
+                    <span id="gc-count-badge" class="badge-online"
+                        style="background: rgba(255,215,0,0.15); color: var(--gold); border-color: var(--gold);">0
+                        Mã</span>
                 </div>
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
@@ -705,11 +859,16 @@
         <!-- TAB 6: QUẢN LÝ TÀI KHOẢN & ĐĂNG KÝ -->
         <div id="tab-accounts" class="tab-content" style="display: none;">
             <div class="glass" style="padding: 24px;">
-                <div class="panel-header" style="border: none; padding: 0 0 16px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div class="panel-header"
+                    style="border: none; padding: 0 0 16px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <h2><i class="fa-solid fa-users-gear"></i> QUẢN LÝ TÀI KHOẢN HỆ THỐNG</h2>
                     <div style="display: flex; gap: 12px; align-items: center;">
-                        <input type="text" id="account-table-search" class="input-field" placeholder="🔍 Tìm tên tài khoản..." style="max-width: 250px;" oninput="renderAccountTable()">
-                        <button class="btn-primary" style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, #10b981, #059669);" onclick="openQuickCreateAccountModal()">
+                        <input type="text" id="account-table-search" class="input-field"
+                            placeholder="🔍 Tìm tên tài khoản..." style="max-width: 250px;"
+                            oninput="renderAccountTable()">
+                        <button class="btn-primary"
+                            style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, #10b981, #059669);"
+                            onclick="openQuickCreateAccountModal()">
                             <i class="fa-solid fa-user-plus"></i> + ĐĂNG KÝ TÀI KHOẢN MỚI
                         </button>
                     </div>
@@ -739,7 +898,8 @@
             <div class="glass" style="padding: 24px;">
                 <div class="panel-header" style="border: none; padding: 0 0 16px 0;">
                     <h2><i class="fa-solid fa-address-book"></i> DANH SÁCH NHÂN VẬT KHÁCH HÀNG</h2>
-                    <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..." style="max-width: 300px;" oninput="renderPlayerTable()">
+                    <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..."
+                        style="max-width: 300px;" oninput="renderPlayerTable()">
                 </div>
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
@@ -763,33 +923,46 @@
         <!-- PLAYER USER PORTAL (FOR NON-ADMIN PLAYERS) -->
         <div id="player-portal-view" style="display: none; padding-top: 40px;">
             <div class="glass" style="padding: 28px; max-width: 900px; margin: 0 auto;">
-                
+
                 <!-- Header User Banner -->
-                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 20px; margin-bottom: 24px;">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 20px; margin-bottom: 24px;">
                     <div style="display: flex; align-items: center; gap: 16px;">
-                        <div id="portal-avatar-box" style="width: 54px; height: 54px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                            <img id="portal-avatar-img" src="/icons/64.png" onerror="this.src='/icons/64.png';" style="width: 44px; height: 44px; object-fit: contain;">
+                        <div id="portal-avatar-box"
+                            style="width: 54px; height: 54px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <img id="portal-avatar-img" src="/icons/64.png" onerror="this.src='/icons/64.png';"
+                                style="width: 44px; height: 44px; object-fit: contain;">
                         </div>
                         <div>
-                            <h2 id="portal-welcome-name" style="font-size: 20px; color: var(--gold); font-weight: 800;">Xin chào, Player!</h2>
-                            <p id="portal-sub-info" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Tài khoản Người Chơi Game NRO</p>
+                            <h2 id="portal-welcome-name" style="font-size: 20px; color: var(--gold); font-weight: 800;">
+                                Xin chào, Player!</h2>
+                            <p id="portal-sub-info" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                                Tài khoản Người Chơi Game NRO</p>
                         </div>
                     </div>
-                    <button type="button" class="btn-secondary" onclick="logoutAdmin()" style="padding: 8px 16px; font-size: 13px;">
+                    <button type="button" class="btn-secondary" onclick="logoutAdmin()"
+                        style="padding: 8px 16px; font-size: 13px;">
                         <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
                     </button>
                 </div>
 
                 <!-- NO CHARACTER WARNING ALERT -->
-                <div id="portal-no-char-alert" style="display: none; background: rgba(255, 71, 87, 0.12); border: 1px solid var(--red); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 28px;">
-                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 36px; color: var(--red); margin-bottom: 10px; display: block;"></i>
-                    <h3 style="color: var(--red); font-size: 18px; font-weight: 800; margin-bottom: 8px;">TÀI KHOẢN CHƯA CÓ NHÂN VẬT TRONG GAME!</h3>
-                    <p style="font-size: 14px; color: var(--text-main); line-height: 1.5;">Tài khoản này chưa tạo nhân vật. Vui lòng mở Game Ngọc Rồng trên máy, đăng nhập tài khoản và <strong>tạo nhân vật mới</strong> trước khi mua vàng/thao tác nhé!</p>
+                <div id="portal-no-char-alert"
+                    style="display: none; background: rgba(255, 71, 87, 0.12); border: 1px solid var(--red); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 28px;">
+                    <i class="fa-solid fa-triangle-exclamation"
+                        style="font-size: 36px; color: var(--red); margin-bottom: 10px; display: block;"></i>
+                    <h3 style="color: var(--red); font-size: 18px; font-weight: 800; margin-bottom: 8px;">TÀI KHOẢN CHƯA
+                        CÓ NHÂN VẬT TRONG GAME!</h3>
+                    <p style="font-size: 14px; color: var(--text-main); line-height: 1.5;">Tài khoản này chưa tạo nhân
+                        vật. Vui lòng mở Game Ngọc Rồng trên máy, đăng nhập tài khoản và <strong>tạo nhân vật
+                            mới</strong> trước khi mua vàng/thao tác nhé!</p>
                 </div>
 
                 <!-- CHARACTER INFO CARD (IF HAS PLAYER) -->
-                <div id="portal-has-char-card" style="display: none; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--cyan); border-radius: 12px; padding: 20px; margin-bottom: 28px;">
-                    <h3 style="color: var(--cyan); font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                <div id="portal-has-char-card"
+                    style="display: none; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--cyan); border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+                    <h3
+                        style="color: var(--cyan); font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-address-card"></i> THÔNG TIN NHÂN VẬT TRONG GAME
                     </h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
@@ -799,44 +972,56 @@
                         </div>
                         <div>
                             <span style="font-size: 12px; color: var(--text-muted);">Hành Tinh:</span>
-                            <div id="portal-char-gender" style="font-size: 16px; font-weight: 800; color: var(--gold);">-</div>
+                            <div id="portal-char-gender" style="font-size: 16px; font-weight: 800; color: var(--gold);">
+                                -</div>
                         </div>
                         <div>
                             <span style="font-size: 12px; color: var(--text-muted);">ID Nhân Vật:</span>
-                            <div id="portal-char-id" style="font-size: 16px; font-weight: 800; color: var(--cyan);">-</div>
+                            <div id="portal-char-id" style="font-size: 16px; font-weight: 800; color: var(--cyan);">-
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- REDEEM GIFTCODE CARD FOR PLAYER -->
-                <div class="glass" style="padding: 20px; border: 1px solid rgba(255, 215, 0, 0.4); margin-bottom: 28px;">
-                    <h3 style="color: var(--gold); font-size: 17px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                <div class="glass"
+                    style="padding: 20px; border: 1px solid rgba(255, 215, 0, 0.4); margin-bottom: 28px;">
+                    <h3
+                        style="color: var(--gold); font-size: 17px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-gift"></i> NHẬP MÃ GIFTCODE NHẬN QUÀ GAME
                     </h3>
                     <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-                        Nhập mã GiftCode do Admin phát để nhận ngay Tiền Vàng, Ngọc và Trang Bị VIP trực tiếp vào nhân vật!
+                        Nhập mã GiftCode do Admin phát để nhận ngay Tiền Vàng, Ngọc và Trang Bị VIP trực tiếp vào nhân
+                        vật!
                     </p>
                     <form onsubmit="handleUserRedeemGiftcode(event)" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <input type="text" id="user-gc-input" class="input-field" placeholder="Nhập mã Giftcode..." style="flex: 1; min-width: 220px; font-weight: 800; color: var(--gold); text-transform: uppercase;" required>
-                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; font-weight: 800; padding: 10px 24px;">
+                        <input type="text" id="user-gc-input" class="input-field" placeholder="Nhập mã Giftcode..."
+                            style="flex: 1; min-width: 220px; font-weight: 800; color: var(--gold); text-transform: uppercase;"
+                            required>
+                        <button type="submit" class="btn-primary"
+                            style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; font-weight: 800; padding: 10px 24px;">
                             🎁 NHẬN QUÀ NGAY
                         </button>
                     </form>
                 </div>
 
                 <!-- BUY GOLD STORE -->
-                <h3 style="color: var(--gold); font-size: 17px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                <h3
+                    style="color: var(--gold); font-size: 17px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-coins"></i> CỬA HÀNG MUA VÀNG GAME NRO
                 </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
-                    
+
                     <!-- Package 50 Gold Bars -->
-                    <div class="glass" style="padding: 20px; border: 1px solid rgba(255,215,0,0.4); text-align: center;">
+                    <div class="glass"
+                        style="padding: 20px; border: 1px solid rgba(255,215,0,0.4); text-align: center;">
                         <div style="font-size: 36px; margin-bottom: 8px;">💰</div>
                         <h4 style="color: var(--gold); font-size: 16px; font-weight: 800;">GÓI 50 THỎI VÀNG</h4>
-                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 50 Thỏi Vàng vào túi đồ</p>
-                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(50)" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; font-weight: 800; width: 100%;">
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 50 Thỏi
+                            Vàng vào túi đồ</p>
+                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(50)"
+                            style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; font-weight: 800; width: 100%;">
                             🛒 MUA 50 THỎI VÀNG
                         </button>
                     </div>
@@ -845,8 +1030,10 @@
                     <div class="glass" style="padding: 20px; border: 1px solid var(--cyan); text-align: center;">
                         <div style="font-size: 36px; margin-bottom: 8px;">👑</div>
                         <h4 style="color: var(--cyan); font-size: 16px; font-weight: 800;">GÓI 200 THỎI VÀNG</h4>
-                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 200 Thỏi Vàng VIP</p>
-                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(200)" style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 800; width: 100%;">
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 200 Thỏi
+                            Vàng VIP</p>
+                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(200)"
+                            style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 800; width: 100%;">
                             🛒 MUA 200 THỎI VÀNG
                         </button>
                     </div>
@@ -855,8 +1042,10 @@
                     <div class="glass" style="padding: 20px; border: 1px solid #b537f2; text-align: center;">
                         <div style="font-size: 36px; margin-bottom: 8px;">💎</div>
                         <h4 style="color: #b537f2; font-size: 16px; font-weight: 800;">GÓI 500 THỎI VÀNG</h4>
-                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 500 Thỏi Vàng Siêu Cấp</p>
-                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(500)" style="background: linear-gradient(135deg, #b537f2, #7d2ae8); color: #fff; font-weight: 800; width: 100%;">
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 16px 0;">Nhận ngay 500 Thỏi
+                            Vàng Siêu Cấp</p>
+                        <button type="button" class="btn-primary" onclick="buyGoldForPlayer(500)"
+                            style="background: linear-gradient(135deg, #b537f2, #7d2ae8); color: #fff; font-weight: 800; width: 100%;">
                             🛒 MUA 500 THỎI VÀNG
                         </button>
                     </div>
@@ -871,19 +1060,23 @@
             <div class="glass" style="margin-bottom: 20px;">
                 <div class="panel-header" style="justify-content: space-between;">
                     <h2><i class="fa-solid fa-robot" style="color: var(--cyan);"></i> HỆ THỐNG BOT GIẢ LẬP SERVER</h2>
-                    <span id="bot-total-badge" class="badge-online" style="background: rgba(0, 243, 255, 0.15); color: var(--cyan); border: 1px solid var(--cyan);">
+                    <span id="bot-total-badge" class="badge-online"
+                        style="background: rgba(0, 243, 255, 0.15); color: var(--cyan); border: 1px solid var(--cyan);">
                         <i class="fa-solid fa-network-wired"></i> 0 Bot Đang Chạy
                     </span>
                 </div>
                 <div class="panel-body">
                     <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
-                        Tạo bot ảo tự động đăng nhập, di chuyển, pem quái, săn boss và đứng giao dịch mua bán để làm Server đông đúc và nhộn nhịp như game thật.
+                        Tạo bot ảo tự động đăng nhập, di chuyển, pem quái, săn boss và đứng giao dịch mua bán để làm
+                        Server đông đúc và nhộn nhịp như game thật.
                     </p>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                         <!-- FORM TẠO BOT -->
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
-                            <h3 style="font-size: 15px; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                        <div
+                            style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
+                            <h3
+                                style="font-size: 15px; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
                                 <i class="fa-solid fa-plus-circle"></i> THÊM BOT MỚI VÀO SERVER
                             </h3>
                             <div class="form-group">
@@ -904,40 +1097,29 @@
                                     <option value="50">50 Con Bot</option>
                                 </select>
                             </div>
-                            <button type="button" class="btn-primary" onclick="spawnBotsFromWeb()" style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; margin-top: 10px;">
+                            <button type="button" class="btn-primary" onclick="spawnBotsFromWeb()"
+                                style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; margin-top: 10px;">
                                 <i class="fa-solid fa-rocket"></i> TẠO BOT NGAY
                             </button>
                         </div>
 
-                        <!-- GỌI BOSS MA BƯ -->
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
-                            <div>
-                                <h3 style="font-size: 15px; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fa-solid fa-dragon" style="color: var(--gold);"></i> GỌI BOSS MA BƯ MẬP
-                                </h3>
-                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-                                    Triệu hồi Boss Ma Bư Mập xuất hiện ngay lập tức trong Game. Đánh bại Boss sẽ rớt 100% <strong>Quả Trứng Ma Bư</strong>!
-                                </p>
-                            </div>
-                            <div>
-                                <button type="button" class="btn-primary" onclick="spawnMabuBossFromWeb()" style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #ff9f43, #ff5252); color: #fff;">
-                                    <i class="fa-solid fa-skull"></i> GỌI BOSS MA BƯ NGAY
-                                </button>
-                            </div>
-                        </div>
-
                         <!-- QUẢN LÝ NHANH -->
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div
+                            style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                             <div>
-                                <h3 style="font-size: 15px; color: #ff4757; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                                <h3
+                                    style="font-size: 15px; color: #ff4757; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
                                     <i class="fa-solid fa-broom"></i> XÓA TOÀN BỘ BOT
                                 </h3>
-                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-                                    Bấm nút bên dưới để giải phóng toàn bộ Bot giả đang chạy khỏi tất cả các Map trong Server ngay lập tức.
+                                <p
+                                    style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                                    Bấm nút bên dưới để giải phóng toàn bộ Bot giả đang chạy khỏi tất cả các Map trong
+                                    Server ngay lập tức.
                                 </p>
                             </div>
                             <div>
-                                <button type="button" class="btn-secondary" onclick="confirmClearAllBots()" style="width: 100%; font-weight: 700; border-color: #ff4757; color: #ff4757;">
+                                <button type="button" class="btn-secondary" onclick="confirmClearAllBots()"
+                                    style="width: 100%; font-weight: 700; border-color: #ff4757; color: #ff4757;">
                                     <i class="fa-solid fa-trash-can"></i> XÓA SẠCH TẤT CẢ BOT
                                 </button>
                             </div>
@@ -969,113 +1151,9 @@
                             </thead>
                             <tbody id="bots-table-body">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                                    <td colspan="6"
+                                        style="text-align: center; color: var(--text-muted); padding: 20px;">
                                         Đang tải danh sách Bot...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 9: QUẢN LÝ BOSS -->
-        <div id="tab-bosses" class="tab-content" style="display: none;">
-            <div class="panel glass" style="margin-bottom: 24px;">
-                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-dragon" style="color: var(--gold); font-size: 20px;"></i>
-                        <h2 style="margin: 0; font-size: 18px; color: var(--gold);">QUẢN LÝ & TRIỆU HỒI BOSS IN-GAME</h2>
-                    </div>
-                    <div class="status-badge live" style="background: rgba(255, 159, 67, 0.15); border-color: #ff9f43; color: #ff9f43;">
-                        <span class="pulse-dot" style="background: #ff9f43;"></span> BOSS ĐANG SỐNG: <strong id="active-boss-count" style="margin-left: 4px;">0</strong>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
-                        <!-- TRIỆU HỒI BOSS SELECT -->
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
-                            <h3 style="font-size: 15px; color: var(--cyan); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> TRIỆU HỒI BOSS THEO MẪU
-                            </h3>
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-crown"></i> Chọn loại Boss muốn xuất hiện</label>
-                                <select id="boss-preset-select" class="select-field" onchange="onBossPresetChange()">
-                                    <option value="-214" selected>👑 Mabư Mập (100% Rớt Trứng Đệ Tử)</option>
-                                    <option value="-348">🔥 Super Bư / Kid Bư</option>
-                                    <option value="-236">⚡ Mabư 12h</option>
-                                    <option value="-1822">💥 Broly Thường</option>
-                                    <option value="-82282">👹 Super Broly</option>
-                                    <option value="-20">👺 Kuku</option>
-                                    <option value="-21">🥊 Mập Đầu Đinh</option>
-                                    <option value="-22">🎖️ Rambo</option>
-                                    <option value="-28">🛸 Fide (Frieza)</option>
-                                    <option value="-100">🧪 Xên Bọ Hùng (Cell)</option>
-                                    <option value="-101">☠️ Siêu Xên Bọ Hùng</option>
-                                    <option value="-203">⚔️ Black Goku</option>
-                                    <option value="-502">🌟 Golden Frieza</option>
-                                    <option value="-354">🌊 Sơn Tinh</option>
-                                    <option value="-355">🌧️ Thủy Tinh</option>
-                                    <option value="-353">🎅 Ông Già Noel</option>
-                                    <option value="custom">✏️ Nhập ID Boss Tùy Chỉnh...</option>
-                                </select>
-                            </div>
-                            <div class="form-group" id="custom-boss-id-group" style="display: none;">
-                                <label><i class="fa-solid fa-hashtag"></i> Nhập ID Boss số âm (Ví dụ: -214)</label>
-                                <input type="number" id="custom-boss-id-input" class="input-field" placeholder="Nhập ID Boss..." value="-214">
-                            </div>
-                            <button type="button" class="btn-primary" onclick="spawnBossFromWeb()" style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #ff9f43, #ff5252); color: #fff; margin-top: 10px;">
-                                <i class="fa-solid fa-skull"></i> TRIỆU HỒI BOSS NGAY
-                            </button>
-                        </div>
-
-                        <!-- QUẢN LÝ NHANH BOSS -->
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
-                            <div>
-                                <h3 style="font-size: 15px; color: #ff4757; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fa-solid fa-bomb"></i> TIÊU DIỆT SẠCH BOSS
-                                </h3>
-                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-                                    Hạ gục toàn bộ các Boss đang sống trên tất cả Map trong Server ngay lập tức để làm sạch map hoặc làm mới chu kỳ xuất hiện.
-                                </p>
-                            </div>
-                            <div>
-                                <button type="button" class="btn-secondary" onclick="confirmClearAllBosses()" style="width: 100%; font-weight: 700; border-color: #ff4757; color: #ff4757;">
-                                    <i class="fa-solid fa-burst"></i> TIÊU DIỆT TẤT CẢ BOSS
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LIVE BOSS TABLE -->
-            <div class="glass">
-                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h3><i class="fa-solid fa-list-check" style="color: var(--cyan);"></i> DANH SÁCH BOSS ĐANG CÓ TRÊN MAP</h3>
-                    <button class="btn-secondary" onclick="loadBossesList()" style="font-size: 12px; padding: 4px 12px;">
-                        <i class="fa-solid fa-rotate"></i> LÀM MỚI
-                    </button>
-                </div>
-                <div class="panel-body">
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID BOSS</th>
-                                    <th>TÊN BOSS</th>
-                                    <th>MÁU (HP / MAX)</th>
-                                    <th>MAP ĐANG ĐỨNG</th>
-                                    <th>KHU VỰC</th>
-                                    <th>TỌA ĐỘ (X, Y)</th>
-                                    <th>THAO TÁC</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bosses-table-body">
-                                <tr>
-                                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
-                                        Đang tải danh sách Boss...
                                     </td>
                                 </tr>
                             </tbody>
@@ -1092,18 +1170,25 @@
         <div class="modal-card glass">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-key" style="color: var(--cyan);"></i> ĐỔI MẬT KHẨU TÀI KHOẢN</h3>
-                <button type="button" class="modal-close-btn" onclick="closeModal('modal-change-password')">&times;</button>
+                <button type="button" class="modal-close-btn"
+                    onclick="closeModal('modal-change-password')">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="change-pass-target-label" style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Tài khoản: <strong id="change-pass-user-name" style="color: var(--gold);"></strong></p>
+                <p id="change-pass-target-label"
+                    style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Tài khoản: <strong
+                        id="change-pass-user-name" style="color: var(--gold);"></strong></p>
                 <div class="form-group">
                     <label><i class="fa-solid fa-lock"></i> Mật khẩu mới</label>
-                    <input type="text" id="modal-new-password-input" class="input-field" placeholder="Nhập mật khẩu mới..." autocomplete="off">
+                    <input type="text" id="modal-new-password-input" class="input-field"
+                        placeholder="Nhập mật khẩu mới..." autocomplete="off">
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeModal('modal-change-password')">HỦY BỎ</button>
-                <button type="button" class="btn-primary" id="modal-confirm-change-pass-btn" style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 700;">LƯU MẬT KHẨU MỚI</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-change-password')">HỦY
+                    BỎ</button>
+                <button type="button" class="btn-primary" id="modal-confirm-change-pass-btn"
+                    style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 700;">LƯU
+                    MẬT KHẨU MỚI</button>
             </div>
         </div>
     </div>
@@ -1116,10 +1201,12 @@
                 <button type="button" class="modal-close-btn" onclick="closeModal('modal-change-name')">&times;</button>
             </div>
             <div class="modal-body">
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Nhân vật hiện tại: <strong id="change-name-current-label" style="color: var(--gold);"></strong></p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Nhân vật hiện tại: <strong
+                        id="change-name-current-label" style="color: var(--gold);"></strong></p>
                 <div class="form-group">
                     <label><i class="fa-solid fa-user-tag"></i> Tên nhân vật mới</label>
-                    <input type="text" id="modal-new-name-input" class="input-field" placeholder="Nhập tên mới (2-20 ký tự)..." autocomplete="off">
+                    <input type="text" id="modal-new-name-input" class="input-field"
+                        placeholder="Nhập tên mới (2-20 ký tự)..." autocomplete="off">
                 </div>
             </div>
             <div class="modal-footer">
@@ -1134,10 +1221,12 @@
         <div class="modal-card glass" style="max-width: 480px;">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> ĐIỀU CHỈNH SỨC MẠNH & TIỀM NĂNG</h3>
-                <button type="button" class="modal-close-btn" onclick="closeModal('modal-adjust-power')">&times;</button>
+                <button type="button" class="modal-close-btn"
+                    onclick="closeModal('modal-adjust-power')">&times;</button>
             </div>
             <div class="modal-body">
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Nhân vật: <strong id="adjust-power-player-name" style="color: var(--gold); font-size: 15px;"></strong></p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Nhân vật: <strong
+                        id="adjust-power-player-name" style="color: var(--gold); font-size: 15px;"></strong></p>
 
                 <div class="form-group">
                     <label><i class="fa-solid fa-sliders"></i> Chế độ điều chỉnh</label>
@@ -1150,28 +1239,38 @@
 
                 <div class="form-group">
                     <label><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> Số Sức Mạnh (Power)</label>
-                    <input type="number" id="modal-power-input" class="input-field" placeholder="Nhập số sức mạnh..." style="font-weight: 800; color: var(--cyan);" value="1000000000">
+                    <input type="number" id="modal-power-input" class="input-field" placeholder="Nhập số sức mạnh..."
+                        style="font-weight: 800; color: var(--cyan);" value="1000000000">
                 </div>
 
                 <div class="form-group">
                     <label><i class="fa-solid fa-star" style="color: var(--gold);"></i> Số Tiềm Năng (Tiềm Năng)</label>
-                    <input type="number" id="modal-tiemnang-input" class="input-field" placeholder="Nhập số tiềm năng..." style="font-weight: 800; color: var(--gold);" value="1000000000">
+                    <input type="number" id="modal-tiemnang-input" class="input-field"
+                        placeholder="Nhập số tiềm năng..." style="font-weight: 800; color: var(--gold);"
+                        value="1000000000">
                 </div>
 
                 <!-- Quick preset pills -->
                 <div style="margin-top: 10px;">
-                    <label style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: block;">Mức tăng nhanh:</label>
+                    <label style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: block;">Mức
+                        tăng nhanh:</label>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(100000000)">+100 Tr</button>
-                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(1000000000)">+1 Tỷ</button>
-                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(5000000000)">+5 Tỷ</button>
-                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;" onclick="setModalPowerPreset(10000000000)">+10 Tỷ</button>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;"
+                            onclick="setModalPowerPreset(100000000)">+100 Tr</button>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;"
+                            onclick="setModalPowerPreset(1000000000)">+1 Tỷ</button>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;"
+                            onclick="setModalPowerPreset(5000000000)">+5 Tỷ</button>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 2px 8px;"
+                            onclick="setModalPowerPreset(10000000000)">+10 Tỷ</button>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('modal-adjust-power')">HỦY BỎ</button>
-                <button type="button" class="btn-primary" id="modal-confirm-adjust-power-btn" style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 800;">⚡ LƯU THAY ĐỔI</button>
+                <button type="button" class="btn-primary" id="modal-confirm-adjust-power-btn"
+                    style="background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; font-weight: 800;">⚡ LƯU
+                    THAY ĐỔI</button>
             </div>
         </div>
     </div>
@@ -1181,16 +1280,19 @@
         <div class="modal-card glass" style="max-width: 400px;">
             <div class="modal-header" style="border: none; padding-bottom: 0;">
                 <h3 id="confirm-modal-title" style="color: var(--gold); display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 22px; color: var(--gold);"></i> XÁC NHẬN THAO TÁC
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 22px; color: var(--gold);"></i> XÁC
+                    NHẬN THAO TÁC
                 </h3>
-                <button type="button" class="modal-close-btn" onclick="closeModal('modal-confirm-action')">&times;</button>
+                <button type="button" class="modal-close-btn"
+                    onclick="closeModal('modal-confirm-action')">&times;</button>
             </div>
             <div class="modal-body" style="padding: 16px 0;">
                 <p id="confirm-modal-message" style="font-size: 14px; line-height: 1.5; color: var(--text-main);"></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('modal-confirm-action')">HỦY BỎ</button>
-                <button type="button" class="btn-primary" id="modal-confirm-action-btn" style="background: var(--gold); color: #000; font-weight: 700;">XÁC NHẬN</button>
+                <button type="button" class="btn-primary" id="modal-confirm-action-btn"
+                    style="background: var(--gold); color: #000; font-weight: 700;">XÁC NHẬN</button>
             </div>
         </div>
     </div>
@@ -1200,4 +1302,5 @@
 
     <script src="app.js?v=20260729_3"></script>
 </body>
+
 </html>

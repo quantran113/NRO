@@ -1,6 +1,5 @@
 package nro.models.boss.MajinBuu_12h;
 
-
 import nro.models.boss.Boss;
 import nro.models.boss.BossID;
 import nro.models.consts.BossStatus;
@@ -34,7 +33,7 @@ public class Mabu extends Boss {
         super(FINAL, BossID.MABU_12H, BossesData.MABU_12H);
     }
 
-        @Override
+    @Override
     public void reward(Player plKill) {
         int diem = 5;
         plKill.event.addEventPoint(diem);
@@ -44,23 +43,25 @@ public class Mabu extends Boss {
         int drop = 190; // 100% rơi item ID 190
         int quantity = Util.nextInt(20000, 30000);
         // Tạo itemMap cho item ID 190
-        if (Util.isTrue(1 , 100)) {
-        ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
-        if (it != null) {
-        Service.gI().dropItemMap(zone, it);
-        }
+        if (Util.isTrue(1, 100)) {
+            ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
+            if (it != null) {
+                Service.gI().dropItemMap(zone, it);
+            }
         }
         ItemMap itemMap = new ItemMap(this.zone, drop, quantity, x, y, plKill.id);
         Item item = ItemService.gI().createNewItem((short) drop);
         Service.gI().dropItemMap(zone, itemMap);
         // 30% xác suất để rơi đồ
         if (Util.isTrue(1, 100)) {
-            int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;  // 70% chọn Áo Quần Giày (group = 0), 30% chọn Găng Rada (group = 1)
+            int group = Util.nextInt(1, 100) <= 70 ? 0 : 1; // 70% chọn Áo Quần Giày (group = 0), 30% chọn Găng Rada
+                                                            // (group = 1)
 
             // Các vật phẩm rơi từ nhóm Áo Quần Giày và Găng Rada
             int[][] drops = {
-                {230, 231, 232, 234, 235, 236, 238, 239, 240, 242, 243, 244, 246, 247, 248, 250, 251, 252, 266, 267, 268, 270, 271, 272, 274, 275, 276}, // Áo Quần Giày
-                {254, 255, 256, 258, 259, 260, 262, 263, 264, 278, 279, 280} // Găng Rada
+                    { 230, 231, 232, 234, 235, 236, 238, 239, 240, 242, 243, 244, 246, 247, 248, 250, 251, 252, 266,
+                            267, 268, 270, 271, 272, 274, 275, 276 }, // Áo Quần Giày
+                    { 254, 255, 256, 258, 259, 260, 262, 263, 264, 278, 279, 280 } // Găng Rada
             };
             // Chọn vật phẩm ngẫu nhiên từ nhóm đã chọn
             int dropOptional = drops[group][Util.nextInt(0, drops[group].length - 1)];
@@ -86,23 +87,17 @@ public class Mabu extends Boss {
         }
         // 80% xác suất rơi ngọc rồng
         if (Util.isTrue(10, 100)) {
-            int[] dropItems = {15,16,17,18,19,20};
+            int[] dropItems = { 15, 16, 17, 18, 19, 20 };
             int dropOptional = dropItems[Util.nextInt(0, dropItems.length - 1)];
             // Tạo và rơi vật phẩm ngọc rồng hoặc item cấp 2
             ItemMap optionalItemMap = new ItemMap(this.zone, dropOptional, Util.nextInt(1, 3), x, y, plKill.id);
             Item optionalItem = ItemService.gI().createNewItem((short) dropOptional);
             Service.gI().dropItemMap(zone, optionalItemMap);
         }
-        // Drop Quả Trứng Ma Bư (Item 568)
-        if (plKill != null && this.zone != null) {
-            ItemMap eggMap = new ItemMap(this.zone, 568, 1, x, y, plKill.id);
-            Service.gI().dropItemMap(this.zone, eggMap);
-            Service.gI().sendThongBao(plKill, "Bạn đã tiêu diệt " + this.name + " và nhận được Quả Trứng Ma Bư!");
-        }
-
         plKill.fightMabu.changePoint((byte) 25);
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
+
     @Override
     public void joinMap() {
         if (zoneFinal != null) {
@@ -110,7 +105,8 @@ public class Mabu extends Boss {
         }
         ChangeMapService.gI().changeMap(this, this.zone, Util.nextInt(300, 400), 336);
         this.changeStatus(BossStatus.CHAT_S);
-        MajinBuuService.gI().getNpcBabiday(this.zone).npcChat(this.zone, "Mabư ! Hãy theo lệnh ta, giết hết bọn chúng đi");
+        MajinBuuService.gI().getNpcBabiday(this.zone).npcChat(this.zone,
+                "Mabư ! Hãy theo lệnh ta, giết hết bọn chúng đi");
     }
 
     private void petrifyPlayersInTheMap() {
@@ -139,7 +135,8 @@ public class Mabu extends Boss {
                 if (pl == null || pl.isDie()) {
                     return;
                 }
-                this.playerSkill.skillSelect = this.playerSkill.skills.get(Util.nextInt(0, this.playerSkill.skills.size() - 1));
+                this.playerSkill.skillSelect = this.playerSkill.skills
+                        .get(Util.nextInt(0, this.playerSkill.skills.size() - 1));
                 if (Util.getDistance(this, pl) <= this.getRangeCanAttackWithSkillSelect()) {
                     if (Util.isTrue(5, 20)) {
                         if (SkillUtil.isUseSkillChuong(this)) {

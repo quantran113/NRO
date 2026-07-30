@@ -75,7 +75,7 @@ app.post('/api/admin/login', async (req, res) => {
                     avatarUrl: `/icons/${headId}.png`
                 };
             }
-        } catch (e) {}
+        } catch (e) { }
 
         const isAdmin = (user.admin >= 1 || user.username === '1' || user.username === 'admin');
 
@@ -124,7 +124,7 @@ app.post('/api/user/buy-gold', async (req, res) => {
             if (resp.ok) {
                 return res.json({ status: 'success', message: `Đã mua và gửi thành công ${goldCount} Thỏi Vàng vào túi đồ nhân vật [${player.name}]!` });
             }
-        } catch (e) {}
+        } catch (e) { }
 
         res.json({ status: 'success', message: `Đã xử lý mua ${goldCount} Thỏi Vàng cho nhân vật [${player.name}]!` });
     } catch (err) {
@@ -163,51 +163,6 @@ app.post('/api/admin/bots', async (req, res) => {
     }
 });
 
-// Spawn Mabu Boss API Endpoint
-app.post('/api/admin/spawn-mabu', async (req, res) => {
-    try {
-        const resp = await fetch(`${JAVA_API_URL}/api/spawn-mabu`, { method: 'POST' });
-        if (resp.ok) {
-            const data = await resp.json();
-            return res.json(data);
-        }
-        res.status(500).json({ status: 'error', message: 'Không thể gọi Boss Ma Bư' });
-    } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
-    }
-});
-
-// Boss Management API Endpoints
-app.get('/api/admin/bosses', async (req, res) => {
-    try {
-        const resp = await fetch(`${JAVA_API_URL}/api/manage-bosses`);
-        if (resp.ok) {
-            const data = await resp.json();
-            return res.json(data);
-        }
-        res.status(500).json({ status: 'error', message: 'Không thể lấy danh sách Boss từ Game Server API' });
-    } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
-    }
-});
-
-app.post('/api/admin/bosses', async (req, res) => {
-    try {
-        const resp = await fetch(`${JAVA_API_URL}/api/manage-bosses`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(req.body)
-        });
-        if (resp.ok) {
-            const data = await resp.json();
-            return res.json(data);
-        }
-        res.status(500).json({ status: 'error', message: 'Không thể phản hồi từ Game Server API' });
-    } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
-    }
-});
-
 // Admin Stats Endpoint
 app.get('/api/admin/stats', async (req, res) => {
     try {
@@ -222,7 +177,7 @@ app.get('/api/admin/stats', async (req, res) => {
                 const players = await resp.json();
                 onlineCount = players.filter(p => p.online).length;
             }
-        } catch (e) {}
+        } catch (e) { }
 
         res.json({
             totalAccounts: accCount.totalAccounts,
@@ -242,17 +197,17 @@ app.get('/api/admin/stats', async (req, res) => {
         for (const c of cols) {
             if (c.Extra && c.Extra.includes('auto_increment')) continue;
             if (c.Field === 'username' || c.Field === 'password') continue;
-            
+
             if (c.Null === 'NO' && c.Default === null) {
                 let defaultVal = "''";
                 if (c.Type.includes('int')) defaultVal = "0";
                 else if (c.Type.includes('time') || c.Type.includes('date')) defaultVal = "NOW()";
                 try {
                     await pool.execute(`ALTER TABLE account MODIFY COLUMN \`${c.Field}\` ${c.Type} NULL DEFAULT ${defaultVal}`);
-                } catch (err) {}
+                } catch (err) { }
             }
         }
-    } catch (e) {}
+    } catch (e) { }
 })();
 
 // Register Account Endpoint (Public / Web)
@@ -277,7 +232,7 @@ app.post('/api/register', async (req, res) => {
 
         // Dynamically inspect columns of account table
         const [cols] = await pool.execute('SHOW COLUMNS FROM account');
-        
+
         const fields = ['username', 'password'];
         const values = [cleanUser, cleanPass];
 
@@ -395,13 +350,13 @@ app.get('/api/players', async (req, res) => {
         if (resp.ok) {
             onlinePlayers = await resp.json();
         }
-    } catch (err) {}
+    } catch (err) { }
 
     let taskMap = {};
     try {
         const [taskRows] = await pool.execute('SELECT id, name FROM task_main_template');
         taskRows.forEach(t => { taskMap[t.id] = t.name; });
-    } catch (e) {}
+    } catch (e) { }
 
     try {
         const [rows] = await pool.execute(`
@@ -415,7 +370,7 @@ app.get('/api/players', async (req, res) => {
         try {
             const [headAvatars] = await pool.execute('SELECT head_id, avatar_id FROM head_avatar');
             headAvatars.forEach(h => { headMap[h.head_id] = h.avatar_id; });
-        } catch (e) {}
+        } catch (e) { }
 
         const dbPlayers = rows.map(r => {
             let headId = r.head;
@@ -430,12 +385,12 @@ app.get('/api/players', async (req, res) => {
             try {
                 const taskArr = JSON.parse(r.data_task);
                 taskId = parseInt(taskArr[0]) || 0;
-            } catch (e) {}
+            } catch (e) { }
 
             let taskName = taskMap[taskId] || `Nhiệm vụ #${taskId}`;
 
-            const isOnline = onlinePlayers.some(p => 
-                (p.online === true || p.online === 1) && 
+            const isOnline = onlinePlayers.some(p =>
+                (p.online === true || p.online === 1) &&
                 (p.id === r.id || (p.name && p.name.toLowerCase() === r.name.toLowerCase()))
             );
 
@@ -468,7 +423,7 @@ app.get('/api/item-templates', async (req, res) => {
                 return res.json(data);
             }
         }
-    } catch (err) {}
+    } catch (err) { }
 
     // Fallback to MySQL DB
     try {
@@ -522,7 +477,7 @@ app.post('/api/admin/player/next-task', async (req, res) => {
                 const data = await resp.json();
                 return res.json(data);
             }
-        } catch (err) {}
+        } catch (err) { }
 
         // 2. Fallback to MySQL DB directly
         const [players] = await pool.execute('SELECT id, gender, data_task FROM player WHERE name = ?', [playerName.trim()]);
@@ -534,7 +489,7 @@ app.post('/api/admin/player/next-task', async (req, res) => {
         let taskArr = [0, 0, 0, Date.now()];
         try {
             taskArr = JSON.parse(player.data_task);
-        } catch (e) {}
+        } catch (e) { }
 
         let currentTaskId = parseInt(taskArr[0]) || 0;
         let nextTaskId = taskId !== undefined && taskId !== null && taskId >= 0 ? parseInt(taskId) : (currentTaskId + 1);
@@ -560,7 +515,7 @@ app.get('/api/option-templates', async (req, res) => {
                 return res.json(data);
             }
         }
-    } catch (err) {}
+    } catch (err) { }
 
     // Fallback to MySQL DB
     try {
@@ -583,7 +538,7 @@ app.post('/api/grant-item-batch', async (req, res) => {
             const data = await resp.json();
             return res.status(resp.status).json(data);
         }
-    } catch (err) {}
+    } catch (err) { }
 
     // Fallback: If Java Server API (14446) is OFFLINE, update MySQL database team2026 directly!
     try {
@@ -647,7 +602,7 @@ app.post('/api/grant-item-batch', async (req, res) => {
                 let tempId = -1;
                 if (Array.isArray(slot) && slot.length > 0) tempId = parseInt(slot[0]);
                 else if (typeof slot === 'string') {
-                    try { const parsed = JSON.parse(slot); if (Array.isArray(parsed)) tempId = parseInt(parsed[0]); } catch(e){}
+                    try { const parsed = JSON.parse(slot); if (Array.isArray(parsed)) tempId = parseInt(parsed[0]); } catch (e) { }
                 }
 
                 if (tempId === -1) {
@@ -780,7 +735,7 @@ app.get('/api/map-templates', async (req, res) => {
                 return res.json(data);
             }
         }
-    } catch (err) {}
+    } catch (err) { }
 
     try {
         const [rows] = await pool.execute('SELECT id, name FROM map_template ORDER BY id ASC');
@@ -833,7 +788,7 @@ app.get('/api/npc-shops', async (req, res) => {
                 return res.json(data);
             }
         }
-    } catch (err) {}
+    } catch (err) { }
 
     try {
         const [shops] = await pool.execute(
@@ -938,7 +893,7 @@ app.post('/api/admin/giftcodes', async (req, res) => {
         const cleanCode = code.trim();
         const count = countLeft !== undefined ? parseInt(countLeft) : 100;
         const detailJson = JSON.stringify(detail || []);
-        const expDate = dateexpired ? new Date(dateexpired) : new Date(Date.now() + 365*24*60*60*1000);
+        const expDate = dateexpired ? new Date(dateexpired) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
         // Check duplicate
         const [exist] = await pool.execute('SELECT id FROM giftcode WHERE code = ?', [cleanCode]);
@@ -954,7 +909,7 @@ app.post('/api/admin/giftcodes', async (req, res) => {
         // Call Java server reload API
         try {
             await fetch(`${JAVA_API_URL}/api/reload-giftcode`, { method: 'POST' });
-        } catch (e) {}
+        } catch (e) { }
 
         return res.json({ status: 'success', message: `Đã tạo và kích hoạt GiftCode [${cleanCode}] thành công!` });
     } catch (err) {
@@ -968,7 +923,7 @@ app.delete('/api/admin/giftcodes/:id', async (req, res) => {
         await pool.execute('DELETE FROM giftcode WHERE id = ?', [giftId]);
         try {
             await fetch(`${JAVA_API_URL}/api/reload-giftcode`, { method: 'POST' });
-        } catch (e) {}
+        } catch (e) { }
         return res.json({ status: 'success', message: 'Đã xóa GiftCode thành công!' });
     } catch (err) {
         return res.status(500).json({ status: 'error', message: err.message });
