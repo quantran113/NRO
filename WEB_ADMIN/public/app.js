@@ -2439,8 +2439,12 @@ function filterBossList() {
             statusBadge = `<span class="badge" style="background: rgba(46, 213, 115, 0.15); color: #2ed573; border: 1px solid #2ed573;">${b.status}</span>`;
         }
 
-        const headUrl = b.head ? `/icons/${b.head}.png` : '';
-        const headImg = headUrl ? `<img src="${headUrl}" style="width: 32px; height: 32px; image-rendering: pixelated;" onerror="this.outerHTML='<i class=\\'fa-solid fa-dragon\\' style=\\'font-size: 24px; color: var(--text-muted);\\'></i>'">` : `<i class="fa-solid fa-dragon" style="font-size: 24px; color: var(--text-muted);"></i>`;
+        const headId = (b.head && b.head > 0) ? b.head : 64;
+        const headImg = `
+            <div style="position: relative; width: 42px; height: 42px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(255, 71, 87, 0.4); box-shadow: 0 0 10px rgba(255,71,87,0.15);">
+                <img src="/icons/${headId}.png" onerror="this.onerror=null; this.src='/icons_x1/${headId}.png'; this.onerror=function(){this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';};" style="width: 34px; height: 34px; object-fit: contain; image-rendering: pixelated;" alt="Avatar">
+                <i class="fa-solid fa-skull" style="display: none; font-size: 22px; color: #ff4757;"></i>
+            </div>`;
 
         return `
             <tr>

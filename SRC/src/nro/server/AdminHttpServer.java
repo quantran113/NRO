@@ -1556,7 +1556,16 @@ public class AdminHttpServer {
                             bObj.put("hp", b.nPoint != null ? b.nPoint.hp : 0);
                             bObj.put("maxHp", b.nPoint != null ? b.nPoint.hpMax : 0);
                             bObj.put("dame", b.nPoint != null ? b.nPoint.dame : 0);
-                            bObj.put("head", b.getHead());
+                            short headId = -1;
+                            try {
+                                if (b.data != null && b.data.length > 0) {
+                                    int lvl = (b.currentLevel >= 0 && b.currentLevel < b.data.length) ? b.currentLevel : 0;
+                                    if (b.data[lvl] != null && b.data[lvl].getOutfit() != null && b.data[lvl].getOutfit().length > 0) {
+                                        headId = b.data[lvl].getOutfit()[0];
+                                    }
+                                }
+                            } catch (Exception ex) {}
+                            bObj.put("head", headId);
                             bObj.put("status", b.bossStatus != null ? b.bossStatus.name() : "REST");
                             
                             if (b.zone != null && b.zone.map != null) {
