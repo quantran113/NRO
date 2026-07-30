@@ -2439,9 +2439,20 @@ function filterBossesList() {
     renderBosses(filtered);
 }
 
+let bossesMap = {};
+
 function renderBosses(bossList) {
     const gridContainer = document.getElementById('boss-grid-container');
     if (!gridContainer) return;
+
+    bossesMap = {};
+    if (bossList && Array.isArray(bossList)) {
+        bossList.forEach(b => {
+            if (b && b.id !== undefined) {
+                bossesMap[b.id] = b;
+            }
+        });
+    }
 
     const spawnCardHtml = `
     <div onclick="openSpawnBossModal()" style="background: rgba(255, 71, 87, 0.08); border: 2px dashed rgba(255, 71, 87, 0.5); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; min-height: 220px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255, 71, 87, 0.18)'; this.style.borderColor='#ff4757';" onmouseout="this.style.background='rgba(255, 71, 87, 0.08)'; this.style.borderColor='rgba(255, 71, 87, 0.5)';">
@@ -2534,7 +2545,7 @@ function renderBosses(bossList) {
                 <button type="button" class="btn-primary" onclick="handleBossAction('respawn', ${boss.id})" style="padding: 6px 4px; font-size: 11px; background: linear-gradient(135deg, #2ed573, #1e90ff); color: #fff;" title="Hồi sinh Boss & kích hoạt ngay">
                     <i class="fa-solid fa-bolt"></i> Hồi Sinh
                 </button>
-                <button type="button" class="btn-secondary" onclick="openEditBossStatsModal(${boss.id}, '${escapeHtml(boss.name || 'Boss')}', ${boss.hp || 0}, ${boss.maxHp || 0})" style="padding: 6px 4px; font-size: 11px; border-color: var(--cyan); color: var(--cyan); background: rgba(0, 243, 255, 0.08);" title="Điều chỉnh HP / Max HP / Dame">
+                <button type="button" class="btn-secondary" onclick="openEditBossStatsModal(${boss.id})" style="padding: 6px 4px; font-size: 11px; border-color: var(--cyan); color: var(--cyan); background: rgba(0, 243, 255, 0.08);" title="Điều chỉnh HP / Max HP / Dame">
                     <i class="fa-solid fa-sliders"></i> Chỉ Số
                 </button>
             </div>
@@ -2559,25 +2570,27 @@ function confirmDeleteBoss(bossId, bossName) {
 
 let currentEditBossId = null;
 
-function openEditBossStatsModal(bossId, name, hp, maxHp) {
+function openEditBossStatsModal(bossId) {
     currentEditBossId = bossId;
+    const boss = bossesMap[bossId];
+
     const nameEl = document.getElementById('edit-boss-name');
     const idEl = document.getElementById('edit-boss-id');
     const hpInput = document.getElementById('edit-boss-hp-input');
     const maxHpInput = document.getElementById('edit-boss-maxhp-input');
     const dameInput = document.getElementById('edit-boss-dame-input');
 
-    if (nameEl) nameEl.innerText = name;
+    if (nameEl) nameEl.innerText = boss ? (boss.name || 'Boss') : ('Boss ID: ' + bossId);
     if (idEl) idEl.innerText = bossId;
-    if (hpInput) hpInput.value = hp || '';
-    if (maxHpInput) maxHpInput.value = maxHp || '';
+    if (hpInput) hpInput.value = (boss && boss.hp !== undefined) ? boss.hp : '';
+    if (maxHpInput) maxHpInput.value = (boss && boss.maxHp !== undefined) ? boss.maxHp : '';
     if (dameInput) dameInput.value = '';
 
     showModal('modal-edit-boss-stats');
 }
 
 async function submitEditBossStats() {
-    if (!currentEditBossId) return;
+    if (currentEditBossId === null || currentEditBossId === undefined) return;
 
     const hpInput = document.getElementById('edit-boss-hp-input');
     const maxHpInput = document.getElementById('edit-boss-maxhp-input');
