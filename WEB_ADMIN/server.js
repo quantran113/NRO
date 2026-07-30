@@ -177,6 +177,37 @@ app.post('/api/admin/spawn-mabu', async (req, res) => {
     }
 });
 
+// Boss Management API Endpoints
+app.get('/api/admin/bosses', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/manage-bosses`);
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể lấy danh sách Boss từ Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/api/admin/bosses', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/manage-bosses`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
+        });
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể phản hồi từ Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Admin Stats Endpoint
 app.get('/api/admin/stats', async (req, res) => {
     try {

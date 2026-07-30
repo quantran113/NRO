@@ -1844,7 +1844,8 @@ function switchTab(tabName) {
         'giftcode': 5,
         'accounts': 6,
         'players': 7,
-        'bots': 8
+        'bots': 8,
+        'bosses': 9
     };
 
     const targetIndex = tabMap[tabName];
@@ -1866,6 +1867,7 @@ function switchTab(tabName) {
     else if (tabName === 'accounts') loadAccountData();
     else if (tabName === 'players') loadPlayers();
     else if (tabName === 'bots') loadBotsList();
+    else if (tabName === 'bosses') loadBossesList();
 }
 
 // --- GIFTCODE MANAGER LOGIC ---
@@ -2358,8 +2360,159 @@ async function spawnMabuBossFromWeb() {
         const data = await resp.json();
         if (data.status === 'success') {
             showToast(data.message || 'Đã gọi Boss Ma Bư Mập xuất hiện!', 'success');
+            if (document.getElementById('tab-bosses') && document.getElementById('tab-bosses').style.display !== 'none') {
+                loadBossesList();
+            }
         } else {
             showToast(data.message || 'Lỗi khi gọi Boss Ma Bư', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối Server: ' + err.message, 'error');
+    }
+}
+
+// --- BOSS MANAGEMENT SYSTEM ---
+function onBossPresetChange() {
+    const val = document.getElementById('boss-preset-select').value;
+    const customGroup = document.getElementById('custom-boss-id-group');
+    if (val === 'custom') {
+        customGroup.style.display = 'block';
+    } else {
+        customGroup.style.display = 'none';
+    }
+}
+
+async function loadBossesList() {
+    const tbody = document.getElementById('bosses-table-body');
+    const badge = document.getElementById('active-boss-count');
+    if (!tbody) return;
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Đang cập nhật danh sách Boss...
+            </td>
+        </tr>
+    `;
+
+    try {
+        const resp = await fetch('/api/admin/bosses');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const bosses = await resp.json();
+
+        if (badge) badge.innerText = bosses.length;
+
+        if (!bosses || bosses.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                        Hiện chưa có Boss nào đang xuất hiện trên Map.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = bosses.map(b => {
+            const hpPercent = b.hpMax > 0 ? Math.round((b.hp / b.hpMax) * 100) : 0;
+            return `
+                <tr>
+                    <td><strong style="color: var(--gold);">${b.id}</strong></td>
+                    <td><strong style="color: #ff9f43;">${escapeHtml(b.name)}</strong></td>
+                    <td>
+                        <span style="font-size: 12px; color: var(--cyan);">${formatNumber(b.hp)} / ${formatNumber(b.hpMax)}</span>
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 4px; width: 100%; margin-top: 4px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #ff4757, #ffa502); height: 100%; width: ${hpPercent}%;"></div>
+                        </div>
+                    </td>
+                    <td><span class="badge" style="background: rgba(0, 243, 255, 0.1); color: var(--cyan);">${escapeHtml(b.mapName)} (Map ${b.mapId})</span></td>
+                    <td>Khu ${b.zoneId}</td>
+                    <td><span style="font-family: monospace;">(${b.x}, ${b.y})</span></td>
+                    <td>
+                        <button class="btn-secondary" onclick="killBossFromWeb(${b.id})" style="padding: 4px 10px; font-size: 11px; color: #ff4757; border-color: #ff4757;">
+                            <i class="fa-solid fa-skull"></i> TIÊU DIỆT
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (err) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; color: #ff4757; padding: 20px;">
+                    Lỗi kết nối Game Server API: ${err.message}
+                </td>
+            </tr>
+        `;
+    }
+}
+
+async function spawnBossFromWeb() {
+    let bossId = document.getElementById('boss-preset-select').value;
+    if (bossId === 'custom') {
+        bossId = document.getElementById('custom-boss-id-input').value;
+    }
+    if (!bossId) {
+        showToast('Vui lòng chọn hoặc nhập ID Boss!', 'error');
+        return;
+    }
+
+    try {
+        const resp = await fetch('/api/admin/bosses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'spawn', bossId: parseInt(bossId) })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || 'Đã gọi Boss xuất hiện thành công!', 'success');
+            loadBossesList();
+        } else {
+            showToast(data.message || 'Lỗi khi gọi Boss', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối Server: ' + err.message, 'error');
+    }
+}
+
+function confirmClearAllBosses() {
+    if (confirm('Bạn có chắc chắn muốn TIÊU DIỆT TOÀN BỘ BOSS đang sống trên tất cả Map trong Server?')) {
+        clearAllBossesFromWeb();
+    }
+}
+
+async function clearAllBossesFromWeb() {
+    try {
+        const resp = await fetch('/api/admin/bosses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'clear_all' })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || 'Đã dọn dẹp và tiêu diệt sạch Boss!', 'success');
+            loadBossesList();
+        } else {
+            showToast(data.message || 'Lỗi khi tiêu diệt Boss', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối Server: ' + err.message, 'error');
+    }
+}
+
+async function killBossFromWeb(bossId) {
+    try {
+        const resp = await fetch('/api/admin/bosses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'kill_one', bossId })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || `Đã tiêu diệt Boss ID ${bossId}`, 'success');
+            loadBossesList();
+        } else {
+            showToast(data.message || 'Lỗi khi tiêu diệt Boss', 'error');
         }
     } catch (err) {
         showToast('Lỗi kết nối Server: ' + err.message, 'error');

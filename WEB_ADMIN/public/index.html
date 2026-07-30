@@ -109,6 +109,9 @@
             <button class="nav-btn" onclick="switchTab('bots')">
                 <i class="fa-solid fa-robot"></i> QUẢN LÝ BOT GIẢ
             </button>
+            <button class="nav-btn" onclick="switchTab('bosses')">
+                <i class="fa-solid fa-skull"></i> QUẢN LÝ BOSS
+            </button>
             <button class="nav-btn" onclick="logoutAdmin()">
                 <i class="fa-solid fa-power-off"></i> ĐĂNG XUẤT
             </button>
@@ -968,6 +971,109 @@
                                 <tr>
                                     <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">
                                         Đang tải danh sách Bot...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <!-- TAB 9: QUẢN LÝ BOSS -->
+        <div id="tab-bosses" class="tab-content" style="display: none;">
+            <div class="panel glass" style="margin-bottom: 24px;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-dragon" style="color: var(--gold); font-size: 20px;"></i>
+                        <h2 style="margin: 0; font-size: 18px; color: var(--gold);">QUẢN LÝ & TRIỆU HỒI BOSS IN-GAME</h2>
+                    </div>
+                    <div class="status-badge live" style="background: rgba(255, 159, 67, 0.15); border-color: #ff9f43; color: #ff9f43;">
+                        <span class="pulse-dot" style="background: #ff9f43;"></span> BOSS ĐANG SỐNG: <strong id="active-boss-count" style="margin-left: 4px;">0</strong>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- TRIỆU HỒI BOSS SELECT -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
+                            <h3 style="font-size: 15px; color: var(--cyan); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> TRIỆU HỒI BOSS THEO MẪU
+                            </h3>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-crown"></i> Chọn loại Boss muốn xuất hiện</label>
+                                <select id="boss-preset-select" class="select-field" onchange="onBossPresetChange()">
+                                    <option value="-214" selected>👑 Mabư Mập (100% Rớt Trứng Đệ Tử)</option>
+                                    <option value="-348">🔥 Super Bư / Kid Bư</option>
+                                    <option value="-236">⚡ Mabư 12h</option>
+                                    <option value="-1822">💥 Broly Thường</option>
+                                    <option value="-82282">👹 Super Broly</option>
+                                    <option value="-20">👺 Kuku</option>
+                                    <option value="-21">🥊 Mập Đầu Đinh</option>
+                                    <option value="-22">🎖️ Rambo</option>
+                                    <option value="-28">🛸 Fide (Frieza)</option>
+                                    <option value="-100">🧪 Xên Bọ Hùng (Cell)</option>
+                                    <option value="-101">☠️ Siêu Xên Bọ Hùng</option>
+                                    <option value="-203">⚔️ Black Goku</option>
+                                    <option value="-502">🌟 Golden Frieza</option>
+                                    <option value="-354">🌊 Sơn Tinh</option>
+                                    <option value="-355">🌧️ Thủy Tinh</option>
+                                    <option value="-353">🎅 Ông Già Noel</option>
+                                    <option value="custom">✏️ Nhập ID Boss Tùy Chỉnh...</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="custom-boss-id-group" style="display: none;">
+                                <label><i class="fa-solid fa-hashtag"></i> Nhập ID Boss số âm (Ví dụ: -214)</label>
+                                <input type="number" id="custom-boss-id-input" class="input-field" placeholder="Nhập ID Boss..." value="-214">
+                            </div>
+                            <button type="button" class="btn-primary" onclick="spawnBossFromWeb()" style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #ff9f43, #ff5252); color: #fff; margin-top: 10px;">
+                                <i class="fa-solid fa-skull"></i> TRIỆU HỒI BOSS NGAY
+                            </button>
+                        </div>
+
+                        <!-- QUẢN LÝ NHANH BOSS -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h3 style="font-size: 15px; color: #ff4757; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-bomb"></i> TIÊU DIỆT SẠCH BOSS
+                                </h3>
+                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                                    Hạ gục toàn bộ các Boss đang sống trên tất cả Map trong Server ngay lập tức để làm sạch map hoặc làm mới chu kỳ xuất hiện.
+                                </p>
+                            </div>
+                            <div>
+                                <button type="button" class="btn-secondary" onclick="confirmClearAllBosses()" style="width: 100%; font-weight: 700; border-color: #ff4757; color: #ff4757;">
+                                    <i class="fa-solid fa-burst"></i> TIÊU DIỆT TẤT CẢ BOSS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE BOSS TABLE -->
+            <div class="glass">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3><i class="fa-solid fa-list-check" style="color: var(--cyan);"></i> DANH SÁCH BOSS ĐANG CÓ TRÊN MAP</h3>
+                    <button class="btn-secondary" onclick="loadBossesList()" style="font-size: 12px; padding: 4px 12px;">
+                        <i class="fa-solid fa-rotate"></i> LÀM MỚI
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID BOSS</th>
+                                    <th>TÊN BOSS</th>
+                                    <th>MÁU (HP / MAX)</th>
+                                    <th>MAP ĐANG ĐỨNG</th>
+                                    <th>KHU VỰC</th>
+                                    <th>TỌA ĐỘ (X, Y)</th>
+                                    <th>THAO TÁC</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bosses-table-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                                        Đang tải danh sách Boss...
                                     </td>
                                 </tr>
                             </tbody>

@@ -68,6 +68,7 @@ public class AdminHttpServer {
             server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
             server.createContext("/api/manage-bots", new ManageBotsHandler());
             server.createContext("/api/spawn-mabu", new SpawnMabuHandler());
+            server.createContext("/api/manage-bosses", new ManageBossesHandler());
             
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -1403,6 +1404,100 @@ public class AdminHttpServer {
             try {
                 nro.models.boss.Boss_Manager.BossManager.gI().createBoss(nro.models.boss.BossID.MABU);
                 sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã gọi Boss Ma Bư Mập xuất hiện thành công trong Game cho người chơi đánh rớt Trứng!\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- /api/manage-bosses ---
+    private static class ManageBossesHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    List<nro.models.boss.Boss> bosses = nro.models.boss.Boss_Manager.BossManager.gI().getBosses();
+                    JSONArray arr = new JSONArray();
+                    if (bosses != null) {
+                        for (nro.models.boss.Boss b : bosses) {
+                            if (b != null) {
+                                JSONObject obj = new JSONObject();
+                                obj.put("id", b.id);
+                                obj.put("name", b.name != null ? b.name : "Boss");
+                                obj.put("hp", b.nPoint != null ? b.nPoint.hp : 0);
+                                obj.put("hpMax", b.nPoint != null ? b.nPoint.hpMax : 0);
+                                obj.put("mapId", b.zone != null && b.zone.map != null ? b.zone.map.mapId : -1);
+                                obj.put("mapName", b.zone != null && b.zone.map != null ? b.zone.map.mapName : "Không rõ");
+                                obj.put("zoneId", b.zone != null ? b.zone.zoneId : -1);
+                                obj.put("x", b.location != null ? b.location.x : 0);
+                                obj.put("y", b.location != null ? b.location.y : 0);
+                                arr.add(obj);
+                            }
+                        }
+                    }
+                    sendJsonResponse(exchange, 200, arr.toJSONString());
+                } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    InputStream is = exchange.getRequestBody();
+                    JSONObject requestObj = (JSONObject) JSONValue.parse(new InputStreamReader(is, StandardCharsets.UTF_8));
+                    if (requestObj == null) {
+                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                        return;
+                    }
+                    String action = (String) requestObj.get("action");
+
+                    if ("spawn".equalsIgnoreCase(action)) {
+                        int bossId = requestObj.get("bossId") != null ? Integer.parseInt(String.valueOf(requestObj.get("bossId"))) : nro.models.boss.BossID.MABU;
+                        nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
+                        String name = (boss != null && boss.name != null) ? boss.name : ("Boss ID " + bossId);
+                        JSONObject res = new JSONObject();
+                        res.put("status", "success");
+                        res.put("message", "Đã gọi thành công " + name + " xuất hiện trong Game!");
+                        sendJsonResponse(exchange, 200, res.toJSONString());
+                    } else if ("kill_one".equalsIgnoreCase(action)) {
+                        int bossId = requestObj.get("bossId") != null ? Integer.parseInt(String.valueOf(requestObj.get("bossId"))) : 0;
+                        List<nro.models.boss.Boss> bosses = new ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+                        boolean found = false;
+                        for (nro.models.boss.Boss b : bosses) {
+                            if (b != null && b.id == bossId) {
+                                try {
+                                    b.changeStatus(nro.models.consts.BossStatus.DIE);
+                                } catch (Exception ex) {}
+                                found = true;
+                                break;
+                            }
+                        }
+                        JSONObject res = new JSONObject();
+                        if (found) {
+                            res.put("status", "success");
+                            res.put("message", "Đã tiêu diệt Boss ID " + bossId + "!");
+                            sendJsonResponse(exchange, 200, res.toJSONString());
+                        } else {
+                            res.put("status", "error");
+                            res.put("message", "Không tìm thấy Boss đang sống với ID này!");
+                            sendJsonResponse(exchange, 404, res.toJSONString());
+                        }
+                    } else if ("clear_all".equalsIgnoreCase(action)) {
+                        List<nro.models.boss.Boss> bosses = new ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+                        for (nro.models.boss.Boss b : bosses) {
+                            if (b != null) {
+                                try {
+                                    b.changeStatus(nro.models.consts.BossStatus.DIE);
+                                } catch (Exception ex) {}
+                            }
+                        }
+                        JSONObject res = new JSONObject();
+                        res.put("status", "success");
+                        res.put("message", "Đã tiêu diệt toàn bộ Boss đang sống trên Server!");
+                        sendJsonResponse(exchange, 200, res.toJSONString());
+                    } else {
+                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
