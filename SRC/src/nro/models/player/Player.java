@@ -834,20 +834,20 @@ public class Player implements Runnable {
                 }
             }
         }
-        if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null && optionLevelNhan != null
-                && levelAo >= 8 && levelQuan >= 8 && levelGang >= 8 && levelGiay >= 8 && levelNhan >= 8) {
+        if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null
+                && levelAo >= 8 && levelQuan >= 8 && levelGang >= 8 && levelGiay >= 8 && (optionLevelNhan == null || levelNhan >= 8)) {
             return 8;
-        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null && optionLevelNhan != null
-                && levelAo >= 7 && levelQuan >= 7 && levelGang >= 7 && levelGiay >= 7 && levelNhan >= 7) {
+        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null
+                && levelAo >= 7 && levelQuan >= 7 && levelGang >= 7 && levelGiay >= 7 && (optionLevelNhan == null || levelNhan >= 7)) {
             return 7;
-        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null && optionLevelNhan != null
-                && levelAo >= 6 && levelQuan >= 6 && levelGang >= 6 && levelGiay >= 6 && levelNhan >= 6) {
+        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null
+                && levelAo >= 6 && levelQuan >= 6 && levelGang >= 6 && levelGiay >= 6 && (optionLevelNhan == null || levelNhan >= 6)) {
             return 6;
-        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null && optionLevelNhan != null
-                && levelAo >= 5 && levelQuan >= 5 && levelGang >= 5 && levelGiay >= 5 && levelNhan >= 5) {
+        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null
+                && levelAo >= 5 && levelQuan >= 5 && levelGang >= 5 && levelGiay >= 5 && (optionLevelNhan == null || levelNhan >= 5)) {
             return 5;
-        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null && optionLevelNhan != null
-                && levelAo >= 4 && levelQuan >= 4 && levelGang >= 4 && levelGiay >= 4 && levelNhan >= 4) {
+        } else if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null
+                && levelAo >= 4 && levelQuan >= 4 && levelGang >= 4 && levelGiay >= 4 && (optionLevelNhan == null || levelNhan >= 4)) {
             return 4;
         } else {
             return -1;
