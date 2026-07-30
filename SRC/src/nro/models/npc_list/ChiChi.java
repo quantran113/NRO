@@ -28,6 +28,7 @@ public class ChiChi extends Npc {
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
             List<String> menu = new ArrayList<>(Arrays.asList(
+                    "Top\nSức mạnh",
                     "Top\nHộp quà\nthiếu nhi\n2025",
                     "Top\nNước mía",
                     "Top\nKem trái cây",
@@ -49,29 +50,33 @@ public class ChiChi extends Npc {
             if (this.mapId == 5) {
                 if (player.idMark.isBaseMenu()) {
                     switch (select) {
-                        case 3:
-                            ShopService.gI().opendShop(player, "SHOP_CHI_CHI", false);
-                            break;
                         case 0:
+                            Manager.loadTopSM();
+                            Service.gI().showListTop(player, Manager.TopSM);
+                            break;
+                        case 1:
                             createOtherMenu(player, ConstNpc.PHAO_BONG_VIP,
                                     "Sự kiện đua top Hộp quà thiếu nhi nhận quà khủng\n Kết thúc và trao giải sau (....)\nHạn chót nhận giải: (15 ngày nữa)\nĐến gặp ChiChi để nhận giải nhé\nChi tiết xem tại diễn đàn, Fanpage",
                                     "Top 100\nHộp quà\nthiếu nhi\n2025",
                                     "Xem điểm",
                                     "Đóng");
                             break;
-                        case 1:
+                        case 2:
                             createOtherMenu(player, ConstNpc.PHAO_BONG,
                                     "Sự kiện đua top Nước mía nhận quà khủng\n Kết thúc và trao giải sau (....)\nHạn chót nhận giải: (15 ngày nữa)\nĐến gặp ChiChi để nhận giải nhé\nChi tiết xem tại diễn đàn, Fanpage",
                                     "Top 100\nNước mía",
                                     "Xem điểm",
                                     "Đóng");
                             break;
-                        case 2:
+                        case 3:
                             createOtherMenu(player, ConstNpc.GOKU_DAY,
                                     "Sự kiện đua top Kem trái cây nhận quà khủng\n Kết thúc và trao giải sau (....)\nHạn chót nhận giải: (15 ngày nữa)\nĐến gặp ChiChi để nhận giải nhé\nChi tiết xem tại diễn đàn, Fanpage",
                                     "Top 100\nKem trái cây",
                                     "Xem điểm",
                                     "Đóng");
+                            break;
+                        case 4:
+                            ShopService.gI().opendShop(player, "SHOP_CHI_CHI", false);
                             break;
                     }
                 } else if (player.idMark.getIndexMenu() == ConstNpc.PHAO_BONG_VIP) {

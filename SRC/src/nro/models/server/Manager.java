@@ -113,6 +113,7 @@ public final class Manager {
     public static List<TOP> Topsukien2 = new ArrayList<>();
     public static List<TOP> Topwhis;
     public static List<TOP> Topmaydam;
+    public static List<TOP> TopSM = new ArrayList<>();
     public static final String queryTopmaydam = "SELECT id, point_maydam, total_damage_maydam FROM player ORDER BY point_maydam DESC LIMIT 100";
     public static final String queryTopsukien1 = "SELECT id, point_sukien1 FROM player ORDER BY point_sukien1 DESC LIMIT 100";
     public static final String queryTopsukien2 = "SELECT id, point_sukien2 FROM player ORDER BY point_sukien2 DESC LIMIT 100";
@@ -955,6 +956,8 @@ public final class Manager {
             Topwhis = realTop(queryTopwhis, ConnectionDatabase);
             Logger.success(Logger.RED + "Successfully top Thach Dau Whis (" + Topwhis.size() + ")\n");
             Topmaydam = realTop(queryTopmaydam, ConnectionDatabase);
+            TopSM = realTopSM();
+            Logger.success(Logger.GREEN + "Successfully Top Suc Manh (" + TopSM.size() + ")\n");
             Manager.timeRealTop = System.currentTimeMillis();
 
         } catch (Exception e) {
@@ -1023,6 +1026,46 @@ public final class Manager {
         }
 
         return tops;
+    }
+
+    public static List<TOP> realTopSM() {
+        List<TOP> tops = new ArrayList<>();
+        try (Connection con = LocalManager.getConnection();
+             PreparedStatement ps = con.prepareStatement("SELECT id, data_point FROM player");
+             ResultSet rs = ps.executeQuery()) {
+            List<TOP> all = new ArrayList<>();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String dataPointStr = rs.getString("data_point");
+                if (dataPointStr != null && !dataPointStr.isEmpty()) {
+                    try {
+                        JSONArray array = (JSONArray) JSONValue.parse(dataPointStr);
+                        if (array != null && array.size() > 1) {
+                            long power = Long.parseLong(String.valueOf(array.get(1)));
+                            TOP top = TOP.builder()
+                                    .id_player(id)
+                                    .power(power)
+                                    .info1(Util.formatNumber(power) + " sức mạnh")
+                                    .info2("Sức mạnh: " + Util.formatNumber(power))
+                                    .build();
+                            all.add(top);
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            }
+            all.sort((t1, t2) -> Long.compare(t2.getPower(), t1.getPower()));
+            for (int i = 0; i < Math.min(100, all.size()); i++) {
+                tops.add(all.get(i));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tops;
+    }
+
+    public static void loadTopSM() {
+        TopSM = realTopSM();
     }
 
     public void loadProperties() throws IOException {
