@@ -107,6 +107,7 @@ public final class Manager {
     public static final List<String> NOTIFY = new ArrayList<>();
     public static final List<BadgesTaskTemplate> TASKS_BADGES_TEMPLATE = new ArrayList<>();
     public static final List<BagesTemplate> BAGES_TEMPLATES = new ArrayList<>();
+    public static final List<Part> PARTS = new ArrayList<>();
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
     public static List<TOP> Topsukien;
     public static List<TOP> Topsukien1;
@@ -323,6 +324,8 @@ public final class Manager {
                 }
             }
             dos.flush();
+            PARTS.clear();
+            PARTS.addAll(parts);
             Logger.success(Logger.PURPLE + "Successfully loaded part (" + parts.size() + ")\n");
 
             //load bg item template
@@ -1206,6 +1209,15 @@ public final class Manager {
         } else {
             return 0;
         }
+    }
+
+    public static short getIconHead(int headId) {
+        for (Part part : PARTS) {
+            if (part != null && part.id == headId && part.partDetails != null && !part.partDetails.isEmpty()) {
+                return (short) part.partDetails.get(0).iconId;
+            }
+        }
+        return (short) headId;
     }
 
 }

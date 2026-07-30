@@ -67,7 +67,9 @@ public class AdminHttpServer {
             server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
             server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
             server.createContext("/api/manage-bots", new ManageBotsHandler());
-            server.createContext("/api/manage-bosses", new ManageBossesHandler());
+            server.createContext("/api/bosses", new BossesHandler());
+            server.createContext("/api/bosses/spawn", new SpawnBossHandler());
+            server.createContext("/api/bosses/action", new BossActionHandler());
 
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -1531,247 +1533,121 @@ public class AdminHttpServer {
         }
     }
 
-    static class ManageBossesHandler implements HttpHandler {
+    // --- GET /api/bosses ---
+    private static class BossesHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
             try {
-                addCorsHeaders(exchange);
-                if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
-                    exchange.sendResponseHeaders(204, -1);
+                JSONArray arr = new JSONArray();
+                List<nro.models.boss.Boss> allBosses = new ArrayList<>();
+
+                try {
+                    if (nro.models.boss.Boss_Manager.BossManager.gI() != null && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
+                        allBosses.addAll(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+                    }
+                } catch (Exception e) {}
+
+                try {
+                    if (nro.models.boss.Boss_Manager.FinalBossManager.gI() != null && nro.models.boss.Boss_Manager.FinalBossManager.gI().getBosses() != null) {
+                        for (nro.models.boss.Boss b : nro.models.boss.Boss_Manager.FinalBossManager.gI().getBosses()) {
+                            if (!allBosses.contains(b)) allBosses.add(b);
+                        }
+                    }
+                } catch (Exception e) {}
+
+                try {
+                    if (nro.models.boss.Boss_Manager.OtherBossManager.gI() != null && nro.models.boss.Boss_Manager.OtherBossManager.gI().getBosses() != null) {
+                        for (nro.models.boss.Boss b : nro.models.boss.Boss_Manager.OtherBossManager.gI().getBosses()) {
+                            if (!allBosses.contains(b)) allBosses.add(b);
+                        }
+                    }
+                } catch (Exception e) {}
+
+                for (nro.models.boss.Boss boss : allBosses) {
+                    if (boss == null) continue;
+                    JSONObject obj = new JSONObject();
+                    obj.put("id", boss.id);
+
+                    String name = "Boss";
+                    if (boss.name != null && !boss.name.isEmpty()) {
+                        name = boss.name;
+                    } else if (boss.data != null && boss.data.length > 0 && boss.data[0] != null && boss.data[0].getName() != null) {
+                        name = boss.data[0].getName();
+                    }
+                    obj.put("name", name);
+
+                    short head = boss.getHead();
+                    obj.put("head", head);
+                    short iconId = Manager.getIconHead(head);
+                    obj.put("iconId", iconId);
+                    obj.put("avatarUrl", "/icons/" + iconId + ".png");
+
+                    if (boss.nPoint != null) {
+                        obj.put("hp", boss.nPoint.hp);
+                        obj.put("maxHp", boss.nPoint.hpMax);
+                    } else {
+                        obj.put("hp", 0);
+                        obj.put("maxHp", 0);
+                    }
+
+                    obj.put("status", boss.bossStatus != null ? boss.bossStatus.name() : "REST");
+
+                    if (boss.zone != null && boss.zone.map != null) {
+                        obj.put("mapId", boss.zone.map.mapId);
+                        obj.put("mapName", boss.zone.map.mapName);
+                        obj.put("zoneId", boss.zone.zoneId);
+                        obj.put("x", boss.location != null ? boss.location.x : 0);
+                        obj.put("y", boss.location != null ? boss.location.y : 0);
+                    } else {
+                        obj.put("mapId", -1);
+                        obj.put("mapName", "Chưa xuất hiện");
+                        obj.put("zoneId", -1);
+                        obj.put("x", 0);
+                        obj.put("y", 0);
+                    }
+
+                    arr.add(obj);
+                }
+
+                sendJsonResponse(exchange, 200, arr.toJSONString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/bosses/spawn ---
+    private static class SpawnBossHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(reader);
+
+                if (body == null || !body.containsKey("bossId")) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Vui lòng nhập Boss ID hợp lệ!\"}");
                     return;
                 }
 
-                if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                int bossId = ((Number) body.get("bossId")).intValue();
+                nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
+
+                if (boss != null) {
                     JSONObject res = new JSONObject();
-                    res.put("ratioReward", nro.models.boss.Boss_Manager.BossManager.ratioReward);
-
-                    JSONArray bossList = new JSONArray();
-                    List<nro.models.boss.Boss> bosses = new ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
-
-                    for (nro.models.boss.Boss b : bosses) {
-                        if (b != null) {
-                            JSONObject bObj = new JSONObject();
-                            bObj.put("id", b.id);
-                            String bossName = b.name;
-                            if (bossName == null || bossName.isEmpty()) {
-                                try {
-                                    if (b.data != null && b.data.length > 0 && b.data[0] != null && b.data[0].getName() != null) {
-                                        bossName = b.data[0].getName();
-                                    }
-                                } catch (Exception ex) {}
-                            }
-                            if (bossName == null || bossName.isEmpty()) {
-                                bossName = "Boss #" + b.id;
-                            }
-                            bObj.put("name", bossName);
-                            bObj.put("hp", b.nPoint != null ? b.nPoint.hp : 0);
-                            bObj.put("maxHp", b.nPoint != null ? b.nPoint.hpMax : 0);
-                            bObj.put("dame", b.nPoint != null ? b.nPoint.dame : 0);
-                            short headId = -1;
-                            try {
-                                if (b.data != null && b.data.length > 0) {
-                                    int lvl = (b.currentLevel >= 0 && b.currentLevel < b.data.length) ? b.currentLevel : 0;
-                                    if (b.data[lvl] != null && b.data[lvl].getOutfit() != null && b.data[lvl].getOutfit().length > 0) {
-                                        headId = b.data[lvl].getOutfit()[0];
-                                    }
-                                }
-                            } catch (Exception ex) {}
-                            bObj.put("head", headId);
-                            bObj.put("status", b.bossStatus != null ? b.bossStatus.name() : "REST");
-                            
-                            if (b.zone != null && b.zone.map != null) {
-                                bObj.put("mapId", b.zone.map.mapId);
-                                bObj.put("mapName", b.zone.map.mapName);
-                                bObj.put("zoneId", b.zone.zoneId);
-                            } else {
-                                bObj.put("mapId", -1);
-                                bObj.put("mapName", "Chưa xuất hiện");
-                                bObj.put("zoneId", -1);
-                            }
-
-                            if (b.location != null) {
-                                bObj.put("x", b.location.x);
-                                bObj.put("y", b.location.y);
-                            } else {
-                                bObj.put("x", 0);
-                                bObj.put("y", 0);
-                            }
-
-                            String targetName = "Không có";
-                            if (b.playerTarger != null && b.playerTarger.name != null) {
-                                targetName = b.playerTarger.name;
-                            }
-                            bObj.put("target", targetName);
-
-                            bossList.add(bObj);
-                        }
-                    }
-                    res.put("bosses", bossList);
-
-                    JSONArray templates = new JSONArray();
-                    int[] tIds = {
-                        nro.models.boss.BossID.KUKU,
-                        nro.models.boss.BossID.MAP_DAU_DINH,
-                        nro.models.boss.BossID.RAMBO,
-                        nro.models.boss.BossID.TIEU_DOI_TRUONG,
-                        nro.models.boss.BossID.FIDE,
-                        nro.models.boss.BossID.COOLER,
-                        nro.models.boss.BossID.ANDROID_19,
-                        nro.models.boss.BossID.DR_KORE,
-                        nro.models.boss.BossID.KING_KONG,
-                        nro.models.boss.BossID.XEN_BO_HUNG,
-                        nro.models.boss.BossID.SIEU_BO_HUNG,
-                        nro.models.boss.BossID.BLACK_GOKU,
-                        nro.models.boss.BossID.SUPER_BOJACK,
-                        nro.models.boss.BossID.GOLDEN_FRIEZA,
-                        nro.models.boss.BossID.CUMBER
-                    };
-                    String[] tNames = {
-                        "Kukû", "Mập Đầu Đinh", "Rambo", "Tiểu Đội Trưởng", "Fide",
-                        "Cooler", "Android 19", "Dr. Kore", "King Kong", "Xên Bọ Hùng",
-                        "Siêu Xên Bọ Hùng", "Black Goku", "Super Bojack", "Golden Frieza", "Cumber"
-                    };
-                    for (int i = 0; i < tIds.length; i++) {
-                        JSONObject tObj = new JSONObject();
-                        tObj.put("id", tIds[i]);
-                        tObj.put("name", tNames[i]);
-                        templates.add(tObj);
-                    }
-                    res.put("bossTemplates", templates);
-
+                    res.put("status", "success");
+                    res.put("message", "Đã triệu hồi thành công Boss [" + (boss.name != null ? boss.name : "ID: " + bossId) + "] vào Game!");
                     sendJsonResponse(exchange, 200, res.toJSONString());
-                } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                    InputStream is = exchange.getRequestBody();
-                    JSONObject requestObj = (JSONObject) JSONValue
-                            .parse(new InputStreamReader(is, StandardCharsets.UTF_8));
-                    if (requestObj == null) {
-                        sendJsonResponse(exchange, 400,
-                                "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
-                        return;
-                    }
-                    String action = (String) requestObj.get("action");
-
-                    if ("spawn".equalsIgnoreCase(action)) {
-                        int bossId = nro.models.boss.BossID.KUKU;
-                        if (requestObj.get("bossId") != null) {
-                            bossId = Integer.parseInt(String.valueOf(requestObj.get("bossId")));
-                        }
-                        int count = 1;
-                        if (requestObj.get("count") != null) {
-                            count = Integer.parseInt(String.valueOf(requestObj.get("count")));
-                        }
-                        String playerName = requestObj.get("playerName") != null ? String.valueOf(requestObj.get("playerName")).trim() : "";
-                        int mapId = requestObj.get("mapId") != null ? Integer.parseInt(String.valueOf(requestObj.get("mapId"))) : -1;
-                        int zoneId = requestObj.get("zoneId") != null ? Integer.parseInt(String.valueOf(requestObj.get("zoneId"))) : 0;
-
-                        for (int i = 0; i < count; i++) {
-                            nro.models.boss.Boss b = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
-                            if (b != null) {
-                                if (!playerName.isEmpty()) {
-                                    nro.models.player.Player targetP = nro.server.Client.gI().getPlayer(playerName);
-                                    if (targetP != null && targetP.zone != null) {
-                                        nro.models.map.service.ChangeMapService.gI().changeMap(b, targetP.zone, targetP.location.x, targetP.location.y);
-                                    }
-                                } else if (mapId > 0) {
-                                    nro.models.map.Zone z = nro.services.MapService.gI().getMapCanJoin(b, mapId, zoneId);
-                                    if (z != null) {
-                                        nro.models.map.service.ChangeMapService.gI().changeMap(b, z, 400, 300);
-                                    }
-                                }
-                            }
-                        }
-
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã gọi " + count + " Boss xuất hiện thành công!\"}");
-                    } else if ("kill".equalsIgnoreCase(action)) {
-                        boolean all = Boolean.TRUE.equals(requestObj.get("all"));
-                        long bossId = requestObj.get("bossId") != null ? Long.parseLong(String.valueOf(requestObj.get("bossId"))) : -999;
-                        
-                        List<nro.models.boss.Boss> bosses = new ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
-                        int killed = 0;
-                        for (nro.models.boss.Boss b : bosses) {
-                            if (b != null && (all || b.id == bossId)) {
-                                try {
-                                    b.changeStatus(nro.models.boss.BossStatus.DIE);
-                                } catch (Exception ex) {}
-                                killed++;
-                            }
-                        }
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tiêu diệt/xóa " + killed + " Boss!\"}");
-                    } else if ("respawn".equalsIgnoreCase(action)) {
-                        boolean all = Boolean.TRUE.equals(requestObj.get("all"));
-                        long bossId = requestObj.get("bossId") != null ? Long.parseLong(String.valueOf(requestObj.get("bossId"))) : -999;
-                        
-                        List<nro.models.boss.Boss> bosses = new ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
-                        int respawned = 0;
-                        for (nro.models.boss.Boss b : bosses) {
-                            if (b != null && (all || b.id == bossId)) {
-                                try {
-                                    b.changeStatus(nro.models.boss.BossStatus.ACTIVE);
-                                } catch (Exception ex) {}
-                                respawned++;
-                            }
-                        }
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã kích hoạt hồi sinh " + respawned + " Boss!\"}");
-                    } else if ("set_ratio".equalsIgnoreCase(action)) {
-                        int ratio = 10;
-                        if (requestObj.get("ratio") != null) {
-                            ratio = Integer.parseInt(String.valueOf(requestObj.get("ratio")));
-                        }
-                        nro.models.boss.Boss_Manager.BossManager.ratioReward = (byte) ratio;
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật tỷ lệ rớt đồ Boss thành " + ratio + "%!\"}");
-                    } else if ("teleport_player_to_boss".equalsIgnoreCase(action)) {
-                        long bossId = requestObj.get("bossId") != null ? Long.parseLong(String.valueOf(requestObj.get("bossId"))) : -999;
-                        String playerName = requestObj.get("playerName") != null ? String.valueOf(requestObj.get("playerName")).trim() : "";
-                        
-                        nro.models.player.Player p = nro.server.Client.gI().getPlayer(playerName);
-                        if (p == null) {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không tìm thấy người chơi: " + playerName + "\"}");
-                            return;
-                        }
-
-                        nro.models.boss.Boss targetBoss = null;
-                        for (nro.models.boss.Boss b : nro.models.boss.Boss_Manager.BossManager.gI().getBosses()) {
-                            if (b != null && b.id == bossId) {
-                                targetBoss = b;
-                                break;
-                            }
-                        }
-
-                        if (targetBoss == null || targetBoss.zone == null) {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Boss không khả dụng hoặc chưa xuất hiện ở map nào!\"}");
-                            return;
-                        }
-
-                        nro.models.map.service.ChangeMapService.gI().changeMap(p, targetBoss.zone, targetBoss.location.x, targetBoss.location.y);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã dịch chuyển nhân vật " + playerName + " đến Boss " + targetBoss.name + "!\"}");
-                    } else if ("teleport_boss_to_player".equalsIgnoreCase(action)) {
-                        long bossId = requestObj.get("bossId") != null ? Long.parseLong(String.valueOf(requestObj.get("bossId"))) : -999;
-                        String playerName = requestObj.get("playerName") != null ? String.valueOf(requestObj.get("playerName")).trim() : "";
-                        
-                        nro.models.player.Player p = nro.server.Client.gI().getPlayer(playerName);
-                        if (p == null || p.zone == null) {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Người chơi không online hoặc không ở map hợp lệ!\"}");
-                            return;
-                        }
-
-                        nro.models.boss.Boss targetBoss = null;
-                        for (nro.models.boss.Boss b : nro.models.boss.Boss_Manager.BossManager.gI().getBosses()) {
-                            if (b != null && b.id == bossId) {
-                                targetBoss = b;
-                                break;
-                            }
-                        }
-
-                        if (targetBoss == null) {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss ID: " + bossId + "\"}");
-                            return;
-                        }
-
-                        nro.models.map.service.ChangeMapService.gI().changeMap(targetBoss, p.zone, p.location.x, p.location.y);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã kéo Boss " + targetBoss.name + " về chỗ " + playerName + "!\"}");
-                    } else {
-                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
-                    }
+                } else {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể khởi tạo Boss ID: " + bossId + "! Vui lòng kiểm tra lại ID.\"}");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1779,5 +1655,67 @@ public class AdminHttpServer {
             }
         }
     }
-}
 
+    // --- POST /api/bosses/action ---
+    private static class BossActionHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(reader);
+
+                if (body == null) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                    return;
+                }
+
+                String action = (String) body.get("action");
+                int bossId = body.containsKey("bossId") ? ((Number) body.get("bossId")).intValue() : 0;
+
+                List<nro.models.boss.Boss> allBosses = new ArrayList<>();
+                if (nro.models.boss.Boss_Manager.BossManager.gI() != null && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
+                    allBosses.addAll(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+                }
+
+                nro.models.boss.Boss targetBoss = null;
+                for (nro.models.boss.Boss b : allBosses) {
+                    if (b != null && b.id == bossId) {
+                        targetBoss = b;
+                        break;
+                    }
+                }
+
+                if ("kill".equalsIgnoreCase(action) || "despawn".equalsIgnoreCase(action)) {
+                    if (targetBoss != null) {
+                        targetBoss.changeStatus(nro.models.consts.BossStatus.DIE);
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tiêu diệt Boss thành công!\"}");
+                    } else {
+                        sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss đang xuất hiện!\"}");
+                    }
+                } else if ("respawn".equalsIgnoreCase(action)) {
+                    if (targetBoss != null) {
+                        targetBoss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã khởi động hồi sinh Boss!\"}");
+                    } else {
+                        nro.models.boss.Boss newBoss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
+                        if (newBoss != null) {
+                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tạo mới và triệu hồi Boss thành công!\"}");
+                        } else {
+                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể tạo mới Boss!\"}");
+                        }
+                    }
+                } else {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không được hỗ trợ\"}");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+}

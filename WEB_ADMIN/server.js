@@ -163,22 +163,40 @@ app.post('/api/admin/bots', async (req, res) => {
     }
 });
 
+// Manage Bosses API Endpoints
 app.get('/api/admin/bosses', async (req, res) => {
     try {
-        const resp = await fetch(`${JAVA_API_URL}/api/manage-bosses`);
+        const resp = await fetch(`${JAVA_API_URL}/api/bosses`);
         if (resp.ok) {
             const data = await resp.json();
             return res.json(data);
         }
-        res.status(500).json({ error: 'Failed to fetch boss data from server API' });
+        res.status(500).json({ status: 'error', message: 'Không thể kết nối Game Server API' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ status: 'error', message: err.message });
     }
 });
 
-app.post('/api/admin/bosses', async (req, res) => {
+app.post('/api/admin/bosses/spawn', async (req, res) => {
     try {
-        const resp = await fetch(`${JAVA_API_URL}/api/manage-bosses`, {
+        const resp = await fetch(`${JAVA_API_URL}/api/bosses/spawn`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
+        });
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể phản hồi từ Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/api/admin/bosses/action', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/bosses/action`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(req.body)
