@@ -2400,8 +2400,11 @@ async function loadBosses() {
 
         filterBossesList();
     } catch (err) {
-        gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #ff4757; padding: 20px;">
-            <i class="fa-solid fa-circle-exclamation" style="font-size: 24px;"></i><br><br>Lỗi kết nối Game Server: ${err.message}
+        gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #ff4757; padding: 30px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); border-radius: 12px;">
+            <i class="fa-solid fa-server" style="font-size: 32px; margin-bottom: 12px;"></i><br>
+            <strong style="font-size: 16px;">Không thể lấy dữ liệu từ Game Server (Port 14446)</strong><br>
+            <span style="font-size: 13px; color: var(--text-muted); display: inline-block; margin-top: 6px; max-width: 500px;">Vui lòng đảm bảo Game Server Java đang khởi chạy. (${err.message})</span><br><br>
+            <button type="button" class="btn-primary" onclick="loadBosses()" style="font-size: 12px; padding: 8px 20px; background: linear-gradient(135deg, #ff4757, #ff6b81);"><i class="fa-solid fa-arrows-rotate"></i> Thử Lại Ngay</button>
         </div>`;
     }
 }

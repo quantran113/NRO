@@ -1569,48 +1569,59 @@ public class AdminHttpServer {
 
                 for (nro.models.boss.Boss boss : allBosses) {
                     if (boss == null) continue;
-                    JSONObject obj = new JSONObject();
-                    obj.put("id", boss.id);
+                    try {
+                        JSONObject obj = new JSONObject();
+                        obj.put("id", boss.id);
 
-                    String name = "Boss";
-                    if (boss.name != null && !boss.name.isEmpty()) {
-                        name = boss.name;
-                    } else if (boss.data != null && boss.data.length > 0 && boss.data[0] != null && boss.data[0].getName() != null) {
-                        name = boss.data[0].getName();
+                        String name = "Boss";
+                        if (boss.name != null && !boss.name.isEmpty()) {
+                            name = boss.name;
+                        } else if (boss.data != null && boss.data.length > 0 && boss.data[0] != null && boss.data[0].getName() != null) {
+                            name = boss.data[0].getName();
+                        }
+                        obj.put("name", name);
+
+                        short head = 0;
+                        try {
+                            head = boss.getHead();
+                        } catch (Exception ex) {
+                            if (boss.data != null && boss.data.length > 0 && boss.data[0] != null && boss.data[0].getOutfit() != null) {
+                                head = boss.data[0].getOutfit()[0];
+                            }
+                        }
+                        obj.put("head", head);
+                        short iconId = Manager.getIconHead(head);
+                        obj.put("iconId", iconId);
+                        obj.put("avatarUrl", "/icons/" + iconId + ".png");
+
+                        if (boss.nPoint != null) {
+                            obj.put("hp", boss.nPoint.hp);
+                            obj.put("maxHp", boss.nPoint.hpMax);
+                        } else {
+                            obj.put("hp", 0);
+                            obj.put("maxHp", 0);
+                        }
+
+                        obj.put("status", boss.bossStatus != null ? boss.bossStatus.name() : "REST");
+
+                        if (boss.zone != null && boss.zone.map != null) {
+                            obj.put("mapId", boss.zone.map.mapId);
+                            obj.put("mapName", boss.zone.map.mapName);
+                            obj.put("zoneId", boss.zone.zoneId);
+                            obj.put("x", boss.location != null ? boss.location.x : 0);
+                            obj.put("y", boss.location != null ? boss.location.y : 0);
+                        } else {
+                            obj.put("mapId", -1);
+                            obj.put("mapName", "Chưa xuất hiện");
+                            obj.put("zoneId", -1);
+                            obj.put("x", 0);
+                            obj.put("y", 0);
+                        }
+
+                        arr.add(obj);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                    obj.put("name", name);
-
-                    short head = boss.getHead();
-                    obj.put("head", head);
-                    short iconId = Manager.getIconHead(head);
-                    obj.put("iconId", iconId);
-                    obj.put("avatarUrl", "/icons/" + iconId + ".png");
-
-                    if (boss.nPoint != null) {
-                        obj.put("hp", boss.nPoint.hp);
-                        obj.put("maxHp", boss.nPoint.hpMax);
-                    } else {
-                        obj.put("hp", 0);
-                        obj.put("maxHp", 0);
-                    }
-
-                    obj.put("status", boss.bossStatus != null ? boss.bossStatus.name() : "REST");
-
-                    if (boss.zone != null && boss.zone.map != null) {
-                        obj.put("mapId", boss.zone.map.mapId);
-                        obj.put("mapName", boss.zone.map.mapName);
-                        obj.put("zoneId", boss.zone.zoneId);
-                        obj.put("x", boss.location != null ? boss.location.x : 0);
-                        obj.put("y", boss.location != null ? boss.location.y : 0);
-                    } else {
-                        obj.put("mapId", -1);
-                        obj.put("mapName", "Chưa xuất hiện");
-                        obj.put("zoneId", -1);
-                        obj.put("x", 0);
-                        obj.put("y", 0);
-                    }
-
-                    arr.add(obj);
                 }
 
                 sendJsonResponse(exchange, 200, arr.toJSONString());

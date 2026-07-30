@@ -247,7 +247,14 @@ public class Boss extends Player implements IBoss {
         if (effectSkill != null && effectSkill.isMonkey) {
             return (short) ConstPlayer.HEADMONKEY[effectSkill.levelMonkey - 1];
         }
-        return this.data[this.currentLevel].getOutfit()[0];
+        int lvl = this.currentLevel;
+        if (lvl < 0 || this.data == null || lvl >= this.data.length || this.data[lvl] == null) {
+            lvl = 0;
+        }
+        if (this.data != null && this.data.length > lvl && this.data[lvl] != null && this.data[lvl].getOutfit() != null) {
+            return this.data[lvl].getOutfit()[0];
+        }
+        return 0;
     }
 
     @Override
@@ -258,7 +265,14 @@ public class Boss extends Player implements IBoss {
         if (effectSkill != null && effectSkill.isMonkey) {
             return 193;
         }
-        return this.data[this.currentLevel].getOutfit()[1];
+        int lvl = this.currentLevel;
+        if (lvl < 0 || this.data == null || lvl >= this.data.length || this.data[lvl] == null) {
+            lvl = 0;
+        }
+        if (this.data != null && this.data.length > lvl && this.data[lvl] != null && this.data[lvl].getOutfit() != null) {
+            return this.data[lvl].getOutfit()[1];
+        }
+        return 0;
     }
 
     @Override
@@ -269,18 +283,38 @@ public class Boss extends Player implements IBoss {
         if (effectSkill != null && effectSkill.isMonkey) {
             return 194;
         }
-        return this.data[this.currentLevel].getOutfit()[2];
-
+        int lvl = this.currentLevel;
+        if (lvl < 0 || this.data == null || lvl >= this.data.length || this.data[lvl] == null) {
+            lvl = 0;
+        }
+        if (this.data != null && this.data.length > lvl && this.data[lvl] != null && this.data[lvl].getOutfit() != null) {
+            return this.data[lvl].getOutfit()[2];
+        }
+        return 0;
     }
 
     @Override
     public short getFlagBag() {
-        return this.data[this.currentLevel].getOutfit()[3];
+        int lvl = this.currentLevel;
+        if (lvl < 0 || this.data == null || lvl >= this.data.length || this.data[lvl] == null) {
+            lvl = 0;
+        }
+        if (this.data != null && this.data.length > lvl && this.data[lvl] != null && this.data[lvl].getOutfit() != null) {
+            return this.data[lvl].getOutfit()[3];
+        }
+        return -1;
     }
 
     @Override
     public byte getAura() {
-        return (byte) this.data[this.currentLevel].getOutfit()[4];
+        int lvl = this.currentLevel;
+        if (lvl < 0 || this.data == null || lvl >= this.data.length || this.data[lvl] == null) {
+            lvl = 0;
+        }
+        if (this.data != null && this.data.length > lvl && this.data[lvl] != null && this.data[lvl].getOutfit() != null) {
+            return (byte) this.data[lvl].getOutfit()[4];
+        }
+        return -1;
     }
 
     @Override
