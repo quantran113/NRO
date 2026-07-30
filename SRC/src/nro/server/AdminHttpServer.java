@@ -1652,8 +1652,11 @@ public class AdminHttpServer {
                 int bossId = ((Number) body.get("bossId")).intValue();
                 int mapId = body.containsKey("mapId") ? ((Number) body.get("mapId")).intValue() : -1;
                 int zoneId = body.containsKey("zoneId") ? ((Number) body.get("zoneId")).intValue() : -1;
-                int customHp = body.containsKey("hp") ? ((Number) body.get("hp")).intValue() : 0;
-                int customDame = body.containsKey("dame") ? ((Number) body.get("dame")).intValue() : 0;
+                long rawHp = body.containsKey("hp") ? ((Number) body.get("hp")).longValue() : 0;
+                long rawDame = body.containsKey("dame") ? ((Number) body.get("dame")).longValue() : 0;
+
+                int customHp = (rawHp > 2_000_000_000L) ? 2_000_000_000 : (int) rawHp;
+                int customDame = (rawDame > 2_000_000_000L) ? 2_000_000_000 : (int) rawDame;
 
                 nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
 
@@ -1781,11 +1784,24 @@ public class AdminHttpServer {
                     }
                 } else if ("respawn".equalsIgnoreCase(action)) {
                     if (targetBoss != null) {
+                        int savedHpg = targetBoss.nPoint.hpg;
+                        int savedDameg = targetBoss.nPoint.dameg;
+
                         if (targetBoss.currentLevel < 0) {
                             targetBoss.currentLevel = 0;
                         }
                         targetBoss.initBase();
                         targetBoss.changeToTypeNonPK();
+
+                        if (savedHpg > 0) {
+                            targetBoss.nPoint.hpg = savedHpg;
+                        }
+                        if (savedDameg > 0) {
+                            targetBoss.nPoint.dameg = savedDameg;
+                        }
+                        targetBoss.nPoint.calPoint();
+                        targetBoss.nPoint.hp = targetBoss.nPoint.hpMax;
+
                         if (targetBoss.zone == null) {
                             try {
                                 targetBoss.zone = targetBoss.getMapJoin();
@@ -1799,7 +1815,7 @@ public class AdminHttpServer {
                             } catch (Exception ex) {}
                         }
                         targetBoss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã hồi sinh và đưa Boss " + targetBoss.name + " trở lại game!\"}");
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã hồi sinh và đưa Boss " + targetBoss.name + " trở lại game! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ")\"}");
                     } else {
                         nro.models.boss.Boss newBoss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
                         if (newBoss != null) {
@@ -1816,9 +1832,13 @@ public class AdminHttpServer {
                     }
                 } else if ("set_stats".equalsIgnoreCase(action)) {
                     if (targetBoss != null) {
-                        int newHp = body.containsKey("hp") ? ((Number) body.get("hp")).intValue() : -1;
-                        int newMaxHp = body.containsKey("maxHp") ? ((Number) body.get("maxHp")).intValue() : -1;
-                        int newDame = body.containsKey("dame") ? ((Number) body.get("dame")).intValue() : -1;
+                        long rawHp = body.containsKey("hp") ? ((Number) body.get("hp")).longValue() : -1;
+                        long rawMaxHp = body.containsKey("maxHp") ? ((Number) body.get("maxHp")).longValue() : -1;
+                        long rawDame = body.containsKey("dame") ? ((Number) body.get("dame")).longValue() : -1;
+
+                        int newHp = (rawHp > 2_000_000_000L) ? 2_000_000_000 : (int) rawHp;
+                        int newMaxHp = (rawMaxHp > 2_000_000_000L) ? 2_000_000_000 : (int) rawMaxHp;
+                        int newDame = (rawDame > 2_000_000_000L) ? 2_000_000_000 : (int) rawDame;
 
                         if (newMaxHp > 0) {
                             targetBoss.nPoint.hpg = newMaxHp;

@@ -2596,9 +2596,13 @@ async function submitEditBossStats() {
     const maxHpInput = document.getElementById('edit-boss-maxhp-input');
     const dameInput = document.getElementById('edit-boss-dame-input');
 
-    const hp = hpInput && hpInput.value.trim() !== '' ? parseInt(hpInput.value.trim()) : -1;
-    const maxHp = maxHpInput && maxHpInput.value.trim() !== '' ? parseInt(maxHpInput.value.trim()) : -1;
-    const dame = dameInput && dameInput.value.trim() !== '' ? parseInt(dameInput.value.trim()) : -1;
+    let hp = hpInput && hpInput.value.trim() !== '' ? parseInt(hpInput.value.trim()) : -1;
+    let maxHp = maxHpInput && maxHpInput.value.trim() !== '' ? parseInt(maxHpInput.value.trim()) : -1;
+    let dame = dameInput && dameInput.value.trim() !== '' ? parseInt(dameInput.value.trim()) : -1;
+
+    if (hp > 2000000000) hp = 2000000000;
+    if (maxHp > 2000000000) maxHp = 2000000000;
+    if (dame > 2000000000) dame = 2000000000;
 
     try {
         const resp = await fetch('/api/admin/bosses/action', {
@@ -2675,9 +2679,17 @@ async function submitSpawnBoss() {
         if (!isNaN(parsedMap)) mapId = parsedMap;
     }
 
-    let zoneId = customZoneInput && customZoneInput.value.trim() !== '' ? parseInt(customZoneInput.value.trim()) : -1;
     let hp = customHpInput && customHpInput.value.trim() !== '' ? parseInt(customHpInput.value.trim()) : 0;
     let dame = customDameInput && customDameInput.value.trim() !== '' ? parseInt(customDameInput.value.trim()) : 0;
+
+    if (hp > 2000000000) {
+        hp = 2000000000;
+        showToast('Giới hạn Máu tối đa của Game NRO là 2 tỷ HP (2.000.000.000). Hệ thống đã tự động đặt 2 tỷ HP!', 'warning');
+    }
+    if (dame > 2000000000) {
+        dame = 2000000000;
+        showToast('Giới hạn Sức Đánh tối đa của Game NRO là 2 tỷ. Hệ thống đã tự động đặt 2 tỷ Dame!', 'warning');
+    }
 
     try {
         const resp = await fetch('/api/admin/bosses/spawn', {
