@@ -67,6 +67,7 @@ public class AdminHttpServer {
             server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
             server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
             server.createContext("/api/manage-bots", new ManageBotsHandler());
+            server.createContext("/api/spawn-mabu", new SpawnMabuHandler());
             
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -1384,6 +1385,24 @@ public class AdminHttpServer {
                         sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- /api/spawn-mabu ---
+    private static class SpawnMabuHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                nro.models.boss.Boss_Manager.BossManager.gI().createBoss(nro.models.boss.BossID.MABU);
+                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã gọi Boss Ma Bư Mập xuất hiện thành công trong Game cho người chơi đánh rớt Trứng!\"}");
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");

@@ -81,6 +81,15 @@ public class Command {
             Service.gI().sendThongBaoOK(player, "x: " + player.location.x + " - y: " + player.location.y);
         });
 
+        parameterizedCommands.put("mabu", (player, text) -> {
+            try {
+                nro.models.boss.Boss_Manager.BossManager.gI().createBoss(nro.models.boss.BossID.MABU);
+                Service.gI().sendThongBao(player, "Đã gọi Boss Ma Bư Mập xuất hiện!");
+            } catch (Exception e) {
+                Service.gI().sendThongBao(player, "Lỗi gọi Boss Ma Bư: " + e.getMessage());
+            }
+        });
+
         parameterizedCommands.put("1", (player, text) -> {
             NpcService.gI().createMenuConMeo(player, 206783, 206783, "|7| Menu bot\n"
                     + "Player online : " + Client.gI().getPlayers().size() + "\n"

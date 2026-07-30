@@ -121,6 +121,12 @@ public class Mabu2H extends Boss {
         plKill.event.addEventPoint(diem);
         Service.gI().sendThongBao(plKill, "+5 Point");
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
+
+        if (plKill != null && this.zone != null) {
+            nro.models.map.ItemMap itemMap = new nro.models.map.ItemMap(this.zone, 568, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
+            Service.gI().dropItemMap(this.zone, itemMap);
+            Service.gI().sendThongBao(plKill, "Bạn đã tiêu diệt " + this.name + " và nhận được Quả Trứng Ma Bư!");
+        }
     }
 
     @Override

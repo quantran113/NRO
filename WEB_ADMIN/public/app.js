@@ -2351,3 +2351,17 @@ async function kickBotFromWeb(botId) {
         showToast('Lỗi kết nối Server: ' + err.message, 'error');
     }
 }
+
+async function spawnMabuBossFromWeb() {
+    try {
+        const resp = await fetch('/api/admin/spawn-mabu', { method: 'POST' });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || 'Đã gọi Boss Ma Bư Mập xuất hiện!', 'success');
+        } else {
+            showToast(data.message || 'Lỗi khi gọi Boss Ma Bư', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối Server: ' + err.message, 'error');
+    }
+}

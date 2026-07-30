@@ -163,6 +163,20 @@ app.post('/api/admin/bots', async (req, res) => {
     }
 });
 
+// Spawn Mabu Boss API Endpoint
+app.post('/api/admin/spawn-mabu', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/spawn-mabu`, { method: 'POST' });
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể gọi Boss Ma Bư' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Admin Stats Endpoint
 app.get('/api/admin/stats', async (req, res) => {
     try {

@@ -93,6 +93,13 @@ public class Mabu extends Boss {
             Item optionalItem = ItemService.gI().createNewItem((short) dropOptional);
             Service.gI().dropItemMap(zone, optionalItemMap);
         }
+        // Drop Quả Trứng Ma Bư (Item 568)
+        if (plKill != null && this.zone != null) {
+            ItemMap eggMap = new ItemMap(this.zone, 568, 1, x, y, plKill.id);
+            Service.gI().dropItemMap(this.zone, eggMap);
+            Service.gI().sendThongBao(plKill, "Bạn đã tiêu diệt " + this.name + " và nhận được Quả Trứng Ma Bư!");
+        }
+
         plKill.fightMabu.changePoint((byte) 25);
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
