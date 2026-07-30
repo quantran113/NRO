@@ -1683,6 +1683,12 @@ public class AdminHttpServer {
                     }
                     boss.nPoint.calPoint();
                     boss.nPoint.hp = boss.nPoint.hpMax;
+                    if (customDame > 0) {
+                        boss.nPoint.dame = customDame;
+                    }
+                    if (customDef > 0) {
+                        boss.nPoint.def = customDef;
+                    }
 
                     nro.models.map.Zone targetZone = null;
                     if (mapId >= 0) {
@@ -1812,6 +1818,12 @@ public class AdminHttpServer {
                         }
                         targetBoss.nPoint.calPoint();
                         targetBoss.nPoint.hp = targetBoss.nPoint.hpMax;
+                        if (savedDameg > 0) {
+                            targetBoss.nPoint.dame = savedDameg;
+                        }
+                        if (savedDefg > 0) {
+                            targetBoss.nPoint.def = savedDefg;
+                        }
 
                         if (targetBoss.zone == null) {
                             try {
@@ -1866,10 +1878,17 @@ public class AdminHttpServer {
                         }
                         if (newDef >= 0) {
                             targetBoss.nPoint.defg = newDef;
+                            targetBoss.nPoint.def = newDef;
                         }
                         targetBoss.nPoint.calPoint();
+                        if (newDame > 0) {
+                            targetBoss.nPoint.dame = newDame;
+                        }
+                        if (newDef >= 0) {
+                            targetBoss.nPoint.def = newDef;
+                        }
 
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật chỉ số Boss [" + targetBoss.name + "] thành công! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ", Dame: " + targetBoss.nPoint.dame + ", Giáp: " + targetBoss.nPoint.defg + ")\"}");
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật chỉ số Boss [" + targetBoss.name + "] thành công! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ", Dame: " + targetBoss.nPoint.dame + ", Giáp: " + targetBoss.nPoint.def + ")\"}");
                     } else {
                         sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss!\"}");
                     }

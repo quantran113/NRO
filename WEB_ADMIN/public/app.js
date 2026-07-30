@@ -246,10 +246,7 @@ async function initAdminData() {
     loadDropRules();
     loadNpcShops();
 
-    // Auto-add default item 0 (Áo) to cart if empty
-    if (itemTemplates.length > 0 && cartItems.length === 0) {
-        addItemToCart(itemTemplates[0].id);
-    }
+
 }
 
 async function loadStats() {
@@ -2516,7 +2513,7 @@ function renderBosses(bossList) {
                 </div>
 
                 <!-- HEALTH BAR -->
-                <div style="margin-bottom: 12px;">
+                <div style="margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">
                         <span><i class="fa-solid fa-heart" style="color: #ff4757;"></i> HP (${hpPercent}%)</span>
                         <span style="color: ${hpColor}; font-weight: 700;">${hp.toLocaleString('vi-VN')} / ${maxHp.toLocaleString('vi-VN')}</span>
@@ -2524,6 +2521,12 @@ function renderBosses(bossList) {
                     <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
                         <div style="width: ${hpPercent}%; height: 100%; background: ${hpColor}; transition: width 0.4s ease; border-radius: 4px;"></div>
                     </div>
+                </div>
+
+                <!-- STATS INFO ROW (DAME & DEF) -->
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                    <span><i class="fa-solid fa-hand-fist" style="color: #ffa502;"></i> Đánh: <strong style="color: #fff;">${(boss.dame || 0).toLocaleString('vi-VN')}</strong></span>
+                    <span><i class="fa-solid fa-shield-halved" style="color: #1e90ff;"></i> Giáp: <strong style="color: #fff;">${(boss.def || 0).toLocaleString('vi-VN')}</strong></span>
                 </div>
 
                 <!-- LOCATION INFO -->

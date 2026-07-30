@@ -741,7 +741,12 @@ public class Boss extends Player implements IBoss {
             }
 
             if (!piercing) {
-                damage = this.nPoint.subDameInjureWithDeff(damage);
+                if (this.nPoint.def > 0) {
+                    damage -= this.nPoint.def;
+                }
+                if (damage < 1) {
+                    damage = 1;
+                }
             }
 
             this.nPoint.subHP(damage);
