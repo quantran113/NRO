@@ -1437,7 +1437,14 @@
                     </div>
                     <div class="form-group">
                         <label><i class="fa-solid fa-door-open"></i> Khu Vực (Zone ID)</label>
-                        <input type="number" id="custom-zone-id-input" class="input-field" placeholder="Zone ID (mặc định ngẫu nhiên)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-heart" style="color: #ff4757;"></i> Tùy Chỉnh HP Boss</label>
+                        <input type="number" id="custom-boss-hp-input" class="input-field" placeholder="Mặc định của Boss (VD: 50000000)">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-hand-fist" style="color: #ffa502;"></i> Sức Đánh (Dame)</label>
+                        <input type="number" id="custom-boss-dame-input" class="input-field" placeholder="Mặc định của Boss (VD: 25000)">
                     </div>
                 </div>
             </div>
@@ -1450,10 +1457,43 @@
         </div>
     </div>
 
+    <!-- CUSTOM MODAL: EDIT BOSS STATS -->
+    <div id="modal-edit-boss-stats" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders" style="color: var(--cyan);"></i> ĐIỀU CHỈNH CHỈ SỐ BOSS</h3>
+                <button type="button" class="modal-close-btn" onclick="closeModal('modal-edit-boss-stats')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding-top: 15px;">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+                    Boss: <strong id="edit-boss-name" style="color: var(--gold);">Boss</strong> (ID: <span id="edit-boss-id">0</span>)
+                </p>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-heart" style="color: #ff4757;"></i> Máu Hiện Tại (HP)</label>
+                    <input type="number" id="edit-boss-hp-input" class="input-field" placeholder="Nhập HP hiện tại...">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-heart-pulse" style="color: #ffa502;"></i> Máu Tối Đa (Max HP)</label>
+                    <input type="number" id="edit-boss-maxhp-input" class="input-field" placeholder="Nhập HP Tối Đa...">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-hand-fist" style="color: #ff4757;"></i> Sức Đánh (Dame)</label>
+                    <input type="number" id="edit-boss-dame-input" class="input-field" placeholder="Nhập Sức Đánh...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-edit-boss-stats')">HỦY BỎ</button>
+                <button type="button" class="btn-primary" onclick="submitEditBossStats()" style="background: linear-gradient(135deg, var(--cyan), #1e90ff); color: #fff; font-weight: 700;">
+                    <i class="fa-solid fa-floppy-disk"></i> LƯU CHỈ SỐ
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
 
-    <script src="app.js?v=20260730_boss_v4"></script>
+    <script src="app.js?v=20260730_boss_v5"></script>
 </body>
 
 </html>

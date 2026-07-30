@@ -2530,15 +2530,20 @@ function renderBosses(bossList) {
             </div>
 
             <!-- ACTION BUTTONS -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
                 <button type="button" class="btn-primary" onclick="handleBossAction('respawn', ${boss.id})" style="padding: 6px 4px; font-size: 11px; background: linear-gradient(135deg, #2ed573, #1e90ff); color: #fff;" title="Hồi sinh Boss & kích hoạt ngay">
                     <i class="fa-solid fa-bolt"></i> Hồi Sinh
                 </button>
+                <button type="button" class="btn-secondary" onclick="openEditBossStatsModal(${boss.id}, '${escapeHtml(boss.name || 'Boss')}', ${boss.hp || 0}, ${boss.maxHp || 0})" style="padding: 6px 4px; font-size: 11px; border-color: var(--cyan); color: var(--cyan); background: rgba(0, 243, 255, 0.08);" title="Điều chỉnh HP / Max HP / Dame">
+                    <i class="fa-solid fa-sliders"></i> Chỉ Số
+                </button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                 <button type="button" class="btn-secondary" onclick="handleBossAction('kill', ${boss.id})" style="padding: 6px 4px; font-size: 11px; border-color: #ffab00; color: #ffab00;" title="Tiêu diệt Boss trong game">
                     <i class="fa-solid fa-skull"></i> Tiêu Diệt
                 </button>
                 <button type="button" class="btn-secondary" onclick="confirmDeleteBoss(${boss.id}, '${escapeHtml(boss.name || 'Boss')}')" style="padding: 6px 4px; font-size: 11px; border-color: #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1);" title="Xóa Boss khỏi danh sách">
-                    <i class="fa-solid fa-trash"></i> Xóa
+                    <i class="fa-solid fa-trash"></i> Xóa Boss
                 </button>
             </div>
         </div>
@@ -2550,6 +2555,55 @@ function confirmDeleteBoss(bossId, bossName) {
     customConfirm('XÓA BOSS KHỎI HỆ THỐNG', `Bạn có chắc chắn muốn xóa Boss <strong>${bossName}</strong> (ID: ${bossId}) khỏi danh sách?`, () => {
         handleBossAction('delete', bossId);
     });
+}
+
+let currentEditBossId = null;
+
+function openEditBossStatsModal(bossId, name, hp, maxHp) {
+    currentEditBossId = bossId;
+    const nameEl = document.getElementById('edit-boss-name');
+    const idEl = document.getElementById('edit-boss-id');
+    const hpInput = document.getElementById('edit-boss-hp-input');
+    const maxHpInput = document.getElementById('edit-boss-maxhp-input');
+    const dameInput = document.getElementById('edit-boss-dame-input');
+
+    if (nameEl) nameEl.innerText = name;
+    if (idEl) idEl.innerText = bossId;
+    if (hpInput) hpInput.value = hp || '';
+    if (maxHpInput) maxHpInput.value = maxHp || '';
+    if (dameInput) dameInput.value = '';
+
+    showModal('modal-edit-boss-stats');
+}
+
+async function submitEditBossStats() {
+    if (!currentEditBossId) return;
+
+    const hpInput = document.getElementById('edit-boss-hp-input');
+    const maxHpInput = document.getElementById('edit-boss-maxhp-input');
+    const dameInput = document.getElementById('edit-boss-dame-input');
+
+    const hp = hpInput && hpInput.value.trim() !== '' ? parseInt(hpInput.value.trim()) : -1;
+    const maxHp = maxHpInput && maxHpInput.value.trim() !== '' ? parseInt(maxHpInput.value.trim()) : -1;
+    const dame = dameInput && dameInput.value.trim() !== '' ? parseInt(dameInput.value.trim()) : -1;
+
+    try {
+        const resp = await fetch('/api/admin/bosses/action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'set_stats', bossId: currentEditBossId, hp, maxHp, dame })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || 'Cập nhật chỉ số Boss thành công!', 'success');
+            closeModal('modal-edit-boss-stats');
+            loadBosses();
+        } else {
+            showToast(data.message || 'Cập nhật thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối: ' + err.message, 'error');
+    }
 }
 
 async function handleBossAction(action, bossId) {
@@ -2594,6 +2648,8 @@ async function submitSpawnBoss() {
     const mapSelect = document.getElementById('spawn-map-select');
     const customMapInput = document.getElementById('custom-map-id-input');
     const customZoneInput = document.getElementById('custom-zone-id-input');
+    const customHpInput = document.getElementById('custom-boss-hp-input');
+    const customDameInput = document.getElementById('custom-boss-dame-input');
 
     const bossId = customBossInput ? parseInt(customBossInput.value) : null;
     if (!bossId || isNaN(bossId)) {
@@ -2607,12 +2663,14 @@ async function submitSpawnBoss() {
     }
 
     let zoneId = customZoneInput && customZoneInput.value.trim() !== '' ? parseInt(customZoneInput.value.trim()) : -1;
+    let hp = customHpInput && customHpInput.value.trim() !== '' ? parseInt(customHpInput.value.trim()) : 0;
+    let dame = customDameInput && customDameInput.value.trim() !== '' ? parseInt(customDameInput.value.trim()) : 0;
 
     try {
         const resp = await fetch('/api/admin/bosses/spawn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bossId, mapId, zoneId })
+            body: JSON.stringify({ bossId, mapId, zoneId, hp, dame })
         });
         const data = await resp.json();
         if (data.status === 'success') {

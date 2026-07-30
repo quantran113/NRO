@@ -1652,25 +1652,63 @@ public class AdminHttpServer {
                 int bossId = ((Number) body.get("bossId")).intValue();
                 int mapId = body.containsKey("mapId") ? ((Number) body.get("mapId")).intValue() : -1;
                 int zoneId = body.containsKey("zoneId") ? ((Number) body.get("zoneId")).intValue() : -1;
-
-                if (mapId == -2) {
-                    int[] normalMaps = new int[]{0, 1, 2, 5, 7, 8, 13, 14, 20, 27, 28, 29, 30, 42, 43, 44};
-                    mapId = normalMaps[nro.models.utils.Util.nextInt(0, normalMaps.length - 1)];
-                }
+                int customHp = body.containsKey("hp") ? ((Number) body.get("hp")).intValue() : 0;
+                int customDame = body.containsKey("dame") ? ((Number) body.get("dame")).intValue() : 0;
 
                 nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
 
                 if (boss != null) {
-                    boss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
+                    if (boss.currentLevel < 0) {
+                        boss.currentLevel = 0;
+                    }
+                    boss.initBase();
+                    boss.changeToTypeNonPK();
 
+                    if (customHp > 0) {
+                        boss.nPoint.hpg = customHp;
+                        boss.nPoint.hpMax = customHp;
+                        boss.nPoint.hp = customHp;
+                    }
+                    if (customDame > 0) {
+                        boss.nPoint.dameg = customDame;
+                        boss.nPoint.dame = customDame;
+                    }
+                    boss.nPoint.calPoint();
+
+                    nro.models.map.Zone targetZone = null;
                     if (mapId >= 0) {
                         try {
                             nro.models.map.Map targetMap = nro.models.map.service.MapService.gI().getMapById(mapId);
                             if (targetMap != null && targetMap.zones != null && !targetMap.zones.isEmpty()) {
                                 int zId = (zoneId >= 0 && zoneId < targetMap.zones.size()) ? zoneId : nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1);
-                                nro.models.map.Zone zone = targetMap.zones.get(zId);
-                                boss.joinMapByZone(zone);
+                                targetZone = targetMap.zones.get(zId);
                             }
+                        } catch (Exception ex) {}
+                    } else if (mapId == -2) {
+                        int[] normalMaps = new int[]{0, 1, 2, 5, 7, 8, 13, 14, 20, 27, 28, 29, 30, 42, 43, 44};
+                        int randomMapId = normalMaps[nro.models.utils.Util.nextInt(0, normalMaps.length - 1)];
+                        try {
+                            nro.models.map.Map targetMap = nro.models.map.service.MapService.gI().getMapById(randomMapId);
+                            if (targetMap != null && targetMap.zones != null && !targetMap.zones.isEmpty()) {
+                                targetZone = targetMap.zones.get(nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1));
+                            }
+                        } catch (Exception ex) {}
+                    }
+
+                    if (targetZone == null) {
+                        try {
+                            targetZone = boss.getMapJoin();
+                        } catch (Exception ex) {}
+                    }
+
+                    if (targetZone != null) {
+                        boss.zone = targetZone;
+                        int x = targetZone.map.mapWidth > 100 ? nro.models.utils.Util.nextInt(100, targetZone.map.mapWidth - 100) : nro.models.utils.Util.nextInt(100);
+                        int y = targetZone.map.yPhysicInTop(x, 100);
+                        boss.location.x = x;
+                        boss.location.y = y;
+                        try {
+                            nro.models.map.service.ChangeMapService.gI().changeMap(boss, targetZone, x, y);
                         } catch (Exception ex) {}
                     }
 
@@ -1679,7 +1717,7 @@ public class AdminHttpServer {
                     String mapLocationInfo = (boss.zone != null && boss.zone.map != null) ? boss.zone.map.mapName + " (Khu " + boss.zone.zoneId + ")" : "Bản đồ ngẫu nhiên";
                     JSONObject res = new JSONObject();
                     res.put("status", "success");
-                    res.put("message", "Đã triệu hồi Boss [" + (boss.name != null ? boss.name : "ID: " + bossId) + "] thành công tại " + mapLocationInfo + "!");
+                    res.put("message", "Đã triệu hồi Boss [" + (boss.name != null ? boss.name : "ID: " + bossId) + "] xuất hiện ngay tại " + mapLocationInfo + "! (HP: " + boss.nPoint.hp + ")");
                     sendJsonResponse(exchange, 200, res.toJSONString());
                 } else {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể khởi tạo Boss ID: " + bossId + "! Vui lòng kiểm tra lại ID.\"}");
@@ -1745,18 +1783,61 @@ public class AdminHttpServer {
                     }
                 } else if ("respawn".equalsIgnoreCase(action)) {
                     if (targetBoss != null) {
-                        targetBoss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
+                        if (targetBoss.currentLevel < 0) {
+                            targetBoss.currentLevel = 0;
+                        }
+                        targetBoss.initBase();
+                        targetBoss.changeToTypeNonPK();
+                        if (targetBoss.zone == null) {
+                            try {
+                                targetBoss.zone = targetBoss.getMapJoin();
+                            } catch (Exception ex) {}
+                        }
+                        if (targetBoss.zone != null) {
+                            try {
+                                int x = targetBoss.zone.map.mapWidth > 100 ? nro.models.utils.Util.nextInt(100, targetBoss.zone.map.mapWidth - 100) : nro.models.utils.Util.nextInt(100);
+                                int y = targetBoss.zone.map.yPhysicInTop(x, 100);
+                                nro.models.map.service.ChangeMapService.gI().changeMap(targetBoss, targetBoss.zone, x, y);
+                            } catch (Exception ex) {}
+                        }
                         targetBoss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã hồi sinh và kích hoạt Boss ngay lập tức!\"}");
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã hồi sinh và đưa Boss " + targetBoss.name + " trở lại game!\"}");
                     } else {
                         nro.models.boss.Boss newBoss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
                         if (newBoss != null) {
-                            newBoss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
+                            if (newBoss.currentLevel < 0) {
+                                newBoss.currentLevel = 0;
+                            }
+                            newBoss.initBase();
+                            newBoss.changeToTypeNonPK();
                             newBoss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
                             sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tạo mới và triệu hồi Boss thành công!\"}");
                         } else {
                             sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể tạo mới Boss!\"}");
                         }
+                    }
+                } else if ("set_stats".equalsIgnoreCase(action)) {
+                    if (targetBoss != null) {
+                        int newHp = body.containsKey("hp") ? ((Number) body.get("hp")).intValue() : -1;
+                        int newMaxHp = body.containsKey("maxHp") ? ((Number) body.get("maxHp")).intValue() : -1;
+                        int newDame = body.containsKey("dame") ? ((Number) body.get("dame")).intValue() : -1;
+
+                        if (newMaxHp > 0) {
+                            targetBoss.nPoint.hpg = newMaxHp;
+                            targetBoss.nPoint.hpMax = newMaxHp;
+                        }
+                        if (newHp >= 0) {
+                            targetBoss.nPoint.hp = Math.min(newHp, targetBoss.nPoint.hpMax);
+                        }
+                        if (newDame > 0) {
+                            targetBoss.nPoint.dameg = newDame;
+                            targetBoss.nPoint.dame = newDame;
+                        }
+                        targetBoss.nPoint.calPoint();
+
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật chỉ số Boss [" + targetBoss.name + "] thành công! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ", Dame: " + targetBoss.nPoint.dame + ")\"}");
+                    } else {
+                        sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss!\"}");
                     }
                 } else {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không được hỗ trợ\"}");
