@@ -769,10 +769,7 @@ public class Player implements Runnable {
     }
 
     public byte getEffFront() {
-        if (this.inventory == null) {
-            return -1;
-        }
-        if (this.inventory.itemsBody.isEmpty() || this.inventory.itemsBody.size() < 10) {
+        if (this.inventory == null || this.inventory.itemsBody == null || this.inventory.itemsBody.size() < 5) {
             return -1;
         }
         int levelAo = 0;
@@ -785,44 +782,56 @@ public class Player implements Runnable {
         Item.ItemOption optionLevelGiay = null;
         int levelNhan = 0;
         Item.ItemOption optionLevelNhan = null;
+
         Item itemAo = this.inventory.itemsBody.get(0);
         Item itemQuan = this.inventory.itemsBody.get(1);
         Item itemGang = this.inventory.itemsBody.get(2);
         Item itemGiay = this.inventory.itemsBody.get(3);
         Item itemNhan = this.inventory.itemsBody.get(4);
-        for (Item.ItemOption io : itemAo.itemOptions) {
-            if (io.optionTemplate.id == 72) {
-                levelAo = io.param;
-                optionLevelAo = io;
-                break;
+
+        if (itemAo != null && itemAo.isNotNullItem() && itemAo.itemOptions != null) {
+            for (Item.ItemOption io : itemAo.itemOptions) {
+                if (io != null && io.optionTemplate != null && io.optionTemplate.id == 72) {
+                    levelAo = io.param;
+                    optionLevelAo = io;
+                    break;
+                }
             }
         }
-        for (Item.ItemOption io : itemQuan.itemOptions) {
-            if (io.optionTemplate.id == 72) {
-                levelQuan = io.param;
-                optionLevelQuan = io;
-                break;
+        if (itemQuan != null && itemQuan.isNotNullItem() && itemQuan.itemOptions != null) {
+            for (Item.ItemOption io : itemQuan.itemOptions) {
+                if (io != null && io.optionTemplate != null && io.optionTemplate.id == 72) {
+                    levelQuan = io.param;
+                    optionLevelQuan = io;
+                    break;
+                }
             }
         }
-        for (Item.ItemOption io : itemGang.itemOptions) {
-            if (io.optionTemplate.id == 72) {
-                levelGang = io.param;
-                optionLevelGang = io;
-                break;
+        if (itemGang != null && itemGang.isNotNullItem() && itemGang.itemOptions != null) {
+            for (Item.ItemOption io : itemGang.itemOptions) {
+                if (io != null && io.optionTemplate != null && io.optionTemplate.id == 72) {
+                    levelGang = io.param;
+                    optionLevelGang = io;
+                    break;
+                }
             }
         }
-        for (Item.ItemOption io : itemGiay.itemOptions) {
-            if (io.optionTemplate.id == 72) {
-                levelGiay = io.param;
-                optionLevelGiay = io;
-                break;
+        if (itemGiay != null && itemGiay.isNotNullItem() && itemGiay.itemOptions != null) {
+            for (Item.ItemOption io : itemGiay.itemOptions) {
+                if (io != null && io.optionTemplate != null && io.optionTemplate.id == 72) {
+                    levelGiay = io.param;
+                    optionLevelGiay = io;
+                    break;
+                }
             }
         }
-        for (Item.ItemOption io : itemNhan.itemOptions) {
-            if (io.optionTemplate.id == 72) {
-                levelNhan = io.param;
-                optionLevelNhan = io;
-                break;
+        if (itemNhan != null && itemNhan.isNotNullItem() && itemNhan.itemOptions != null) {
+            for (Item.ItemOption io : itemNhan.itemOptions) {
+                if (io != null && io.optionTemplate != null && io.optionTemplate.id == 72) {
+                    levelNhan = io.param;
+                    optionLevelNhan = io;
+                    break;
+                }
             }
         }
         if (optionLevelAo != null && optionLevelQuan != null && optionLevelGang != null && optionLevelGiay != null && optionLevelNhan != null
