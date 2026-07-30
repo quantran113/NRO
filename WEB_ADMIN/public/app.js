@@ -2199,6 +2199,11 @@ function escapeHtml(text) {
     });
 }
 
+function formatNumber(num) {
+    if (num === null || num === undefined) return '0';
+    return Number(num).toLocaleString('vi-VN');
+}
+
 // --- FIX DUPLICATE ITEM OPTIONS ---
 async function fixDuplicateItemOptions() {
     if (!confirm('⚠️ Bạn có chắc chắn muốn quét & sửa TẤT CẢ đồ bị trùng chỉ số trên toàn bộ nhân vật?\n\nLưu ý: Nhân vật đang ONLINE cần thoát game và đăng nhập lại để thấy thay đổi.')) {
@@ -2420,7 +2425,7 @@ async function loadBossesList() {
                     <td><strong style="color: var(--gold);">${b.id}</strong></td>
                     <td><strong style="color: #ff9f43;">${escapeHtml(b.name)}</strong></td>
                     <td>
-                        <span style="font-size: 12px; color: var(--cyan);">${formatNumber(b.hp)} / ${formatNumber(b.hpMax)}</span>
+                        <span style="font-size: 12px; color: var(--cyan);">${(b.hp || 0).toLocaleString('vi-VN')} / ${(b.hpMax || 0).toLocaleString('vi-VN')}</span>
                         <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 4px; width: 100%; margin-top: 4px; overflow: hidden;">
                             <div style="background: linear-gradient(90deg, #ff4757, #ffa502); height: 100%; width: ${hpPercent}%;"></div>
                         </div>
