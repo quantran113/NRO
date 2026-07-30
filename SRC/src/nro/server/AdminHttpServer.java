@@ -1552,7 +1552,18 @@ public class AdminHttpServer {
                         if (b != null) {
                             JSONObject bObj = new JSONObject();
                             bObj.put("id", b.id);
-                            bObj.put("name", b.name != null ? b.name : "Boss #" + b.id);
+                            String bossName = b.name;
+                            if (bossName == null || bossName.isEmpty()) {
+                                try {
+                                    if (b.data != null && b.data.length > 0 && b.data[0] != null && b.data[0].getName() != null) {
+                                        bossName = b.data[0].getName();
+                                    }
+                                } catch (Exception ex) {}
+                            }
+                            if (bossName == null || bossName.isEmpty()) {
+                                bossName = "Boss #" + b.id;
+                            }
+                            bObj.put("name", bossName);
                             bObj.put("hp", b.nPoint != null ? b.nPoint.hp : 0);
                             bObj.put("maxHp", b.nPoint != null ? b.nPoint.hpMax : 0);
                             bObj.put("dame", b.nPoint != null ? b.nPoint.dame : 0);

@@ -2401,7 +2401,12 @@ function filterBossList() {
     const statusFilter = document.getElementById('boss-filter-status')?.value || 'ALL';
 
     const filtered = bossesListCache.filter(b => {
-        const matchQuery = b.name.toLowerCase().includes(query) || (b.mapName && b.mapName.toLowerCase().includes(query)) || b.id.toString().includes(query);
+        if (!b) return false;
+        const bName = (b.name || `Boss #${b.id || ''}`).toString().toLowerCase();
+        const mapName = (b.mapName || '').toString().toLowerCase();
+        const bId = (b.id || '').toString();
+
+        const matchQuery = bName.includes(query) || mapName.includes(query) || bId.includes(query);
         let matchStatus = true;
         if (statusFilter === 'ACTIVE') {
             matchStatus = b.status !== 'REST' && b.status !== 'DIE';
@@ -2425,18 +2430,18 @@ function filterBossList() {
     }
 
     tbody.innerHTML = filtered.map(b => {
-        const hpPercent = b.maxHp > 0 ? (b.hp / b.maxHp) * 100 : 0;
+        const hpPercent = (b.maxHp && b.maxHp > 0) ? (b.hp / b.maxHp) * 100 : 0;
         let hpColor = '#2ed573';
         if (hpPercent < 30) hpColor = '#ff4757';
         else if (hpPercent < 70) hpColor = '#ffa502';
 
         let statusBadge = '';
         if (b.status === 'REST' || b.status === 'RESPAWN') {
-            statusBadge = `<span class="badge" style="background: rgba(255, 165, 2, 0.15); color: #ffa502; border: 1px solid #ffa502;">Đang Chờ</span>`;
+            statusBadge = `<span class="badge" style="background: rgba(255, 165, 2, 0.15); color: #ffa502; border: 1px solid #ffa502;"><i class="fa-solid fa-clock"></i> Đang Chờ</span>`;
         } else if (b.status === 'DIE') {
-            statusBadge = `<span class="badge" style="background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid #ff4757;">Đã Chết</span>`;
+            statusBadge = `<span class="badge" style="background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid #ff4757;"><i class="fa-solid fa-skull"></i> Đã Chết</span>`;
         } else {
-            statusBadge = `<span class="badge" style="background: rgba(46, 213, 115, 0.15); color: #2ed573; border: 1px solid #2ed573;">${b.status}</span>`;
+            statusBadge = `<span class="badge" style="background: rgba(46, 213, 115, 0.15); color: #2ed573; border: 1px solid #2ed573;"><i class="fa-solid fa-fire"></i> ${escapeHtml(b.status || 'ACTIVE')}</span>`;
         }
 
         const headId = (b.head && b.head > 0) ? b.head : 64;
@@ -2446,43 +2451,50 @@ function filterBossList() {
                 <i class="fa-solid fa-skull" style="display: none; font-size: 22px; color: #ff4757;"></i>
             </div>`;
 
+        const bName = escapeHtml(b.name || `Boss #${b.id}`);
+        const hpText = b.hp !== undefined ? b.hp.toLocaleString() : '0';
+        const maxHpText = b.maxHp !== undefined ? b.maxHp.toLocaleString() : '0';
+        const dameText = b.dame !== undefined ? b.dame.toLocaleString() : '0';
+        const mapName = escapeHtml(b.mapName || 'Chưa xuất hiện');
+        const targetName = escapeHtml(b.target || 'Không có');
+
         return `
             <tr>
-                <td style="text-align: center;">${headImg}</td>
-                <td>
-                    <strong style="color: var(--gold); display: block; margin-bottom: 4px;">${b.name}</strong>
-                    <span style="font-size: 11px; color: var(--cyan); background: rgba(0,243,255,0.1); padding: 2px 6px; border-radius: 4px;">ID: ${b.id}</span>
+                <td style="text-align: center; vertical-align: middle;">${headImg}</td>
+                <td style="vertical-align: middle;">
+                    <strong style="color: var(--gold); display: block; font-size: 14px; margin-bottom: 4px;">${bName}</strong>
+                    <span style="font-size: 11px; color: var(--cyan); background: rgba(0,243,255,0.1); padding: 2px 6px; border-radius: 4px; font-weight: 600;">ID: ${b.id}</span>
                 </td>
-                <td style="width: 250px;">
+                <td style="width: 240px; vertical-align: middle;">
                     <div style="font-size: 11px; margin-bottom: 4px; display: flex; justify-content: space-between;">
-                        <span>HP: ${b.hp.toLocaleString()} / ${b.maxHp.toLocaleString()}</span>
-                        <span style="color: var(--gold);"><i class="fa-solid fa-burst"></i> ${b.dame.toLocaleString()}</span>
+                        <span>HP: <strong>${hpText}</strong> / ${maxHpText}</span>
+                        <span style="color: var(--gold);"><i class="fa-solid fa-burst"></i> ${dameText}</span>
                     </div>
-                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-                        <div style="width: ${Math.max(0, Math.min(100, hpPercent))}%; height: 100%; background: ${hpColor};"></div>
+                    <div style="width: 100%; height: 7px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="width: ${Math.max(0, Math.min(100, hpPercent))}%; height: 100%; background: ${hpColor}; transition: width 0.3s ease;"></div>
                     </div>
                 </td>
-                <td>
-                    <div style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">${b.mapName}</div>
-                    <span style="font-size: 11px; color: var(--text-muted);">Map: ${b.mapId} | Khu: ${b.zoneId} | Tọa độ: ${b.x}, ${b.y}</span>
+                <td style="vertical-align: middle;">
+                    <div style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">${mapName}</div>
+                    <span style="font-size: 11px; color: var(--text-muted);">Map: ${b.mapId} | Khu: ${b.zoneId} | Tọa độ: (${b.x}, ${b.y})</span>
                 </td>
-                <td>
+                <td style="vertical-align: middle;">
                     <div style="margin-bottom: 6px;">${statusBadge}</div>
-                    <div style="font-size: 11px; color: var(--text-muted);">Mục tiêu: <strong style="color: #ff6b81;">${b.target}</strong></div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Mục tiêu: <strong style="color: #ff6b81;">${targetName}</strong></div>
                 </td>
-                <td>
-                    <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; width: 140px;">
-                        <button type="button" class="btn-secondary" onclick="respawnBossFromWeb(${b.id})" style="font-size: 10px; padding: 4px 6px; flex: 1;" title="Hồi sinh lập tức">
-                            <i class="fa-solid fa-bolt" style="color: #2ed573;"></i>
+                <td style="vertical-align: middle; text-align: center;">
+                    <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; width: 140px; margin: 0 auto;">
+                        <button type="button" class="btn-secondary" onclick="respawnBossFromWeb(${b.id})" style="font-size: 11px; padding: 5px 8px; flex: 1;" title="Hồi sinh lập tức">
+                            <i class="fa-solid fa-bolt" style="color: #2ed573;"></i> Hồi sinh
                         </button>
-                        <button type="button" class="btn-secondary" onclick="killBossFromWeb(${b.id})" style="font-size: 10px; padding: 4px 6px; flex: 1;" title="Tiêu diệt / Xóa Boss">
-                            <i class="fa-solid fa-skull" style="color: #ff4757;"></i>
+                        <button type="button" class="btn-secondary" onclick="killBossFromWeb(${b.id})" style="font-size: 11px; padding: 5px 8px; flex: 1;" title="Tiêu diệt / Xóa Boss">
+                            <i class="fa-solid fa-skull" style="color: #ff4757;"></i> Diệt
                         </button>
-                        <button type="button" class="btn-secondary" onclick="teleportAdminToBoss(${b.id})" style="font-size: 10px; padding: 4px 6px; flex: 1;" title="Đến chỗ Boss">
-                            <i class="fa-solid fa-location-dot" style="color: var(--cyan);"></i>
+                        <button type="button" class="btn-secondary" onclick="teleportAdminToBoss(${b.id})" style="font-size: 11px; padding: 5px 8px; flex: 1;" title="Đến chỗ Boss">
+                            <i class="fa-solid fa-location-dot" style="color: var(--cyan);"></i> Đến chỗ
                         </button>
-                        <button type="button" class="btn-secondary" onclick="teleportBossToAdmin(${b.id})" style="font-size: 10px; padding: 4px 6px; flex: 1;" title="Kéo Boss về đây">
-                            <i class="fa-solid fa-magnet" style="color: var(--gold);"></i>
+                        <button type="button" class="btn-secondary" onclick="teleportBossToAdmin(${b.id})" style="font-size: 11px; padding: 5px 8px; flex: 1;" title="Kéo Boss về đây">
+                            <i class="fa-solid fa-magnet" style="color: var(--gold);"></i> Kéo về
                         </button>
                     </div>
                 </td>
