@@ -106,6 +106,9 @@
             <button class="nav-btn" onclick="switchTab('players')">
                 <i class="fa-solid fa-users"></i> DANH SÁCH NHÂN VẬT
             </button>
+            <button class="nav-btn" onclick="switchTab('bots')">
+                <i class="fa-solid fa-robot"></i> QUẢN LÝ BOT GIẢ
+            </button>
             <button class="nav-btn" onclick="logoutAdmin()">
                 <i class="fa-solid fa-power-off"></i> ĐĂNG XUẤT
             </button>
@@ -857,6 +860,103 @@
 
                 </div>
 
+            </div>
+        </div>
+
+        <!-- TAB 7: QUẢN LÝ BOT GIẢ LẬP SERVER -->
+        <div id="tab-bots" class="tab-content">
+            <div class="glass" style="margin-bottom: 20px;">
+                <div class="panel-header" style="justify-content: space-between;">
+                    <h2><i class="fa-solid fa-robot" style="color: var(--cyan);"></i> HỆ THỐNG BOT GIẢ LẬP SERVER</h2>
+                    <span id="bot-total-badge" class="badge-online" style="background: rgba(0, 243, 255, 0.15); color: var(--cyan); border: 1px solid var(--cyan);">
+                        <i class="fa-solid fa-network-wired"></i> 0 Bot Đang Chạy
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+                        Tạo bot ảo tự động đăng nhập, di chuyển, pem quái, săn boss và đứng giao dịch mua bán để làm Server đông đúc và nhộn nhịp như game thật.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <!-- FORM TẠO BOT -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
+                            <h3 style="font-size: 15px; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-plus-circle"></i> THÊM BOT MỚI VÀO SERVER
+                            </h3>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-gamepad"></i> Loại hành vi Bot</label>
+                                <select id="bot-type-select" class="select-field">
+                                    <option value="0">⚔️ Pem quái & Đi dạo khắp Map (Mặc định)</option>
+                                    <option value="1">🏪 Đứng Giao Dịch & Mua Bán (Shopkeeper)</option>
+                                    <option value="2">🐲 Tự Săn Boss (Đánh Trùm)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-users"></i> Số lượng Bot cần tạo</label>
+                                <select id="bot-count-select" class="select-field">
+                                    <option value="1">1 Con Bot</option>
+                                    <option value="5" selected>5 Con Bot</option>
+                                    <option value="10">10 Con Bot</option>
+                                    <option value="20">20 Con Bot</option>
+                                    <option value="50">50 Con Bot</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn-primary" onclick="spawnBotsFromWeb()" style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #00f3ff, #0088ff); color: #000; margin-top: 10px;">
+                                <i class="fa-solid fa-rocket"></i> TẠO BOT NGAY
+                            </button>
+                        </div>
+
+                        <!-- QUẢN LÝ NHANH -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h3 style="font-size: 15px; color: #ff4757; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-broom"></i> XÓA TOÀN BỘ BOT
+                                </h3>
+                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                                    Bấm nút bên dưới để giải phóng toàn bộ Bot giả đang chạy khỏi tất cả các Map trong Server ngay lập tức.
+                                </p>
+                            </div>
+                            <div>
+                                <button type="button" class="btn-secondary" onclick="confirmClearAllBots()" style="width: 100%; font-weight: 700; border-color: #ff4757; color: #ff4757;">
+                                    <i class="fa-solid fa-trash-can"></i> XÓA SẠCH TẤT CẢ BOT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE BOT TABLE -->
+            <div class="glass">
+                <div class="panel-header" style="justify-content: space-between;">
+                    <h2><i class="fa-solid fa-list-ul"></i> DANH SÁCH BOT ĐANG HOẠT ĐỘNG LIVE</h2>
+                    <button class="btn-secondary" onclick="loadBotsList()" style="font-size: 12px; padding: 4px 12px;">
+                        <i class="fa-solid fa-rotate"></i> LÀM MỚI
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID BOT</th>
+                                    <th>TÊN BOT</th>
+                                    <th>HÀNH TINH</th>
+                                    <th>SỨC MẠNH</th>
+                                    <th>MAP ĐANG ĐỨNG</th>
+                                    <th>THAO TÁC</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bots-table-body">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                                        Đang tải danh sách Bot...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 

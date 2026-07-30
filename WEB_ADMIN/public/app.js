@@ -1843,7 +1843,8 @@ function switchTab(tabName) {
         'shops': 4,
         'giftcode': 5,
         'accounts': 6,
-        'players': 7
+        'players': 7,
+        'bots': 8
     };
 
     const targetIndex = tabMap[tabName];
@@ -1864,6 +1865,7 @@ function switchTab(tabName) {
     else if (tabName === 'giftcode') loadAdminGiftcodes();
     else if (tabName === 'accounts') loadAccountData();
     else if (tabName === 'players') loadPlayers();
+    else if (tabName === 'bots') loadBotsList();
 }
 
 // --- GIFTCODE MANAGER LOGIC ---
@@ -2220,5 +2222,132 @@ async function fixDuplicateItemOptions() {
     } finally {
         btn.disabled = false;
         btn.innerHTML = origText;
+    }
+}
+
+// --- BOT MANAGEMENT LOGIC ---
+async function loadBotsList() {
+    const tbody = document.getElementById('bots-table-body');
+    const badge = document.getElementById('bot-total-badge');
+    if (!tbody) return;
+
+    try {
+        const resp = await fetch('/api/admin/bots');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+
+        const bots = data.bots || [];
+        const total = data.total || bots.length;
+
+        if (badge) {
+            badge.innerHTML = `<i class="fa-solid fa-network-wired"></i> ${total} Bot Đang Chạy`;
+        }
+
+        if (bots.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                        <i class="fa-solid fa-robot" style="font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.4;"></i>
+                        Hiện chưa có con Bot giả lập nào trong Server.<br>
+                        Hãy chọn số lượng và bấm <strong>"TẠO BOT NGAY"</strong> ở bên trên!
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        const genderNames = ['Trái Đất', 'Namếc', 'Xayda'];
+        const genderColors = ['var(--cyan)', 'var(--green)', '#ff4757'];
+
+        tbody.innerHTML = bots.map(b => {
+            const genderStr = genderNames[b.gender] || 'Không xác định';
+            const genderColor = genderColors[b.gender] || 'var(--gold)';
+            const powerFormatted = (b.power || 0).toLocaleString('vi-VN');
+
+            return `
+                <tr>
+                    <td><code style="color: var(--cyan);">${b.id}</code></td>
+                    <td><strong style="color: var(--gold);">${b.name}</strong></td>
+                    <td><span style="color: ${genderColor}; font-weight: 600;">${genderStr}</span></td>
+                    <td style="font-weight: 700; color: var(--text-main);">${powerFormatted} SM</td>
+                    <td><span class="badge" style="background: rgba(255,255,255,0.08);">${b.mapName} (K.${b.zoneId})</span></td>
+                    <td>
+                        <button type="button" class="btn-secondary" onclick="kickBotFromWeb(${b.id})" style="font-size: 11px; padding: 2px 8px; border-color: #ff4757; color: #ff4757;">
+                            <i class="fa-solid fa-user-minus"></i> Kích Bot
+                        </button>
+                    </td>
+                </tr>`;
+        }).join('');
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #ff4757;">Lỗi tải dữ liệu Bot: ${err.message}</td></tr>`;
+    }
+}
+
+async function spawnBotsFromWeb() {
+    const typeSelect = document.getElementById('bot-type-select');
+    const countSelect = document.getElementById('bot-count-select');
+    if (!typeSelect || !countSelect) return;
+
+    const type = parseInt(typeSelect.value) || 0;
+    const count = parseInt(countSelect.value) || 5;
+
+    try {
+        const resp = await fetch('/api/admin/bots', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'spawn', type, count })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || `Đã tạo ${count} Bot thành công!`, 'success');
+            loadBotsList();
+        } else {
+            showToast(data.message || 'Lỗi khi tạo Bot', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối Server: ' + err.message, 'error');
+    }
+}
+
+function confirmClearAllBots() {
+    if (confirm('⚠️ Bạn có chắc chắn muốn XÓA SẠCH tất cả Bot giả khỏi toàn bộ các Map trong Server?')) {
+        clearAllBotsFromWeb();
+    }
+}
+
+async function clearAllBotsFromWeb() {
+    try {
+        const resp = await fetch('/api/admin/bots', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'clear' })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || 'Đã dọn dẹp toàn bộ Bot!', 'success');
+            loadBotsList();
+        } else {
+            showToast(data.message || 'Lỗi khi xóa Bot', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối Server: ' + err.message, 'error');
+    }
+}
+
+async function kickBotFromWeb(botId) {
+    try {
+        const resp = await fetch('/api/admin/bots', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'kick_one', botId })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || `Đã kích Bot ID ${botId}`, 'success');
+            loadBotsList();
+        } else {
+            showToast(data.message || 'Lỗi khi kích Bot', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối Server: ' + err.message, 'error');
     }
 }

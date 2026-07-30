@@ -132,6 +132,37 @@ app.post('/api/user/buy-gold', async (req, res) => {
     }
 });
 
+// Manage Bots API Endpoints
+app.get('/api/admin/bots', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/manage-bots`);
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể kết nối Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/api/admin/bots', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/manage-bots`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
+        });
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể phản hồi từ Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Admin Stats Endpoint
 app.get('/api/admin/stats', async (req, res) => {
     try {

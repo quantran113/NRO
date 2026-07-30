@@ -66,6 +66,7 @@ public class AdminHttpServer {
             server.createContext("/api/reload-giftcode", new ReloadGiftCodeHandler());
             server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
             server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
+            server.createContext("/api/manage-bots", new ManageBotsHandler());
             
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -1293,6 +1294,95 @@ public class AdminHttpServer {
                     sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã điều chỉnh SM & Tiềm năng cho nhân vật [" + player.name + "] (ONLINE)!\"}");
                 } else {
                     sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName + "] phải ONLINE trong game để điều chỉnh Sức Mạnh!\"}");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- /api/manage-bots ---
+    private static class ManageBotsHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    List<nro.models.Bot.Bot> botList = new ArrayList<>(nro.models.Bot.BotManager.gI().bot);
+                    JSONArray arr = new JSONArray();
+                    for (nro.models.Bot.Bot b : botList) {
+                        if (b != null) {
+                            JSONObject obj = new JSONObject();
+                            obj.put("id", b.id);
+                            obj.put("name", b.name);
+                            obj.put("gender", b.gender);
+                            obj.put("power", b.nPoint != null ? b.nPoint.power : 0);
+                            obj.put("mapName", b.zone != null && b.zone.map != null ? b.zone.map.mapName : "Đang di chuyển");
+                            obj.put("zoneId", b.zone != null ? b.zone.zoneId : 0);
+                            arr.add(obj);
+                        }
+                    }
+                    JSONObject res = new JSONObject();
+                    res.put("status", "success");
+                    res.put("total", botList.size());
+                    res.put("bots", arr);
+                    sendJsonResponse(exchange, 200, res.toJSONString());
+                } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    InputStream is = exchange.getRequestBody();
+                    JSONObject requestObj = (JSONObject) JSONValue.parse(new InputStreamReader(is, StandardCharsets.UTF_8));
+                    if (requestObj == null) {
+                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                        return;
+                    }
+                    String action = (String) requestObj.get("action");
+                    if ("spawn".equalsIgnoreCase(action)) {
+                        int count = 5;
+                        if (requestObj.get("count") != null) {
+                            count = Integer.parseInt(String.valueOf(requestObj.get("count")));
+                        }
+                        int type = 0; // 0 = Pem quái/Đi dạo, 1 = Giao dịch, 2 = Săn Boss
+                        if (requestObj.get("type") != null) {
+                            type = Integer.parseInt(String.valueOf(requestObj.get("type")));
+                        }
+                        nro.models.Bot.NewBot.gI().runBot(type, null, count);
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tạo thêm " + count + " Bot giả thành công!\"}");
+                    } else if ("clear".equalsIgnoreCase(action)) {
+                        List<nro.models.Bot.Bot> botList = new ArrayList<>(nro.models.Bot.BotManager.gI().bot);
+                        for (nro.models.Bot.Bot b : botList) {
+                            if (b != null) {
+                                try {
+                                    nro.models.map.service.ChangeMapService.gI().exitMap(b);
+                                } catch (Exception ex) {}
+                            }
+                        }
+                        nro.models.Bot.BotManager.gI().bot.clear();
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã dọn dẹp và xóa toàn bộ Bot giả khỏi server!\"}");
+                    } else if ("kick_one".equalsIgnoreCase(action)) {
+                        long botId = requestObj.get("botId") != null ? Long.parseLong(String.valueOf(requestObj.get("botId"))) : -1;
+                        List<nro.models.Bot.Bot> botList = new ArrayList<>(nro.models.Bot.BotManager.gI().bot);
+                        boolean found = false;
+                        for (nro.models.Bot.Bot b : botList) {
+                            if (b != null && b.id == botId) {
+                                try {
+                                    nro.models.map.service.ChangeMapService.gI().exitMap(b);
+                                } catch (Exception ex) {}
+                                nro.models.Bot.BotManager.gI().bot.remove(b);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã kích thành công Bot ID: " + botId + "!\"}");
+                        } else {
+                            sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Bot với ID chỉ định!\"}");
+                        }
+                    } else {
+                        sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không hợp lệ\"}");
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
