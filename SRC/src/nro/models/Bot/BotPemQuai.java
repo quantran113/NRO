@@ -31,9 +31,12 @@ public class BotPemQuai {
     }
 
     private static final String[] chatMessages = {
-        "|1|Con chó tài tỏi súc vật cali",
-        "|2|bê ka tê địt mẹ tài tỏi tung lồn",
-        "|3|arriety địt nhau với mẹ tài tỏi"
+        "|1|Hello anh em nha!",
+        "|2|Ai đi pb hay săn boss không nhở?",
+        "|3|Game đông vui ghê ae ơi!",
+        "|7|Cần mua đồ ngon giá tốt ai bán inbox me",
+        "|5|Ai rảnh PK đài vũ trụ làm vài ván không",
+        "|4|Tuyển thành viên clan ae ơi!"
     };
 
     private void autoChat() {

@@ -14,9 +14,10 @@ public class NewBot {
     public int MAXPART = 0;
     public static int[][] PARTBOT = new int[Manager.ITEM_TEMPLATES.size()][4];
 
-    private final String[] FIRST_NAMES = java.util.stream.IntStream.rangeClosed(1, 50000)
-            .mapToObj(i -> "mrblue" + i)
-            .toArray(String[]::new);
+    private static final String[] NAME_PREFIXES = {
+        "goku", "cadic", "broly", "chubero", "dragon", "traidat", "namec", "xayda",
+        "super", "pro", "vip", "master", "king", "shadow", "dark", "phong", "nam", "long", "vinh", "tu"
+    };
 
     public static NewBot gI() {
         if (i == null) {
@@ -45,7 +46,10 @@ public class NewBot {
     }
 
     public String Getname() {
-        return FIRST_NAMES[new Random().nextInt(FIRST_NAMES.length)];
+        Random r = new Random();
+        String prefix = NAME_PREFIXES[r.nextInt(NAME_PREFIXES.length)];
+        int num = r.nextInt(999) + 1;
+        return prefix + num;
     }
 
     public int getIndex(int gender) {
