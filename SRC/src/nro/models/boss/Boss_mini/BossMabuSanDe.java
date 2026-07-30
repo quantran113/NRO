@@ -1,0 +1,37 @@
+package nro.models.boss.Boss_mini;
+
+import nro.models.boss.Boss;
+import nro.models.boss.BossID;
+import nro.models.boss.BossesData;
+import nro.models.map.ItemMap;
+import nro.models.player.Player;
+import nro.models.services.PetService;
+import nro.models.services.Service;
+import nro.models.utils.Util;
+
+public class BossMabuSanDe extends Boss {
+
+    public BossMabuSanDe() throws Exception {
+        super(BossID.BOSS_MABU_SAN_DE, true, true, BossesData.BOSS_MABU_SAN_DE);
+    }
+
+    @Override
+    public void reward(Player plKill) {
+        if (plKill == null) return;
+        Service.gI().sendThongBao(plKill, "Chúc mừng bạn đã đánh bại Ma Bư Săn Đệ và nhận được Trứng Đệ Tử!");
+
+        // Drop Item 568 (Quả Trứng)
+        Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 568, 1,
+                this.location.x, this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));
+
+        // Drop 5 Thỏi Vàng (Item 457)
+        Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 457, 5,
+                this.location.x + 20, this.zone.map.yPhysicInTop(this.location.x + 20, this.location.y - 24), plKill.id));
+
+        // If player has no pet yet, automatically gift Mabu pet
+        if (plKill.pet == null) {
+            PetService.gI().createMabuPet(plKill, plKill.gender);
+            Service.gI().sendThongBao(plKill, "Bạn đã nhận được Đệ Tử Ma Bư Mới!");
+        }
+    }
+}

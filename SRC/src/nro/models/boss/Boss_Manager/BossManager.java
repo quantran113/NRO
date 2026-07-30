@@ -12,6 +12,8 @@ import nro.models.boss.Black_Goku.BlackGoku;
 import nro.models.boss.Boss;
 import nro.models.boss.BossID;
 import nro.models.boss.Boss_mini.AnTrom;
+import nro.models.boss.Boss_mini.BossBeerusSanDe;
+import nro.models.boss.Boss_mini.BossMabuSanDe;
 import nro.models.boss.Boss_mini.Odo;
 import nro.models.boss.Boss_mini.RongNhi;
 import nro.models.boss.Boss_mini.SoiHecQuyn;
@@ -361,6 +363,10 @@ public class BossManager implements Runnable {
                     new RongNhi();
                 case BossID.BABY ->
                     new Baby();
+                case BossID.BOSS_MABU_SAN_DE ->
+                    new BossMabuSanDe();
+                case BossID.BOSS_BEERUS_SAN_DE ->
+                    new BossBeerusSanDe();
                 default ->
                     null;
             };

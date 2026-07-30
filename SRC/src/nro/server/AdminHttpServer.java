@@ -1650,12 +1650,32 @@ public class AdminHttpServer {
                 }
 
                 int bossId = ((Number) body.get("bossId")).intValue();
+                int mapId = body.containsKey("mapId") ? ((Number) body.get("mapId")).intValue() : -1;
+                int zoneId = body.containsKey("zoneId") ? ((Number) body.get("zoneId")).intValue() : -1;
+
+                if (mapId == -2) {
+                    int[] normalMaps = new int[]{0, 1, 2, 5, 7, 8, 13, 14, 20, 27, 28, 29, 30, 42, 43, 44};
+                    mapId = normalMaps[nro.models.utils.Util.nextInt(0, normalMaps.length - 1)];
+                }
+
                 nro.models.boss.Boss boss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
 
                 if (boss != null) {
+                    if (mapId >= 0) {
+                        try {
+                            nro.models.map.Map targetMap = nro.models.map.service.MapService.gI().getMapById(mapId);
+                            if (targetMap != null && targetMap.zones != null && !targetMap.zones.isEmpty()) {
+                                int zId = (zoneId >= 0 && zoneId < targetMap.zones.size()) ? zoneId : nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1);
+                                nro.models.map.Zone zone = targetMap.zones.get(zId);
+                                boss.joinMapByZone(zone);
+                            }
+                        } catch (Exception ex) {}
+                    }
+
+                    String mapLocationInfo = (boss.zone != null && boss.zone.map != null) ? boss.zone.map.mapName + " (Khu " + boss.zone.zoneId + ")" : "Bản đồ ngẫu nhiên";
                     JSONObject res = new JSONObject();
                     res.put("status", "success");
-                    res.put("message", "Đã triệu hồi thành công Boss [" + (boss.name != null ? boss.name : "ID: " + bossId) + "] vào Game!");
+                    res.put("message", "Đã triệu hồi Boss [" + (boss.name != null ? boss.name : "ID: " + bossId) + "] thành công tại " + mapLocationInfo + "!");
                     sendJsonResponse(exchange, 200, res.toJSONString());
                 } else {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể khởi tạo Boss ID: " + bossId + "! Vui lòng kiểm tra lại ID.\"}");

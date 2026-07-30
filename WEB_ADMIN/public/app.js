@@ -2571,18 +2571,29 @@ function onSelectPresetBoss() {
 }
 
 async function submitSpawnBoss() {
-    const customInput = document.getElementById('custom-boss-id-input');
-    const bossId = customInput ? parseInt(customInput.value) : null;
+    const customBossInput = document.getElementById('custom-boss-id-input');
+    const mapSelect = document.getElementById('spawn-map-select');
+    const customMapInput = document.getElementById('custom-map-id-input');
+    const customZoneInput = document.getElementById('custom-zone-id-input');
 
+    const bossId = customBossInput ? parseInt(customBossInput.value) : null;
     if (!bossId || isNaN(bossId)) {
         return showToast('Vui lòng chọn hoặc nhập Boss ID hợp lệ!', 'error');
     }
+
+    let mapId = mapSelect ? parseInt(mapSelect.value) : -1;
+    if (customMapInput && customMapInput.value.trim() !== '') {
+        const parsedMap = parseInt(customMapInput.value.trim());
+        if (!isNaN(parsedMap)) mapId = parsedMap;
+    }
+
+    let zoneId = customZoneInput && customZoneInput.value.trim() !== '' ? parseInt(customZoneInput.value.trim()) : -1;
 
     try {
         const resp = await fetch('/api/admin/bosses/spawn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bossId })
+            body: JSON.stringify({ bossId, mapId, zoneId })
         });
         const data = await resp.json();
         if (data.status === 'success') {
