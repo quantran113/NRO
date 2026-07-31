@@ -95,17 +95,96 @@ function clearLoginInputs() {
     if (p) p.value = '';
 }
 
+function updatePortalUserWidget() {
+    const unloggedState = document.getElementById('widget-unlogged-state');
+    const loggedState = document.getElementById('widget-logged-state');
+    const adminBtn = document.getElementById('admin-panel-access-btn');
+    const authHeaderBtn = document.getElementById('public-auth-header-btn');
+
+    if (!currentLoggedUser) {
+        if (unloggedState) unloggedState.style.display = 'block';
+        if (loggedState) loggedState.style.display = 'none';
+        if (adminBtn) adminBtn.style.display = 'none';
+        if (authHeaderBtn) {
+            authHeaderBtn.innerHTML = `
+                <button type="button" class="btn-primary" onclick="openLoginModal()" style="padding: 8px 18px; font-size: 13px; font-weight: 800;">
+                    <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP / ĐĂNG KÝ
+                </button>`;
+        }
+    } else {
+        if (unloggedState) unloggedState.style.display = 'none';
+        if (loggedState) loggedState.style.display = 'block';
+
+        if (authHeaderBtn) {
+            authHeaderBtn.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 800; color: var(--teamobi-orange-dark); font-size: 13px;"><i class="fa-solid fa-user"></i> ${escapeHtml(currentLoggedUser.username)}</span>
+                    <button type="button" class="btn-secondary" onclick="logoutAdmin()" style="padding: 6px 12px; font-size: 12px; color: var(--red);">Đăng Xuất</button>
+                </div>`;
+        }
+
+        const nameEl = document.getElementById('portal-welcome-name');
+        if (nameEl) nameEl.innerText = currentLoggedUser.username;
+
+        const subEl = document.getElementById('portal-sub-info');
+        if (subEl) subEl.innerText = currentLoggedUser.admin >= 1 ? 'QUẢN TRỊ VIÊN (ADMIN)' : 'Thành viên Game';
+
+        if (currentLoggedUser.admin >= 1) {
+            if (adminBtn) adminBtn.style.display = 'block';
+        } else {
+            if (adminBtn) adminBtn.style.display = 'none';
+        }
+
+        const noCharAlert = document.getElementById('portal-no-char-alert');
+        const hasCharCard = document.getElementById('portal-has-char-card');
+
+        if (!currentLoggedUser.hasPlayer || !currentLoggedUser.player) {
+            if (noCharAlert) noCharAlert.style.display = 'block';
+            if (hasCharCard) hasCharCard.style.display = 'none';
+        } else {
+            if (noCharAlert) noCharAlert.style.display = 'none';
+            if (hasCharCard) hasCharCard.style.display = 'block';
+
+            const p = currentLoggedUser.player;
+            const cName = document.getElementById('portal-char-name');
+            const cGender = document.getElementById('portal-char-gender');
+            const cId = document.getElementById('portal-char-id');
+            const cAvatar = document.getElementById('portal-avatar-img');
+
+            if (cName) cName.innerText = p.name || '-';
+            if (cGender) cGender.innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
+            if (cId) cId.innerText = `#${p.id || 0}`;
+            if (cAvatar && p.avatarUrl) cAvatar.src = p.avatarUrl;
+        }
+    }
+}
+
 function showPublicHome() {
     const appLayout = document.querySelector('.app-layout');
     if (appLayout) appLayout.style.display = 'none';
-
-    const playerPortal = document.getElementById('player-portal-view');
-    if (playerPortal) playerPortal.style.display = 'none';
 
     const publicHome = document.getElementById('public-home-view');
     if (publicHome) publicHome.style.display = 'block';
 
     closeLoginModal();
+    updatePortalUserWidget();
+}
+
+function showAdminPanel() {
+    if (!currentLoggedUser || currentLoggedUser.admin < 1) {
+        return showToast('Bạn cần quyền Admin để truy cập Admin Panel!', 'error');
+    }
+
+    const publicHome = document.getElementById('public-home-view');
+    if (publicHome) publicHome.style.display = 'none';
+
+    const appLayout = document.querySelector('.app-layout');
+    if (appLayout) appLayout.style.display = 'flex';
+
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.style.display = 'flex';
+
+    initAdminData();
 }
 
 function openLoginModal() {
@@ -123,46 +202,6 @@ function checkLoginState() {
     if (saved) {
         try {
             currentLoggedUser = JSON.parse(saved);
-            closeLoginModal();
-
-            const publicHome = document.getElementById('public-home-view');
-            if (publicHome) publicHome.style.display = 'none';
-
-            if (currentLoggedUser.admin >= 1) {
-                const appLayout = document.querySelector('.app-layout');
-                if (appLayout) appLayout.style.display = 'flex';
-
-                const sidebar = document.querySelector('.sidebar');
-                if (sidebar) sidebar.style.display = 'flex';
-
-                const playerPortal = document.getElementById('player-portal-view');
-                if (playerPortal) playerPortal.style.display = 'none';
-
-                initAdminData();
-            } else {
-                const appLayout = document.querySelector('.app-layout');
-                if (appLayout) appLayout.style.display = 'none';
-
-                const playerPortal = document.getElementById('player-portal-view');
-                if (playerPortal) playerPortal.style.display = 'block';
-
-                document.getElementById('portal-welcome-name').innerText = `Xin chào, ${currentLoggedUser.username}!`;
-                if (!currentLoggedUser.hasPlayer || !currentLoggedUser.player) {
-                    document.getElementById('portal-no-char-alert').style.display = 'block';
-                    document.getElementById('portal-has-char-card').style.display = 'none';
-                } else {
-                    document.getElementById('portal-no-char-alert').style.display = 'none';
-                    document.getElementById('portal-has-char-card').style.display = 'block';
-                    const p = currentLoggedUser.player;
-                    document.getElementById('portal-char-name').innerText = p.name || '-';
-                    document.getElementById('portal-char-gender').innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
-                    document.getElementById('portal-char-id').innerText = `#${p.id || 0}`;
-                    if (p.avatarUrl) {
-                        document.getElementById('portal-avatar-img').src = p.avatarUrl;
-                    }
-                }
-            }
-            return;
         } catch (e) { }
     }
     showPublicHome();
@@ -189,42 +228,7 @@ function setupLoginForm() {
                 sessionStorage.setItem('nro_logged_user', JSON.stringify(data.user));
                 closeLoginModal();
                 showToast(data.message, 'success');
-
-                const publicHome = document.getElementById('public-home-view');
-                if (publicHome) publicHome.style.display = 'none';
-
-                if (data.user.admin >= 1) {
-                    const appLayout = document.querySelector('.app-layout');
-                    if (appLayout) appLayout.style.display = 'flex';
-                    const sidebar = document.querySelector('.sidebar');
-                    if (sidebar) sidebar.style.display = 'flex';
-                    const portal = document.getElementById('player-portal-view');
-                    if (portal) portal.style.display = 'none';
-                    initAdminData();
-                } else {
-                    const appLayout = document.querySelector('.app-layout');
-                    if (appLayout) appLayout.style.display = 'none';
-
-                    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-                    const portal = document.getElementById('player-portal-view');
-                    if (portal) portal.style.display = 'block';
-
-                    document.getElementById('portal-welcome-name').innerText = `Xin chào, ${data.user.username}!`;
-                    if (!data.user.hasPlayer || !data.user.player) {
-                        document.getElementById('portal-no-char-alert').style.display = 'block';
-                        document.getElementById('portal-has-char-card').style.display = 'none';
-                    } else {
-                        document.getElementById('portal-no-char-alert').style.display = 'none';
-                        document.getElementById('portal-has-char-card').style.display = 'block';
-                        const p = data.user.player;
-                        document.getElementById('portal-char-name').innerText = p.name || '-';
-                        document.getElementById('portal-char-gender').innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
-                        document.getElementById('portal-char-id').innerText = `#${p.id || 0}`;
-                        if (p.avatarUrl) {
-                            document.getElementById('portal-avatar-img').src = p.avatarUrl;
-                        }
-                    }
-                }
+                showPublicHome();
             } else {
                 showToast(data.message || 'Đăng nhập thất bại', 'error');
             }

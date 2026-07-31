@@ -350,6 +350,77 @@ body {
     background: #fff8f3;
 }
 
+/* 2 Columns Portal Grid Layout */
+.teamobi-portal-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+}
+
+@media (max-width: 992px) {
+    .teamobi-portal-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Forum Posts List Styling */
+.forum-posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.forum-post-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.forum-post-item:hover {
+    background: #fff8f3;
+    border-color: #ffd8a8;
+}
+
+.post-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.post-badge.pinned { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+.post-badge.event { background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
+.post-badge.guide { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.post-badge.news { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+
+.post-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    text-decoration: none;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.post-title:hover {
+    color: #e65100;
+}
+
+.post-date {
+    font-size: 11px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
 /* Public Hero Section */
 .public-hero {
     background: linear-gradient(135deg, #ff7a18 0%, #e65100 100%);
