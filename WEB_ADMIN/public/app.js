@@ -329,14 +329,33 @@ function switchTab(tabName) {
         targetTab.style.setProperty('display', 'block', 'important');
     }
 
-    // Update active class specifically on sidebar menu buttons
+    // Update active class & inline styles directly on sidebar menu buttons
     document.querySelectorAll('.sidebar-menu .nav-btn').forEach(btn => {
         const btnTab = btn.getAttribute('data-tab') || '';
         const onclickAttr = btn.getAttribute('onclick') || '';
-        if (btnTab === tabName || onclickAttr.includes(`'${tabName}'`)) {
+        const isMatch = (btnTab === tabName || onclickAttr.includes(`'${tabName}'`));
+
+        const icon = btn.querySelector('i');
+        const span = btn.querySelector('span');
+
+        if (isMatch) {
             btn.classList.add('active');
+            btn.style.setProperty('background', 'linear-gradient(135deg, #ff7a18 0%, #e65100 100%)', 'important');
+            btn.style.setProperty('color', '#ffffff', 'important');
+            btn.style.setProperty('border-color', '#cc4400', 'important');
+            btn.style.setProperty('box-shadow', '0 4px 14px rgba(230, 81, 0, 0.4)', 'important');
+            btn.style.setProperty('font-weight', '800', 'important');
+            if (icon) icon.style.setProperty('color', '#ffffff', 'important');
+            if (span) span.style.setProperty('color', '#ffffff', 'important');
         } else {
             btn.classList.remove('active');
+            btn.style.removeProperty('background');
+            btn.style.removeProperty('color');
+            btn.style.removeProperty('border-color');
+            btn.style.removeProperty('box-shadow');
+            btn.style.removeProperty('font-weight');
+            if (icon) icon.style.removeProperty('color');
+            if (span) span.style.removeProperty('color');
         }
     });
 
