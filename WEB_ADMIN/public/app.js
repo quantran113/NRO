@@ -2399,7 +2399,7 @@ function selectGcItemSearchResult(gcIndex, itemId, itemName) {
     if (currentGcItems[gcIndex]) {
         currentGcItems[gcIndex].id = itemId;
         currentGcItems[gcIndex].name = itemName;
-        renderGiftCodeItemsList();
+        renderGcItemsRows();
     }
 }
 
