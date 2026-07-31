@@ -171,6 +171,18 @@ function showPublicHome() {
     updatePortalUserWidget();
 }
 
+async function initAdminData() {
+    try {
+        if (typeof loadStats === 'function') loadStats();
+        if (typeof loadItemTemplates === 'function') await loadItemTemplates();
+        if (typeof loadMapTemplates === 'function') await loadMapTemplates();
+        if (typeof loadOptionTemplates === 'function') await loadOptionTemplates();
+        if (typeof loadPlayers === 'function') await loadPlayers();
+    } catch (e) {
+        console.error('Error initializing admin data:', e);
+    }
+}
+
 function showAdminPanel() {
     if (!currentLoggedUser || currentLoggedUser.admin < 1) {
         return showToast('Bạn cần quyền Admin để truy cập Admin Panel!', 'error');
