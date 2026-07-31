@@ -64,8 +64,8 @@ app.post('/api/admin/login', async (req, res) => {
             if (players.length > 0) {
                 const p = players[0];
                 let headId = p.head;
-                if (headId === -1 || headId === undefined || headId === null) {
-                    headId = p.gender === 0 ? 64 : p.gender === 1 ? 9 : 29;
+                if (!headId || headId <= 0 || headId === 64 || headId === 65) {
+                    headId = p.gender === 1 ? 29 : (p.gender === 2 ? 30 : 28);
                 }
                 playerInfo = {
                     id: p.id,
@@ -422,12 +422,12 @@ app.get('/api/players', async (req, res) => {
 
         const dbPlayers = rows.map(r => {
             let headId = r.head;
-            if (headId === -1 || headId === undefined || headId === null) {
-                if (r.gender === 0) headId = 64;
-                else if (r.gender === 1) headId = 9;
-                else if (r.gender === 2) headId = 29;
+            if (!headId || headId <= 0 || headId === 64 || headId === 65) {
+                if (r.gender === 0) headId = 28;
+                else if (r.gender === 1) headId = 29;
+                else if (r.gender === 2) headId = 30;
             }
-            let avatarId = headMap[headId] !== undefined ? headMap[headId] : headId;
+            let avatarId = (headMap[headId] !== undefined && headMap[headId] !== 64) ? headMap[headId] : headId;
 
             let taskId = 0;
             try {

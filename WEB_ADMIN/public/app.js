@@ -155,7 +155,12 @@ function updatePortalUserWidget() {
             if (cName) cName.innerText = p.name || '-';
             if (cGender) cGender.innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
             if (cId) cId.innerText = `#${p.id || 0}`;
-            if (cAvatar && p.avatarUrl) cAvatar.src = p.avatarUrl;
+            if (cAvatar) {
+                let defaultAvatar = '/icons/28.png';
+                if (p.gender === 1 || p.gender === 'Namếc') defaultAvatar = '/icons/29.png';
+                else if (p.gender === 2 || p.gender === 'Xayda') defaultAvatar = '/icons/30.png';
+                cAvatar.src = (p.avatarUrl && !p.avatarUrl.includes('64.png')) ? p.avatarUrl : defaultAvatar;
+            }
         }
     }
 }
