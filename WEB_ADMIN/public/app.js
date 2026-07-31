@@ -331,31 +331,27 @@ function switchTab(tabName) {
 
     // Update active class specifically on sidebar menu buttons
     document.querySelectorAll('.sidebar-menu .nav-btn').forEach(btn => {
-        const btnTab = btn.getAttribute('data-tab');
-        if (btnTab === tabName) {
+        const btnTab = btn.getAttribute('data-tab') || '';
+        const onclickAttr = btn.getAttribute('onclick') || '';
+        if (btnTab === tabName || onclickAttr.includes(`'${tabName}'`)) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
         }
     });
 
-    // Tab-specific data reload triggers
-    if (tabName === 'accounts') {
-        if (typeof loadAccountData === 'function') loadAccountData();
-    } else if (tabName === 'players') {
-        if (typeof loadPlayers === 'function') loadPlayers();
-    } else if (tabName === 'bots') {
-        if (typeof loadBotsData === 'function') loadBotsData();
-    } else if (tabName === 'bosses') {
-        if (typeof loadBosses === 'function') loadBosses();
-    } else if (tabName === 'giftcode') {
-        if (typeof loadGiftcodesList === 'function') loadGiftcodesList();
-    } else if (tabName === 'events') {
-        if (typeof loadServerEvents === 'function') loadServerEvents();
-    } else if (tabName === 'drops') {
-        if (typeof loadDropRules === 'function') loadDropRules();
-    } else if (tabName === 'shops') {
-        if (typeof loadNpcShops === 'function') loadNpcShops();
+    // Tab-specific data reload triggers wrapped safely
+    try {
+        if (tabName === 'accounts' && typeof loadAccountData === 'function') loadAccountData();
+        else if (tabName === 'players' && typeof loadPlayers === 'function') loadPlayers();
+        else if (tabName === 'bots' && typeof loadBotsList === 'function') loadBotsList();
+        else if (tabName === 'bosses' && typeof loadBosses === 'function') loadBosses();
+        else if (tabName === 'giftcode' && typeof loadAdminGiftcodes === 'function') loadAdminGiftcodes();
+        else if (tabName === 'events' && typeof loadServerEvents === 'function') loadServerEvents();
+        else if (tabName === 'drops' && typeof loadDropRules === 'function') loadDropRules();
+        else if (tabName === 'shops' && typeof loadNpcShops === 'function') loadNpcShops();
+    } catch (e) {
+        console.error('Error reloading tab data:', e);
     }
 }
 
