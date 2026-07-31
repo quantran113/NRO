@@ -7,9 +7,6 @@
     <title>NRO Server Admin Control Panel - Cấp Đồ, Đệ Tử & Sự Kiện Realtime</title>
     <link rel="stylesheet" href="style.css?v=20260729_3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
-    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 </head>
 
 <body>
@@ -17,8 +14,8 @@
     <!-- ADMIN LOGIN & REGISTRATION MODAL -->
     <div id="login-screen">
         <div class="login-card glass" style="max-width: 420px; width: 100%;">
-            <div class="brand-icon" style="margin: 0 auto 12px;">
-                <i class="fa-solid fa-dragon"></i>
+            <div class="brand-icon" style="margin: 0 auto 12px; background: transparent !important; box-shadow: none !important;">
+                <img src="/logo.png" alt="Dragon Ball Logo" style="width: 54px; height: 54px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));" />
             </div>
             <h2>NRO SERVER PORTAL</h2>
 
@@ -91,9 +88,7 @@
     <!-- MAIN APP HEADER -->
     <header>
         <div class="brand">
-            <div class="brand-icon">
-                <i class="fa-solid fa-dragon"></i>
-            </div>
+            <img src="/logo.png" alt="Dragon Ball Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" />
             <h1>QUẢN TRỊ <span>NRO SERVER</span></h1>
         </div>
         <div class="nav-links">
@@ -828,8 +823,7 @@
                         </button>
                     </div>
                 </div>
-                <div id="account-grid" class="ag-theme-alpine" style="width: 100%; min-height: 400px; margin-bottom: 12px;"></div>
-                <div class="table-responsive" style="display: none;">
+                <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -859,8 +853,7 @@
                     <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..."
                         style="max-width: 300px;" oninput="renderPlayerTable()">
                 </div>
-                <div id="player-grid" class="ag-theme-alpine" style="width: 100%; min-height: 400px; margin-bottom: 12px;"></div>
-                <div class="table-responsive" style="display: none;">
+                <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>

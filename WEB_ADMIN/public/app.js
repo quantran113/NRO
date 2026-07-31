@@ -1508,95 +1508,20 @@ async function loadAccountData() {
     }
 }
 
-let accountGridInstance = null;
-
 function renderAccountTable() {
-    const query = (document.getElementById('account-table-search')?.value || '').toLowerCase().trim();
-    const filtered = accountsList.filter(a => !query || (a.username && a.username.toLowerCase().includes(query)));
-
-    const gridContainer = document.getElementById('account-grid');
-    if (gridContainer && typeof agGrid !== 'undefined') {
-        const rowData = filtered.map(a => ({
-            id: a.id,
-            username: a.username,
-            password: a.password,
-            player_count: a.player_count || 0,
-            admin: a.admin,
-            active: a.active,
-            create_time: a.create_time ? new Date(a.create_time).toLocaleDateString('vi-VN') : 'N/A',
-            raw: a
-        }));
-
-        if (accountGridInstance) {
-            if (accountGridInstance.setGridOption) {
-                accountGridInstance.setGridOption('rowData', rowData);
-            } else if (accountGridInstance.setRowData) {
-                accountGridInstance.setRowData(rowData);
-            }
-        } else {
-            const gridOptions = {
-                columnDefs: [
-                    { headerName: "ID", field: "id", width: 80, sortable: true, filter: true },
-                    { headerName: "TÀI KHOẢN", field: "username", flex: 1, sortable: true, filter: true, cellRenderer: params => `<strong style="color: var(--text-main);">${escapeHtml(params.value || '')}</strong>` },
-                    { headerName: "MẬT KHẨU", field: "password", width: 140, cellRenderer: params => `<span style="color: var(--cyan); font-family: monospace;">${escapeHtml(params.value || '')}</span>` },
-                    { headerName: "SỐ NV", field: "player_count", width: 100, sortable: true, cellRenderer: params => `<span style="color: var(--teamobi-orange-dark); font-weight: 700;">${params.value || 0} NV</span>` },
-                    { headerName: "QUYỀN", field: "admin", width: 110, cellRenderer: params => params.value === 1 ? '<span style="background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">ADMIN</span>' : '<span style="color: var(--text-muted); font-size: 11px;">User</span>' },
-                    { headerName: "TRẠNG THÁI", field: "active", width: 120, cellRenderer: params => params.value === 1 ? '<span class="badge-online">HOẠT ĐỘNG</span>' : '<span class="badge-offline">BỊ KHÓA</span>' },
-                    { headerName: "NGÀY TẠO", field: "create_time", width: 120 },
-                    { 
-                        headerName: "THAO TÁC", 
-                        field: "raw", 
-                        width: 260,
-                        cellRenderer: params => {
-                            const a = params.value;
-                            if (!a) return '';
-                            return `
-                                <div style="display: flex; gap: 4px; align-items: center; height: 100%;">
-                                    <button class="btn-secondary" style="padding: 3px 6px; font-size: 11px; color: var(--teamobi-orange-dark);" onclick="toggleAccountAdmin(${a.id}, ${a.admin || 0})">
-                                        <i class="fa-solid fa-user-shield"></i> ${a.admin === 1 ? 'Hạ' : 'Cấp Admin'}
-                                    </button>
-                                    <button class="btn-secondary" style="padding: 3px 6px; font-size: 11px; color: var(--cyan);" onclick="changeAccountPassword(${a.id}, '${escapeHtml(a.username)}')">
-                                        <i class="fa-solid fa-key"></i> Đổi MK
-                                    </button>
-                                    <button class="btn-secondary" style="padding: 3px 6px; font-size: 11px;" onclick="toggleAccountLock(${a.id}, ${a.active})">
-                                        <i class="fa-solid ${a.active === 1 ? 'fa-lock' : 'fa-lock-open'}"></i> ${a.active === 1 ? 'Khóa' : 'Mở'}
-                                    </button>
-                                    <button class="btn-danger" style="padding: 3px 6px; font-size: 11px;" onclick="deleteAccount(${a.id}, '${escapeHtml(a.username)}')">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>
-                            `;
-                        }
-                    }
-                ],
-                rowData: rowData,
-                pagination: true,
-                paginationPageSize: 10,
-                domLayout: 'autoHeight',
-                rowHeight: 44,
-                headerHeight: 40
-            };
-            if (agGrid.createGrid) {
-                accountGridInstance = agGrid.createGrid(gridContainer, gridOptions);
-            } else if (agGrid.Grid) {
-                new agGrid.Grid(gridContainer, gridOptions);
-                accountGridInstance = gridOptions.api;
-            }
-        }
-    }
-
     const tbody = document.getElementById('account-table-body');
     if (!tbody) return;
+    const query = (document.getElementById('account-table-search')?.value || '').toLowerCase().trim();
     tbody.innerHTML = '';
 
-    const filteredAccounts = accountsList.filter(a => !query || (a.username && a.username.toLowerCase().includes(query)));
+    const filtered = accountsList.filter(a => !query || (a.username && a.username.toLowerCase().includes(query)));
 
-    if (filteredAccounts.length === 0) {
+    if (filtered.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 20px;">Không tìm thấy tài khoản nào</td></tr>';
         return;
     }
 
-    filteredAccounts.forEach(a => {
+    filtered.forEach(a => {
         const tr = document.createElement('tr');
 
         const adminBadge = a.admin === 1
@@ -1613,7 +1538,7 @@ function renderAccountTable() {
             <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${a.id}</td>
             <td data-label="Tài Khoản" style="padding: 12px; font-weight: 700; color: var(--text-main);">${escapeHtml(a.username)}</td>
             <td data-label="Mật Khẩu" style="padding: 12px; color: var(--cyan); font-family: monospace;">${escapeHtml(a.password)}</td>
-            <td data-label="Số NV" style="padding: 12px; color: var(--teamobi-orange-dark);">${a.player_count || 0} NV</td>
+            <td data-label="Số NV" style="padding: 12px; color: var(--teamobi-orange-dark); font-weight: 700;">${a.player_count || 0} NV</td>
             <td data-label="Quyền" style="padding: 12px;">${adminBadge}</td>
             <td data-label="Trạng Thái" style="padding: 12px;">${activeBadge}</td>
             <td data-label="Ngày Tạo" style="padding: 12px; color: var(--text-muted); font-size: 12px;">${createDate}</td>
@@ -1811,6 +1736,7 @@ function nextPlayerTask(playerName) {
 
 function renderPlayerTable() {
     const tbody = document.getElementById('player-table-body');
+    if (!tbody) return;
     const query = document.getElementById('player-table-search').value.toLowerCase().trim();
     tbody.innerHTML = '';
 
@@ -1823,7 +1749,6 @@ function renderPlayerTable() {
 
     filtered.forEach(p => {
         const tr = document.createElement('tr');
-        tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
 
         const genderText = p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda';
         const statusBadge = p.online
@@ -1831,17 +1756,17 @@ function renderPlayerTable() {
             : '<span class="badge-offline">OFFLINE</span>';
 
         const avatarSrc = p.avatarUrl || `/icons/${p.avatarId || 64}.png`;
-        const taskBadge = `<span style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid rgba(255, 215, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">#${p.taskId !== undefined ? p.taskId : 0} - ${escapeHtml(p.taskName || 'Nhiệm vụ')}</span>`;
+        const taskBadge = `<span style="background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); border: 1px solid var(--teamobi-orange-border); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">#${p.taskId !== undefined ? p.taskId : 0} - ${escapeHtml(p.taskName || 'Nhiệm vụ')}</span>`;
 
         tr.innerHTML = `
             <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${p.id}</td>
             <td data-label="Tên Nhân Vật" style="padding: 12px; font-weight: 700; color: var(--text-main);">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <img src="${avatarSrc}" onerror="this.src='/icons/64.png';" style="width: 34px; height: 34px; object-fit: contain; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,215,0,0.3);" />
+                    <img src="${avatarSrc}" onerror="this.src='/icons/64.png';" style="width: 34px; height: 34px; object-fit: contain; background: var(--teamobi-orange-bg); border-radius: 8px; padding: 2px; border: 1px solid var(--teamobi-orange-border);" />
                     <span>${escapeHtml(p.name)}</span>
                 </div>
             </td>
-            <td data-label="Tài Khoản" style="padding: 12px; color: var(--gold); font-size: 13px;">${escapeHtml(p.username || 'N/A')}</td>
+            <td data-label="Tài Khoản" style="padding: 12px; color: var(--teamobi-orange-dark); font-size: 13px;">${escapeHtml(p.username || 'N/A')}</td>
             <td data-label="Hành Tinh" style="padding: 12px; color: var(--cyan);">${genderText}</td>
             <td data-label="Nhiệm Vụ" style="padding: 12px;">${taskBadge}</td>
             <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
@@ -1855,7 +1780,7 @@ function renderPlayerTable() {
                 <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: rgba(0, 243, 255, 0.15); color: var(--cyan);" onclick="changePlayerName(${p.id}, '${escapeHtml(p.name)}')">
                     <i class="fa-solid fa-pen-to-square"></i> Đổi Tên
                 </button>
-                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: rgba(255, 215, 0, 0.2); color: var(--gold); font-weight: 700; border: 1px solid var(--gold);" onclick="nextPlayerTask('${escapeHtml(p.name)}')">
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); font-weight: 700; border: 1px solid var(--teamobi-orange-border);" onclick="nextPlayerTask('${escapeHtml(p.name)}')">
                     <i class="fa-solid fa-forward-step"></i> Qua NV
                 </button>
             </td>
