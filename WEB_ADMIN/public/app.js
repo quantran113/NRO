@@ -1743,12 +1743,16 @@ function renderAccountTable() {
 // --- MODAL UTILS ---
 function showModal(modalId) {
     const el = document.getElementById(modalId);
-    if (el) el.style.display = 'flex';
+    if (el) {
+        el.style.setProperty('display', 'flex', 'important');
+    }
 }
 
 function closeModal(modalId) {
     const el = document.getElementById(modalId);
-    if (el) el.style.display = 'none';
+    if (el) {
+        el.style.setProperty('display', 'none', 'important');
+    }
 }
 
 function customConfirm(title, message, onConfirm) {
