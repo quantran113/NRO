@@ -1744,7 +1744,7 @@ function renderAccountTable() {
 function showModal(modalId) {
     const el = document.getElementById(modalId);
     if (el) {
-        el.style.setProperty('display', 'flex', 'important');
+        el.style.setProperty('display', 'block', 'important');
     }
 }
 
