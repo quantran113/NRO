@@ -1980,46 +1980,7 @@ function openAdjustPlayerPowerModal(playerName) {
     };
 }
 
-// --- TAB SWITCHING ---
-function switchTab(tabName) {
-    currentTab = tabName;
-    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('header .nav-btn').forEach(btn => btn.classList.remove('active'));
-
-    const tabMap = {
-        'grant': 0,
-        'pet': 1,
-        'events': 2,
-        'drops': 3,
-        'shops': 4,
-        'giftcode': 5,
-        'accounts': 6,
-        'players': 7,
-        'bots': 8,
-        'bosses': 9
-    };
-
-    const targetIndex = tabMap[tabName];
-    const headerBtns = document.querySelectorAll('header .nav-btn');
-
-    const targetTabEl = document.getElementById(`tab-${tabName}`);
-    if (targetTabEl) {
-        targetTabEl.style.display = 'block';
-    }
-
-    if (targetIndex !== undefined && headerBtns[targetIndex]) {
-        headerBtns[targetIndex].classList.add('active');
-    }
-
-    if (tabName === 'events') loadServerEvents();
-    else if (tabName === 'drops') loadDropRules();
-    else if (tabName === 'shops') loadNpcShops();
-    else if (tabName === 'giftcode') loadAdminGiftcodes();
-    else if (tabName === 'accounts') loadAccountData();
-    else if (tabName === 'players') loadPlayers();
-    else if (tabName === 'bots') loadBotsList();
-    else if (tabName === 'bosses') loadBosses();
-}
+// --- REMOVED DUPLICATE TAB SWITCHER LOGIC ---
 
 // --- GIFTCODE MANAGER LOGIC ---
 let currentGcItems = [];
