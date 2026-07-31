@@ -703,28 +703,88 @@ header {
     transform: translateY(-1px);
 }
 
-/* AG-Grid Theme Customization for Teamobi Orange & White */
+/* ==========================================
+   ULTRA PREMIUM AG-GRID TEAMOBI CAM TRẮNG STYLING
+   ========================================== */
 .ag-theme-alpine {
     --ag-background-color: #ffffff;
     --ag-header-background-color: #fff3e0;
     --ag-header-foreground-color: #e65100;
-    --ag-border-color: #e2e8f0;
+    --ag-border-color: #ffe0b2;
     --ag-row-border-color: #f1f5f9;
     --ag-data-color: #1e293b;
     --ag-row-hover-color: #fff8f3;
     --ag-selected-row-background-color: #ffe0b2;
     --ag-font-size: 13px;
     --ag-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 20px rgba(230, 81, 0, 0.08) !important;
+    border: 1px solid #ffe0b2 !important;
+    overflow: hidden !important;
+}
+
+/* Header Styling */
+.ag-theme-alpine .ag-header {
+    background: linear-gradient(135deg, #ff7a18 0%, #e65100 100%) !important;
+    border-bottom: 2px solid #d84315 !important;
 }
 
 .ag-theme-alpine .ag-header-cell-text {
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 0.5px;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    font-size: 12px !important;
+    letter-spacing: 0.5px !important;
+    color: #ffffff !important;
+}
+
+.ag-theme-alpine .ag-header-icon {
+    color: #ffffff !important;
+}
+
+/* Row & Cell Styling */
+.ag-theme-alpine .ag-row {
+    border-bottom: 1px solid #f1f5f9 !important;
+    transition: all 0.15s ease !important;
+}
+
+.ag-theme-alpine .ag-row-even {
+    background-color: #ffffff !important;
+}
+
+.ag-theme-alpine .ag-row-odd {
+    background-color: #fafbfc !important;
+}
+
+.ag-theme-alpine .ag-row-hover {
+    background-color: #fff5ed !important;
+    box-shadow: inset 3px 0 0 #ff6600 !important;
+}
+
+.ag-theme-alpine .ag-cell {
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    color: #1e293b !important;
+    font-size: 13px !important;
+}
+
+/* Pagination Bar Styling */
+.ag-theme-alpine .ag-paging-panel {
+    background: #fff8f3 !important;
+    border-top: 1px solid #ffe0b2 !important;
+    padding: 10px 16px !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+
+.ag-theme-alpine .ag-paging-button {
+    color: #e65100 !important;
+    cursor: pointer !important;
+}
+
+.ag-theme-alpine .ag-paging-button:hover {
+    opacity: 0.8 !important;
 }
 
 /* ==========================================
