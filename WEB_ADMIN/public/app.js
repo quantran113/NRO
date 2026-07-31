@@ -235,18 +235,49 @@ async function buyGoldForPlayer(quantity) {
     }
 }
 
-// --- DATA INITIALIZATION ---
-async function initAdminData() {
-    loadStats();
-    await loadItemTemplates();
-    await loadMapTemplates();
-    await loadOptionTemplates();
-    await loadPlayers();
-    loadServerEvents();
-    loadDropRules();
-    loadNpcShops();
+// --- TAB SWITCHER LOGIC ---
+function switchTab(tabName) {
+    currentTab = tabName;
 
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.style.display = 'none';
+    });
 
+    // Show target tab content
+    const targetTab = document.getElementById(`tab-${tabName}`);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+    }
+
+    // Update active class on all nav-btn elements
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        const onclickAttr = btn.getAttribute('onclick') || '';
+        if (onclickAttr.includes(`'${tabName}'`) || onclickAttr.includes(`"${tabName}"`)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Tab-specific data reload triggers
+    if (tabName === 'accounts') {
+        if (typeof loadAccountData === 'function') loadAccountData();
+    } else if (tabName === 'players') {
+        if (typeof loadPlayers === 'function') loadPlayers();
+    } else if (tabName === 'bots') {
+        if (typeof loadBotsData === 'function') loadBotsData();
+    } else if (tabName === 'bosses') {
+        if (typeof loadBosses === 'function') loadBosses();
+    } else if (tabName === 'giftcode') {
+        if (typeof loadGiftcodesList === 'function') loadGiftcodesList();
+    } else if (tabName === 'events') {
+        if (typeof loadServerEvents === 'function') loadServerEvents();
+    } else if (tabName === 'drops') {
+        if (typeof loadDropRules === 'function') loadDropRules();
+    } else if (tabName === 'shops') {
+        if (typeof loadNpcShops === 'function') loadNpcShops();
+    }
 }
 
 async function loadStats() {
