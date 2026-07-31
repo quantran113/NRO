@@ -189,6 +189,92 @@ body {
 }
 
 /* ==========================================
+   PREMIUM "VỀ TRANG CHỦ GAME" BUTTON STYLING
+   ========================================== */
+.sidebar-home-btn-container {
+    padding: 12px 14px;
+    border-bottom: 1px solid #ffe0b2;
+    background: #fff8f3;
+}
+
+.btn-return-home {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border: 1.5px solid #ffb74d;
+    border-radius: 10px;
+    color: #e65100;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(230, 81, 0, 0.08);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.btn-return-home:hover {
+    background: linear-gradient(135deg, #ff7a18 0%, #e65100 100%);
+    border-color: #d84315;
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(230, 81, 0, 0.35);
+    transform: translateY(-2px);
+}
+
+.btn-home-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #e65100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.btn-return-home:hover .btn-home-icon {
+    background: #ffeb3b;
+    color: #3b2000;
+    transform: scale(1.05);
+}
+
+.btn-home-text {
+    flex: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.btn-home-text span {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    opacity: 0.85;
+    text-transform: uppercase;
+}
+
+.btn-home-text strong {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+}
+
+.btn-return-home .arrow-icon {
+    font-size: 12px;
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-return-home:hover .arrow-icon {
+    opacity: 1;
+    transform: translateX(3px);
+}
+
+/* ==========================================
    NEW ADMIN SIDEBAR NAVIGATION STYLING
    ========================================== */
 .admin-sidebar-menu {

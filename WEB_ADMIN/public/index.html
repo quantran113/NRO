@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NRO Server Admin Control Panel - Cấp Đồ, Đệ Tử & Sự Kiện Realtime</title>
-    <link rel="stylesheet" href="style.css?v=20260731_v99">
+    <link rel="stylesheet" href="style.css?v=20260731_v101">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -344,9 +344,14 @@
                 </div>
             </div>
 
-            <div style="padding: 0 16px 12px 16px;">
-                <button type="button" class="btn-secondary" onclick="showPublicHome()" style="width: 100%; font-size: 12px; font-weight: 800; background: #fff8f3; color: var(--teamobi-orange-dark); border-color: var(--teamobi-orange-border);">
-                    <i class="fa-solid fa-house"></i> VỀ TRANG CHỦ GAME
+            <div class="sidebar-home-btn-container">
+                <button type="button" class="btn-return-home" onclick="showPublicHome()">
+                    <div class="btn-home-icon"><i class="fa-solid fa-house-chimney"></i></div>
+                    <div class="btn-home-text">
+                        <span>QUAY VỀ</span>
+                        <strong>TRANG CHỦ GAME</strong>
+                    </div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
                 </button>
             </div>
 
@@ -1600,7 +1605,7 @@
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
 
-    <script src="app.js?v=20260731_v100"></script>
+    <script src="app.js?v=20260731_v101"></script>
 </body>
 
 </html>
