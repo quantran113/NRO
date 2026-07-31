@@ -189,12 +189,16 @@ function showAdminPanel() {
 
 function openLoginModal() {
     const loginScreen = document.getElementById('login-screen');
-    if (loginScreen) loginScreen.style.display = 'flex';
+    if (loginScreen) {
+        loginScreen.style.setProperty('display', 'flex', 'important');
+    }
 }
 
 function closeLoginModal() {
     const loginScreen = document.getElementById('login-screen');
-    if (loginScreen) loginScreen.style.display = 'none';
+    if (loginScreen) {
+        loginScreen.style.setProperty('display', 'none', 'important');
+    }
 }
 
 function checkLoginState() {
