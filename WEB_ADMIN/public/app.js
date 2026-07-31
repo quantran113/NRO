@@ -202,6 +202,11 @@ function checkLoginState() {
     if (saved) {
         try {
             currentLoggedUser = JSON.parse(saved);
+            if (currentLoggedUser && currentLoggedUser.admin >= 1) {
+                closeLoginModal();
+                showAdminPanel();
+                return;
+            }
         } catch (e) { }
     }
     showPublicHome();
@@ -228,7 +233,12 @@ function setupLoginForm() {
                 sessionStorage.setItem('nro_logged_user', JSON.stringify(data.user));
                 closeLoginModal();
                 showToast(data.message, 'success');
-                showPublicHome();
+
+                if (data.user.admin >= 1) {
+                    showAdminPanel();
+                } else {
+                    showPublicHome();
+                }
             } else {
                 showToast(data.message || 'Đăng nhập thất bại', 'error');
             }
