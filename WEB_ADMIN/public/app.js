@@ -162,10 +162,10 @@ function updatePortalUserWidget() {
 
 function showPublicHome() {
     const appLayout = document.querySelector('.app-layout');
-    if (appLayout) appLayout.style.display = 'none';
+    if (appLayout) appLayout.style.setProperty('display', 'none', 'important');
 
     const publicHome = document.getElementById('public-home-view');
-    if (publicHome) publicHome.style.display = 'block';
+    if (publicHome) publicHome.style.setProperty('display', 'block', 'important');
 
     closeLoginModal();
     updatePortalUserWidget();
@@ -176,14 +176,20 @@ function showAdminPanel() {
         return showToast('Bạn cần quyền Admin để truy cập Admin Panel!', 'error');
     }
 
+    if (window.location.hash) {
+        history.pushState('', document.title, window.location.pathname + window.location.search);
+    }
+
     const publicHome = document.getElementById('public-home-view');
-    if (publicHome) publicHome.style.display = 'none';
+    if (publicHome) publicHome.style.setProperty('display', 'none', 'important');
 
     const appLayout = document.querySelector('.app-layout');
-    if (appLayout) appLayout.style.display = 'flex';
+    if (appLayout) appLayout.style.setProperty('display', 'flex', 'important');
 
     const sidebar = document.querySelector('.sidebar');
-    if (sidebar) sidebar.style.display = 'flex';
+    if (sidebar) sidebar.style.setProperty('display', 'flex', 'important');
+
+    window.scrollTo(0, 0);
 
     switchTab(currentTab || 'grant');
     initAdminData();
