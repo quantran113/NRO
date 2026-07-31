@@ -545,23 +545,25 @@
                 </div>
 
                 <!-- Drop Rules Table -->
-                <h3 style="color: #fff; font-size: 15px; margin-bottom: 12px;"><i class="fa-solid fa-list-check"></i>
+                <h3 style="color: var(--text-main); font-size: 15px; margin-bottom: 12px;"><i class="fa-solid fa-list-check"></i>
                     DANH SÁCH QUY TẮC RƠI ĐỒ ĐANG ÁP DỤNG</h3>
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
-                            <th style="padding: 12px;">MAP</th>
-                            <th style="padding: 12px;">VẬT PHẨM RƠI</th>
-                            <th style="padding: 12px;">SỐ LƯỢNG</th>
-                            <th style="padding: 12px;">TỈ LỆ RƠI (%)</th>
-                            <th style="padding: 12px;">TRẠNG THÁI</th>
-                            <th style="padding: 12px;">THAO TÁC</th>
-                        </tr>
-                    </thead>
-                    <tbody id="drop-rules-table-body">
-                        <!-- Loaded dynamically -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px;">MAP</th>
+                                <th style="padding: 12px;">VẬT PHẨM RƠI</th>
+                                <th style="padding: 12px;">SỐ LƯỢNG</th>
+                                <th style="padding: 12px;">TỈ LỆ RƠI (%)</th>
+                                <th style="padding: 12px;">TRẠNG THÁI</th>
+                                <th style="padding: 12px;">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="drop-rules-table-body">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
         </div>
@@ -674,27 +676,29 @@
 
                 <!-- Existing Items in Selected Shop Table -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> CÁC MÓN
+                    <h3 style="color: var(--text-main); font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> CÁC MÓN
                         ĐỒ ĐANG BÁN TRONG TAB SHOP</h3>
                     <span id="shop-items-count-badge" class="badge-online"
-                        style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border-color: var(--gold);">0
+                        style="background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); border-color: var(--teamobi-orange-border);">0
                         Món</span>
                 </div>
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
-                            <th style="padding: 12px;">VẬT PHẨM</th>
-                            <th style="padding: 12px;">GIÁ BÁN</th>
-                            <th style="padding: 12px;">LOẠI TIỀN</th>
-                            <th style="padding: 12px;">CHỈ SỐ OPTION</th>
-                            <th style="padding: 12px;">NHÃN</th>
-                            <th style="padding: 12px;">THAO TÁC</th>
-                        </tr>
-                    </thead>
-                    <tbody id="shop-items-table-body">
-                        <!-- Loaded dynamically -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px;">VẬT PHẨM</th>
+                                <th style="padding: 12px;">GIÁ BÁN</th>
+                                <th style="padding: 12px;">LOẠI TIỀN</th>
+                                <th style="padding: 12px;">CHỈ SỐ OPTION</th>
+                                <th style="padding: 12px;">NHÃN</th>
+                                <th style="padding: 12px;">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shop-items-table-body">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
         </div>
@@ -781,26 +785,28 @@
 
                 <!-- GiftCodes Table -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="color: #fff; font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> DANH
+                    <h3 style="color: var(--text-main); font-size: 15px; margin: 0;"><i class="fa-solid fa-list-check"></i> DANH
                         SÁCH GIFTCODE ĐANG KÍCH HOẠT</h3>
                     <span id="gc-count-badge" class="badge-online"
-                        style="background: rgba(255,215,0,0.15); color: var(--gold); border-color: var(--gold);">0
+                        style="background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); border-color: var(--teamobi-orange-border);">0
                         Mã</span>
                 </div>
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
-                            <th style="padding: 12px;">MÃ GIFTCODE</th>
-                            <th style="padding: 12px;">SỐ LƯỢNG CÒN LẠI</th>
-                            <th style="padding: 12px;">CHI TIẾT PHẦN QUÀ</th>
-                            <th style="padding: 12px;">HẠN SỬ DỤNG</th>
-                            <th style="padding: 12px;">THAO TÁC</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gc-table-body">
-                        <!-- Loaded dynamically -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px;">MÃ GIFTCODE</th>
+                                <th style="padding: 12px;">SỐ LƯỢNG CÒN LẠI</th>
+                                <th style="padding: 12px;">CHI TIẾT PHẦN QUÀ</th>
+                                <th style="padding: 12px;">HẠN SỬ DỤNG</th>
+                                <th style="padding: 12px;">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gc-table-body">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -821,23 +827,25 @@
                         </button>
                     </div>
                 </div>
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
-                            <th style="padding: 12px;">ID</th>
-                            <th style="padding: 12px;">TÊN TÀI KHOẢN</th>
-                            <th style="padding: 12px;">MẬT KHẨU</th>
-                            <th style="padding: 12px;">SỐ NHÂN VẬT</th>
-                            <th style="padding: 12px;">QUẢN TRỊ (ADMIN)</th>
-                            <th style="padding: 12px;">TRẠNG THÁI</th>
-                            <th style="padding: 12px;">NGÀY TẠO</th>
-                            <th style="padding: 12px;">THAO TÁC</th>
-                        </tr>
-                    </thead>
-                    <tbody id="account-table-body">
-                        <!-- Loaded dynamically -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px;">ID</th>
+                                <th style="padding: 12px;">TÊN TÀI KHOẢN</th>
+                                <th style="padding: 12px;">MẬT KHẨU</th>
+                                <th style="padding: 12px;">SỐ NHÂN VẬT</th>
+                                <th style="padding: 12px;">QUẢN TRỊ (ADMIN)</th>
+                                <th style="padding: 12px;">TRẠNG THÁI</th>
+                                <th style="padding: 12px;">NGÀY TẠO</th>
+                                <th style="padding: 12px;">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="account-table-body">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -849,22 +857,24 @@
                     <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..."
                         style="max-width: 300px;" oninput="renderPlayerTable()">
                 </div>
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-glass); color: var(--gold); font-size: 13px;">
-                            <th style="padding: 12px;">ID</th>
-                            <th style="padding: 12px;">AVATAR / TÊN NHÂN VẬT</th>
-                            <th style="padding: 12px;">TÀI KHOẢN</th>
-                            <th style="padding: 12px;">HÀNH TINH</th>
-                            <th style="padding: 12px;">NHIỆM VỤ HIỆN TẠI</th>
-                            <th style="padding: 12px;">TRẠNG THÁI</th>
-                            <th style="padding: 12px;">THAO TÁC</th>
-                        </tr>
-                    </thead>
-                    <tbody id="player-table-body">
-                        <!-- Loaded dynamically -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px;">ID</th>
+                                <th style="padding: 12px;">AVATAR / TÊN NHÂN VẬT</th>
+                                <th style="padding: 12px;">TÀI KHOẢN</th>
+                                <th style="padding: 12px;">HÀNH TINH</th>
+                                <th style="padding: 12px;">NHIỆM VỤ HIỆN TẠI</th>
+                                <th style="padding: 12px;">TRẠNG THÁI</th>
+                                <th style="padding: 12px;">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="player-table-body">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

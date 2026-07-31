@@ -703,6 +703,30 @@ header {
     transform: translateY(-1px);
 }
 
+/* AG-Grid Theme Customization for Teamobi Orange & White */
+.ag-theme-alpine {
+    --ag-background-color: #ffffff;
+    --ag-header-background-color: #fff3e0;
+    --ag-header-foreground-color: #e65100;
+    --ag-border-color: #e2e8f0;
+    --ag-row-border-color: #f1f5f9;
+    --ag-data-color: #1e293b;
+    --ag-row-hover-color: #fff8f3;
+    --ag-selected-row-background-color: #ffe0b2;
+    --ag-font-size: 13px;
+    --ag-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.ag-theme-alpine .ag-header-cell-text {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
 /* ==========================================
    TABLES & RESPONSIVE DESIGN
    ========================================== */

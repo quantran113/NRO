@@ -438,7 +438,7 @@ function renderSelectedShopItemsTable() {
         const iconId = item.iconId !== undefined && item.iconId !== null ? item.iconId : item.tempId;
 
         tr.innerHTML = `
-            <td data-label="Vật Phẩm" style="padding: 12px; font-weight: 700; color: #fff;">
+            <td data-label="Vật Phẩm" style="padding: 12px; font-weight: 700; color: var(--text-main);">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <img src="/icons/${iconId}.png" onerror="this.onerror=null; this.src='/icons_x1/${iconId}.png';" style="width: 24px; height: 24px;" alt="">
                     <span>#${item.tempId} - ${escapeHtml(item.name)}</span>
@@ -767,7 +767,7 @@ function renderDropRulesTable() {
 
         tr.innerHTML = `
             <td data-label="Bản Đồ" style="padding: 12px;">${mapText}</td>
-            <td data-label="Vật Phẩm" style="padding: 12px; font-weight: 700; color: #fff;"><i class="fa-solid fa-box-open" style="color: var(--gold);"></i> #${rule.itemId} - ${escapeHtml(itemName)}</td>
+            <td data-label="Vật Phẩm" style="padding: 12px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-box-open" style="color: var(--gold);"></i> #${rule.itemId} - ${escapeHtml(itemName)}</td>
             <td data-label="Số Lượng" style="padding: 12px; color: var(--gold); font-weight: 700;">x${rule.quantity}</td>
             <td data-label="Tỷ Lệ" style="padding: 12px; color: var(--cyan); font-weight: 800;">${rule.ratePercent}%</td>
             <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
@@ -951,7 +951,7 @@ function renderItemCatalog(items) {
             </div>
             <div class="item-details" style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <h4 style="color: #fff; font-size: 14px; font-weight: 700;">${escapeHtml(item.name)}</h4>
+                    <h4 style="color: var(--text-main); font-size: 14px; font-weight: 700;">${escapeHtml(item.name)}</h4>
                     <span class="item-tag" style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--border-glass);">#${item.id}</span>
                 </div>
                 <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${item.description ? escapeHtml(item.description) : 'Vật phẩm gốc NRO'}</p>
@@ -1155,7 +1155,7 @@ function renderCartList() {
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <h4 style="color: #fff; font-size: 15px; font-weight: 700; margin: 0;">Món ${idx + 1}: ${escapeHtml(cartItem.name)}</h4>
+                            <h4 style="color: var(--text-main); font-size: 15px; font-weight: 700; margin: 0;">Món ${idx + 1}: ${escapeHtml(cartItem.name)}</h4>
                             <span class="item-tag" style="background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--gold);">#${cartItem.id}</span>
                         </div>
                         <p style="font-size: 12px; color: var(--text-muted);">${cartItem.description ? escapeHtml(cartItem.description) : 'Vật phẩm gốc NRO'}</p>
@@ -1537,7 +1537,7 @@ function renderAccountTable() {
 
         tr.innerHTML = `
             <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${a.id}</td>
-            <td data-label="Tài Khoản" style="padding: 12px; font-weight: 700; color: #fff;">${escapeHtml(a.username)}</td>
+            <td data-label="Tài Khoản" style="padding: 12px; font-weight: 700; color: var(--text-main);">${escapeHtml(a.username)}</td>
             <td data-label="Mật Khẩu" style="padding: 12px; color: var(--cyan); font-family: monospace;">${escapeHtml(a.password)}</td>
             <td data-label="Số NV" style="padding: 12px; color: var(--gold);">${a.player_count || 0} NV</td>
             <td data-label="Quyền" style="padding: 12px;">${adminBadge}</td>
@@ -1761,7 +1761,7 @@ function renderPlayerTable() {
 
         tr.innerHTML = `
             <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${p.id}</td>
-            <td data-label="Tên Nhân Vật" style="padding: 12px; font-weight: 700; color: #fff;">
+            <td data-label="Tên Nhân Vật" style="padding: 12px; font-weight: 700; color: var(--text-main);">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <img src="${avatarSrc}" onerror="this.src='/icons/64.png';" style="width: 34px; height: 34px; object-fit: contain; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,215,0,0.3);" />
                     <span>${escapeHtml(p.name)}</span>
@@ -1988,7 +1988,7 @@ function renderGcItemsRows() {
                     <select class="input-field" style="flex: 1; min-width: 180px; font-size: 12px;" onchange="updateGcItemField(${index}, 'id', this.value)">
                         ${itemTemplates.map(t => `<option value="${t.id}" ${t.id === item.id ? 'selected' : ''}>#${t.id} - ${escapeHtml(t.name)}</option>`).join('')}
                     </select>
-                ` : `<span style="font-weight: bold; color: #fff;">${item.name || ''}</span>`}
+                ` : `<span style="font-weight: bold; color: var(--text-main);">${item.name || ''}</span>`}
                 <div style="display: flex; gap: 4px; align-items: center;">
                     <span style="font-size: 12px; color: var(--text-muted);">Số lượng:</span>
                     <input type="number" class="input-field" style="width: 100px; font-weight: bold;" value="${item.quantity}" onchange="updateGcItemField(${index}, 'quantity', this.value)">
@@ -2082,7 +2082,7 @@ async function loadAdminGiftcodes() {
                         if (item.id === -3) return `<span style="color: #f87171; font-weight: bold;">🔴 ${Number(item.quantity).toLocaleString('vi-VN')} Ngọc Khóa</span>`;
                         const temp = itemTemplates.find(t => t.id === item.id);
                         const name = temp ? temp.name : `Item #${item.id}`;
-                        return `<span style="color: #fff;">📦 x${item.quantity} ${escapeHtml(name)}</span>`;
+                        return `<span style="color: var(--text-main);">📦 x${item.quantity} ${escapeHtml(name)}</span>`;
                     }).join(', ');
                 }
             } catch (e) {
