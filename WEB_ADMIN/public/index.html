@@ -85,62 +85,84 @@
         </div>
     </div>
 
-    <!-- MAIN APP HEADER -->
-    <header>
-        <div class="header-left">
-            <div class="brand">
-                <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" />
-                <h1>QUẢN TRỊ <span>NRO</span></h1>
+    <div class="app-layout">
+        <!-- VERTICAL SIDEBAR MENU -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/logo.svg" alt="Dragon Ball Logo" class="sidebar-logo" />
+                <div class="sidebar-brand">
+                    <h2>QUẢN TRỊ <span>NRO</span></h2>
+                    <span class="version-badge">SERVER PANEL</span>
+                </div>
             </div>
-            <nav class="nav-links">
+
+            <nav class="sidebar-menu">
+                <div class="menu-group-label">VẬT PHẨM & ĐỆ TỬ</div>
                 <button class="nav-btn active" onclick="switchTab('grant')">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Cấp Đồ
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Cấp Đồ Realtime</span>
                 </button>
                 <button class="nav-btn" onclick="switchTab('pet')">
-                    <i class="fa-solid fa-paw"></i> Đệ Tử
+                    <i class="fa-solid fa-paw"></i> <span>Cấp Đệ Tử Studio</span>
                 </button>
                 <button class="nav-btn" onclick="switchTab('events')">
-                    <i class="fa-solid fa-calendar-star"></i> Sự Kiện
+                    <i class="fa-solid fa-calendar-star"></i> <span>Sự Kiện & X2</span>
                 </button>
+
+                <div class="menu-group-label">CẤU HÌNH DROP & SHOP</div>
                 <button class="nav-btn" onclick="switchTab('drops')">
-                    <i class="fa-solid fa-dice"></i> Rơi Đồ
+                    <i class="fa-solid fa-dice"></i> <span>Quản Lý Rơi Đồ</span>
                 </button>
                 <button class="nav-btn" onclick="switchTab('shops')">
-                    <i class="fa-solid fa-store"></i> Shop NPC
+                    <i class="fa-solid fa-store"></i> <span>Quản Lý Shop NPC</span>
                 </button>
                 <button class="nav-btn" onclick="switchTab('giftcode')">
-                    <i class="fa-solid fa-gift"></i> GiftCode
+                    <i class="fa-solid fa-gift"></i> <span>Tạo GiftCode VIP</span>
                 </button>
+
+                <div class="menu-group-label">HỆ THỐNG & NHÂN VẬT</div>
                 <button class="nav-btn" onclick="switchTab('accounts')">
-                    <i class="fa-solid fa-users-gear"></i> Tài Khoản
+                    <i class="fa-solid fa-users-gear"></i> <span>Quản Lý Tài Khoản</span>
                 </button>
                 <button class="nav-btn" onclick="switchTab('players')">
-                    <i class="fa-solid fa-users"></i> Nhân Vật
+                    <i class="fa-solid fa-users"></i> <span>Danh Sách Nhân Vật</span>
                 </button>
                 <button class="nav-btn" onclick="switchTab('bots')">
-                    <i class="fa-solid fa-robot"></i> Bot
+                    <i class="fa-solid fa-robot"></i> <span>Quản Lý Bot Giả</span>
                 </button>
                 <button class="nav-btn" onclick="switchTab('bosses')">
-                    <i class="fa-solid fa-skull-crossbones"></i> Boss
+                    <i class="fa-solid fa-skull-crossbones"></i> <span>Quản Lý Boss</span>
                 </button>
             </nav>
-        </div>
-        <div class="header-right">
-            <div class="user-profile-badge">
-                <div class="user-avatar-small"><i class="fa-solid fa-user-shield"></i></div>
-                <div class="user-info-text">
-                    <span class="user-name-label" id="nav-username-display">Admin</span>
-                    <span class="user-role-tag">Online</span>
+
+            <div class="sidebar-footer">
+                <div class="user-profile-badge">
+                    <div class="user-avatar-small"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="user-info-text">
+                        <span class="user-name-label" id="nav-username-display">Admin</span>
+                        <span class="user-role-tag"><i class="fa-solid fa-circle" style="font-size: 8px; color: #10b981;"></i> Online</span>
+                    </div>
+                    <button type="button" class="btn-logout" onclick="logoutAdmin()" title="Đăng Xuất">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- MOBILE HEADER TOP BAR -->
+            <div class="mobile-top-bar">
+                <div class="brand">
+                    <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 32px; height: 32px;" />
+                    <h1>QUẢN TRỊ <span>NRO</span></h1>
                 </div>
                 <button type="button" class="btn-logout" onclick="logoutAdmin()" title="Đăng Xuất">
-                    <i class="fa-solid fa-power-off"></i> <span>Thoát</span>
+                    <i class="fa-solid fa-power-off"></i>
                 </button>
             </div>
-        </div>
-    </header>
 
-    <!-- MAIN CONTAINER -->
-    <div class="container">
+            <!-- MAIN CONTAINER -->
+            <div class="container">
 
         <!-- DASHBOARD STATS ROW -->
         <div class="stats-grid">
@@ -1138,33 +1160,33 @@
                 </div>
                 <div class="panel-body">
                     <!-- BOSS STATS SUMMARY -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
-                            <div style="font-size: 26px; color: var(--gold);"><i class="fa-solid fa-crown"></i></div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                        <div style="background: #ffffff; border: 1px solid #ffe0b2; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                            <div style="font-size: 24px; color: var(--teamobi-orange-dark);"><i class="fa-solid fa-crown"></i></div>
                             <div>
-                                <h4 id="boss-stat-total" style="font-size: 18px; margin: 0; color: #fff;">0</h4>
-                                <span style="font-size: 12px; color: var(--text-muted);">Tổng số Boss</span>
+                                <h4 id="boss-stat-total" style="font-size: 18px; margin: 0; color: var(--text-main); font-weight: 800;">0</h4>
+                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Tổng số Boss</span>
                             </div>
                         </div>
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(46, 213, 115, 0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
-                            <div style="font-size: 26px; color: #2ed573;"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                            <div style="font-size: 24px; color: #16a34a;"><i class="fa-solid fa-heart-pulse"></i></div>
                             <div>
-                                <h4 id="boss-stat-active" style="font-size: 18px; margin: 0; color: #2ed573;">0</h4>
-                                <span style="font-size: 12px; color: var(--text-muted);">Đang Xuất Hiện</span>
+                                <h4 id="boss-stat-active" style="font-size: 18px; margin: 0; color: #16a34a; font-weight: 800;">0</h4>
+                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Đang Xuất Hiện</span>
                             </div>
                         </div>
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 171, 0, 0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
-                            <div style="font-size: 26px; color: #ffab00;"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div style="background: #ffffff; border: 1px solid #fef08a; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                            <div style="font-size: 24px; color: #d97706;"><i class="fa-solid fa-hourglass-half"></i></div>
                             <div>
-                                <h4 id="boss-stat-rest" style="font-size: 18px; margin: 0; color: #ffab00;">0</h4>
-                                <span style="font-size: 12px; color: var(--text-muted);">Đang Trờ Hồi Sinh</span>
+                                <h4 id="boss-stat-rest" style="font-size: 18px; margin: 0; color: #d97706; font-weight: 800;">0</h4>
+                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Đang Chờ Hồi Sinh</span>
                             </div>
                         </div>
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 71, 87, 0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
-                            <div style="font-size: 26px; color: #ff4757;"><i class="fa-solid fa-skull"></i></div>
+                        <div style="background: #ffffff; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                            <div style="font-size: 24px; color: #dc2626;"><i class="fa-solid fa-skull"></i></div>
                             <div>
-                                <h4 id="boss-stat-die" style="font-size: 18px; margin: 0; color: #ff4757;">0</h4>
-                                <span style="font-size: 12px; color: var(--text-muted);">Đã Chết</span>
+                                <h4 id="boss-stat-die" style="font-size: 18px; margin: 0; color: #dc2626; font-weight: 800;">0</h4>
+                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Đã Chết / Khóa</span>
                             </div>
                         </div>
                     </div>
@@ -1194,6 +1216,8 @@
             </div>
         </div>
 
+            </div>
+        </main>
     </div>
 
     <!-- CUSTOM MODAL: CHANGE PASSWORD -->

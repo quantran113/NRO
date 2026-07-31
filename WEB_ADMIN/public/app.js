@@ -2478,84 +2478,84 @@ function renderBosses(bossList) {
 
         const st = (boss.status || 'REST').toUpperCase();
         let statusBadge = '';
-        let cardGlow = 'rgba(255, 255, 255, 0.05)';
+        let borderTopColor = '#ff6600';
 
         if (st === 'ACTIVE' || st === 'JOIN_MAP' || st === 'CHAT_S' || st === 'CHAT_E') {
-            statusBadge = `<span class="badge-online" style="background: rgba(46, 213, 115, 0.15); color: #2ed573; border: 1px solid #2ed573; font-size: 11px; padding: 2px 8px;"><i class="fa-solid fa-circle-dot"></i> ĐANG SỐNG (${st})</span>`;
-            cardGlow = 'rgba(46, 213, 115, 0.15)';
+            statusBadge = `<span class="badge-online" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-size: 11px; padding: 2px 8px; font-weight: 700;"><i class="fa-solid fa-circle-dot"></i> ĐANG SỐNG (${st})</span>`;
+            borderTopColor = '#22c55e';
         } else if (st === 'REST' || st === 'RESPAWN') {
-            statusBadge = `<span class="badge-online" style="background: rgba(255, 171, 0, 0.15); color: #ffab00; border: 1px solid #ffab00; font-size: 11px; padding: 2px 8px;"><i class="fa-solid fa-clock"></i> ĐANG CHỜ (${st})</span>`;
-            cardGlow = 'rgba(255, 171, 0, 0.15)';
+            statusBadge = `<span class="badge-online" style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; font-size: 11px; padding: 2px 8px; font-weight: 700;"><i class="fa-solid fa-clock"></i> CHỜ HỒI SINH (${st})</span>`;
+            borderTopColor = '#eab308';
         } else {
-            statusBadge = `<span class="badge-offline" style="font-size: 11px; padding: 2px 8px;"><i class="fa-solid fa-skull"></i> ĐÃ CHẾT (${st})</span>`;
-            cardGlow = 'rgba(255, 71, 87, 0.15)';
+            statusBadge = `<span class="badge-offline" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-size: 11px; padding: 2px 8px; font-weight: 700;"><i class="fa-solid fa-skull"></i> ĐÃ CHẾT (${st})</span>`;
+            borderTopColor = '#ef4444';
         }
 
         const iconUrl = boss.avatarUrl || `/icons/${boss.iconId || boss.head || 0}.png`;
         const fallbackUrl = `/icons/${boss.head || 0}.png`;
 
         return `
-        <div style="background: rgba(0,0,0,0.35); border: 1px solid ${cardGlow}; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="background: #ffffff; border: 1px solid #ffe0b2; border-top: 4px solid ${borderTopColor}; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(230, 81, 0, 0.06);">
             <div>
                 <!-- AVATAR & NAME ROW -->
-                <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
-                    <div style="width: 58px; height: 58px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 2px solid ${cardGlow}; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
-                        <img src="${iconUrl}" onerror="this.onerror=null; this.src='${fallbackUrl}'; this.onerror=function(){this.src='https://cdn-icons-png.flaticon.com/512/1144/1144760.png';}" style="width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 52px; height: 52px; border-radius: 10px; background: var(--teamobi-orange-bg); border: 1px solid var(--teamobi-orange-border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                        <img src="${iconUrl}" onerror="this.onerror=null; this.src='${fallbackUrl}'; this.onerror=function(){this.src='https://cdn-icons-png.flaticon.com/512/1144/1144760.png';}" style="width: 42px; height: 42px; object-fit: contain;">
                     </div>
                     <div style="flex: 1; overflow: hidden;">
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
-                            <h3 style="font-size: 16px; color: var(--gold); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${boss.name || 'Boss'}</h3>
-                            <span style="font-size: 11px; background: rgba(255,255,255,0.1); color: var(--text-muted); padding: 2px 6px; border-radius: 4px;">ID: ${boss.id}</span>
+                            <h3 style="font-size: 15px; color: var(--text-main); margin: 0; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${boss.name || 'Boss'}</h3>
+                            <span style="font-size: 11px; background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-weight: 700;">#${boss.id}</span>
                         </div>
-                        <div style="margin-top: 6px;">${statusBadge}</div>
+                        <div style="margin-top: 4px;">${statusBadge}</div>
                     </div>
                 </div>
 
                 <!-- HEALTH BAR -->
-                <div style="margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">
-                        <span><i class="fa-solid fa-heart" style="color: #ff4757;"></i> HP (${hpPercent}%)</span>
-                        <span style="color: ${hpColor}; font-weight: 700;">${hp.toLocaleString('vi-VN')} / ${maxHp.toLocaleString('vi-VN')}</span>
+                <div style="margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">
+                        <span><i class="fa-solid fa-heart" style="color: #ef4444;"></i> HP (${hpPercent}%)</span>
+                        <span style="color: #1e293b; font-weight: 800;">${hp.toLocaleString('vi-VN')} / ${maxHp.toLocaleString('vi-VN')}</span>
                     </div>
-                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                    <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; border: 1px solid #e2e8f0;">
                         <div style="width: ${hpPercent}%; height: 100%; background: ${hpColor}; transition: width 0.4s ease; border-radius: 4px;"></div>
                     </div>
                 </div>
 
                 <!-- STATS INFO ROW (DAME & DEF) -->
-                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);">
-                    <span><i class="fa-solid fa-hand-fist" style="color: #ffa502;"></i> Đánh: <strong style="color: #fff;">${(boss.dame || 0).toLocaleString('vi-VN')}</strong></span>
-                    <span><i class="fa-solid fa-shield-halved" style="color: #1e90ff;"></i> Giáp: <strong style="color: #fff;">${(boss.def || 0).toLocaleString('vi-VN')}</strong></span>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); background: #fff8f3; padding: 8px 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ffe0b2;">
+                    <span><i class="fa-solid fa-hand-fist" style="color: #e65100;"></i> Đánh: <strong style="color: #1e293b;">${(boss.dame || 0).toLocaleString('vi-VN')}</strong></span>
+                    <span><i class="fa-solid fa-shield-halved" style="color: #0284c7;"></i> Giáp: <strong style="color: #1e293b;">${(boss.def || 0).toLocaleString('vi-VN')}</strong></span>
                 </div>
 
                 <!-- LOCATION INFO -->
-                <div style="background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--text-main); margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="background: #f8fafc; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--text-main); margin-bottom: 14px; border: 1px solid #e2e8f0;">
                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                        <i class="fa-solid fa-map-location-dot" style="color: var(--cyan);"></i>
-                        <strong style="color: #fff;">${boss.mapName || 'Chưa xuất hiện'}</strong>
+                        <i class="fa-solid fa-map-location-dot" style="color: #0284c7;"></i>
+                        <strong style="color: var(--text-main); font-weight: 800;">${boss.mapName || 'Chưa xuất hiện'}</strong>
                         ${boss.mapId >= 0 ? `<span style="color: var(--text-muted); font-size: 11px;">(${boss.mapId})</span>` : ''}
                     </div>
                     <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 11px;">
-                        <span>Khu vực: <strong style="color: var(--gold);">${boss.zoneId >= 0 ? boss.zoneId : '-'}</strong></span>
-                        <span>Tọa độ: <strong>X: ${boss.x || 0}, Y: ${boss.y || 0}</strong></span>
+                        <span>Khu vực: <strong style="color: var(--teamobi-orange-dark);">${boss.zoneId >= 0 ? boss.zoneId : '-'}</strong></span>
+                        <span>Tọa độ: <strong style="color: #1e293b;">X: ${boss.x || 0}, Y: ${boss.y || 0}</strong></span>
                     </div>
                 </div>
             </div>
 
             <!-- ACTION BUTTONS -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
-                <button type="button" class="btn-primary" onclick="handleBossAction('respawn', ${boss.id})" style="padding: 6px 4px; font-size: 11px; background: linear-gradient(135deg, #2ed573, #1e90ff); color: #fff;" title="Hồi sinh Boss & kích hoạt ngay">
+                <button type="button" class="btn-primary" onclick="handleBossAction('respawn', ${boss.id})" style="padding: 6px 4px; font-size: 11px; background: linear-gradient(135deg, #16a34a, #059669); color: #fff; font-weight: 700;" title="Hồi sinh Boss & kích hoạt ngay">
                     <i class="fa-solid fa-bolt"></i> Hồi Sinh
                 </button>
-                <button type="button" class="btn-secondary" onclick="openEditBossStatsModal(${boss.id})" style="padding: 6px 4px; font-size: 11px; border-color: var(--cyan); color: var(--cyan); background: rgba(0, 243, 255, 0.08);" title="Điều chỉnh HP / Max HP / Dame">
+                <button type="button" class="btn-secondary" onclick="openEditBossStatsModal(${boss.id})" style="padding: 6px 4px; font-size: 11px; border-color: #0284c7; color: #0284c7; font-weight: 700;" title="Điều chỉnh HP / Max HP / Dame">
                     <i class="fa-solid fa-sliders"></i> Chỉ Số
                 </button>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                <button type="button" class="btn-secondary" onclick="handleBossAction('kill', ${boss.id})" style="padding: 6px 4px; font-size: 11px; border-color: #ffab00; color: #ffab00;" title="Tiêu diệt Boss trong game">
+                <button type="button" class="btn-secondary" onclick="handleBossAction('kill', ${boss.id})" style="padding: 6px 4px; font-size: 11px; border-color: #d97706; color: #d97706; font-weight: 700;" title="Tiêu diệt Boss trong game">
                     <i class="fa-solid fa-skull"></i> Tiêu Diệt
                 </button>
-                <button type="button" class="btn-secondary" onclick="confirmDeleteBoss(${boss.id}, '${escapeHtml(boss.name || 'Boss')}')" style="padding: 6px 4px; font-size: 11px; border-color: #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1);" title="Xóa Boss khỏi danh sách">
+                <button type="button" class="btn-secondary" onclick="confirmDeleteBoss(${boss.id}, '${escapeHtml(boss.name || 'Boss')}')" style="padding: 6px 4px; font-size: 11px; border-color: #ef4444; color: #dc2626; background: #fef2f2; font-weight: 700;" title="Xóa Boss khỏi danh sách">
                     <i class="fa-solid fa-trash"></i> Xóa Boss
                 </button>
             </div>
