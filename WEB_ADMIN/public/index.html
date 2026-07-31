@@ -352,38 +352,38 @@
 
             <nav class="sidebar-menu">
                 <div class="menu-group-label">VẬT PHẨM & ĐỆ TỬ</div>
-                <button class="nav-btn active" onclick="switchTab('grant')">
+                <button class="nav-btn active" data-tab="grant" onclick="switchTab('grant')">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Cấp Đồ Realtime</span>
                 </button>
-                <button class="nav-btn" onclick="switchTab('pet')">
+                <button class="nav-btn" data-tab="pet" onclick="switchTab('pet')">
                     <i class="fa-solid fa-paw"></i> <span>Cấp Đệ Tử Studio</span>
                 </button>
-                <button class="nav-btn" onclick="switchTab('events')">
+                <button class="nav-btn" data-tab="events" onclick="switchTab('events')">
                     <i class="fa-solid fa-calendar-star"></i> <span>Sự Kiện & X2</span>
                 </button>
 
                 <div class="menu-group-label">CẤU HÌNH DROP & SHOP</div>
-                <button class="nav-btn" onclick="switchTab('drops')">
+                <button class="nav-btn" data-tab="drops" onclick="switchTab('drops')">
                     <i class="fa-solid fa-dice"></i> <span>Quản Lý Rơi Đồ</span>
                 </button>
-                <button class="nav-btn" onclick="switchTab('shops')">
+                <button class="nav-btn" data-tab="shops" onclick="switchTab('shops')">
                     <i class="fa-solid fa-store"></i> <span>Quản Lý Shop NPC</span>
                 </button>
-                <button class="nav-btn" onclick="switchTab('giftcode')">
+                <button class="nav-btn" data-tab="giftcode" onclick="switchTab('giftcode')">
                     <i class="fa-solid fa-gift"></i> <span>Tạo GiftCode VIP</span>
                 </button>
 
                 <div class="menu-group-label">HỆ THỐNG & NHÂN VẬT</div>
-                <button class="nav-btn" onclick="switchTab('accounts')">
+                <button class="nav-btn" data-tab="accounts" onclick="switchTab('accounts')">
                     <i class="fa-solid fa-users-gear"></i> <span>Quản Lý Tài Khoản</span>
                 </button>
-                <button class="nav-btn" onclick="switchTab('players')">
+                <button class="nav-btn" data-tab="players" onclick="switchTab('players')">
                     <i class="fa-solid fa-users"></i> <span>Danh Sách Nhân Vật</span>
                 </button>
-                <button class="nav-btn" onclick="switchTab('bots')">
+                <button class="nav-btn" data-tab="bots" onclick="switchTab('bots')">
                     <i class="fa-solid fa-robot"></i> <span>Quản Lý Bot Giả</span>
                 </button>
-                <button class="nav-btn" onclick="switchTab('bosses')">
+                <button class="nav-btn" data-tab="bosses" onclick="switchTab('bosses')">
                     <i class="fa-solid fa-skull-crossbones"></i> <span>Quản Lý Boss</span>
                 </button>
             </nav>
@@ -1164,7 +1164,7 @@
 
 
         <!-- TAB 7: QUẢN LÝ BOT GIẢ LẬP SERVER -->
-        <div id="tab-bots" class="tab-content">
+        <div id="tab-bots" class="tab-content" style="display: none;">
             <div class="glass" style="margin-bottom: 20px;">
                 <div class="panel-header" style="justify-content: space-between;">
                     <h2><i class="fa-solid fa-robot" style="color: var(--cyan);"></i> HỆ THỐNG BOT GIẢ LẬP SERVER</h2>

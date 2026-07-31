@@ -320,19 +320,20 @@ function switchTab(tabName) {
 
     // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(el => {
-        el.style.display = 'none';
+        el.style.setProperty('display', 'none', 'important');
     });
 
     // Show target tab content
     const targetTab = document.getElementById(`tab-${tabName}`);
     if (targetTab) {
-        targetTab.style.display = 'block';
+        targetTab.style.setProperty('display', 'block', 'important');
     }
 
     // Update active class specifically on sidebar menu buttons
     document.querySelectorAll('.sidebar-menu .nav-btn').forEach(btn => {
+        const btnTab = btn.getAttribute('data-tab') || '';
         const onclickAttr = btn.getAttribute('onclick') || '';
-        if (onclickAttr.includes(`'${tabName}'`)) {
+        if (btnTab === tabName || onclickAttr.includes(`'${tabName}'`)) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
