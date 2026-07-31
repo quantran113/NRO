@@ -65,14 +65,22 @@ app.post('/api/admin/login', async (req, res) => {
                 const p = players[0];
                 let headId = p.head;
                 let avatarId = (p.gender === 1) ? 523 : (p.gender === 2 ? 519 : 521);
-                if (headId && headMap[headId]) {
-                    avatarId = headMap[headId];
+
+                if (headId && headId > 0) {
+                    try {
+                        const [headRows] = await pool.execute('SELECT avatar_id FROM head_avatar WHERE head_id = ? LIMIT 1', [headId]);
+                        if (headRows.length > 0 && headRows[0].avatar_id) {
+                            avatarId = headRows[0].avatar_id;
+                        }
+                    } catch (errHead) { }
                 }
+
                 playerInfo = {
                     id: p.id,
                     name: p.name,
                     gender: p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda',
                     head: headId,
+                    avatarId: avatarId,
                     avatarUrl: `/icons/${avatarId}.png`
                 };
             }

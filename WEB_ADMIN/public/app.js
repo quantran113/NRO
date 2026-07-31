@@ -156,10 +156,8 @@ function updatePortalUserWidget() {
             if (cGender) cGender.innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
             if (cId) cId.innerText = `#${p.id || 0}`;
             if (cAvatar) {
-                let defaultAvatar = '/icons/521.png';
-                if (p.gender === 1 || p.gender === 'Namếc') defaultAvatar = '/icons/523.png';
-                else if (p.gender === 2 || p.gender === 'Xayda') defaultAvatar = '/icons/519.png';
-                cAvatar.src = (p.avatarUrl && !p.avatarUrl.includes('64.png') && !p.avatarUrl.includes('28.png')) ? p.avatarUrl : defaultAvatar;
+                const imgUrl = (p.avatarUrl && !p.avatarUrl.includes('64.png') && !p.avatarUrl.includes('28.png')) ? p.avatarUrl : (p.avatarId ? `/icons/${p.avatarId}.png` : ((p.gender === 1 || p.gender === 'Namếc') ? '/icons/523.png' : (p.gender === 2 || p.gender === 'Xayda') ? '/icons/519.png' : '/icons/521.png'));
+                cAvatar.src = imgUrl;
             }
         }
     }
