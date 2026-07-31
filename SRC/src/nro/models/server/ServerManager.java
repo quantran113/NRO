@@ -333,10 +333,11 @@ public class ServerManager {
     }
 
     private static void activeCommandLine() {
-        Scanner scanner = new Scanner(System.in);
-        block14: while (true) {
-            String string;
-            switch (string = scanner.nextLine()) {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            block14: while (scanner.hasNextLine()) {
+                String string;
+                switch (string = scanner.nextLine()) {
                 case "bt": {
                     Maintenance.gI().startSeconds(5);
                     continue block14;
@@ -366,6 +367,7 @@ public class ServerManager {
             }
             System.out.println("L\u1ec7nh kh\u00f4ng h\u1ee3p l\u1ec7.");
         }
+        } catch (Exception ignored) {}
     }
 
     static {
