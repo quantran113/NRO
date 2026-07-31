@@ -147,16 +147,19 @@ function checkLoginState() {
                 if (playerPortal) playerPortal.style.display = 'block';
 
                 document.getElementById('portal-welcome-name').innerText = `Xin chào, ${currentLoggedUser.username}!`;
-                if (!currentLoggedUser.hasPlayer) {
+                if (!currentLoggedUser.hasPlayer || !currentLoggedUser.player) {
                     document.getElementById('portal-no-char-alert').style.display = 'block';
                     document.getElementById('portal-has-char-card').style.display = 'none';
                 } else {
                     document.getElementById('portal-no-char-alert').style.display = 'none';
                     document.getElementById('portal-has-char-card').style.display = 'block';
-                    document.getElementById('portal-char-name').innerText = currentLoggedUser.player.name;
-                    document.getElementById('portal-char-gender').innerText = currentLoggedUser.player.gender;
-                    document.getElementById('portal-char-id').innerText = `#${currentLoggedUser.player.id}`;
-                    document.getElementById('portal-avatar-img').src = currentLoggedUser.player.avatarUrl;
+                    const p = currentLoggedUser.player;
+                    document.getElementById('portal-char-name').innerText = p.name || '-';
+                    document.getElementById('portal-char-gender').innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
+                    document.getElementById('portal-char-id').innerText = `#${p.id || 0}`;
+                    if (p.avatarUrl) {
+                        document.getElementById('portal-avatar-img').src = p.avatarUrl;
+                    }
                 }
             }
             return;
@@ -207,16 +210,19 @@ function setupLoginForm() {
                     if (portal) portal.style.display = 'block';
 
                     document.getElementById('portal-welcome-name').innerText = `Xin chào, ${data.user.username}!`;
-                    if (!data.user.hasPlayer) {
+                    if (!data.user.hasPlayer || !data.user.player) {
                         document.getElementById('portal-no-char-alert').style.display = 'block';
                         document.getElementById('portal-has-char-card').style.display = 'none';
                     } else {
                         document.getElementById('portal-no-char-alert').style.display = 'none';
                         document.getElementById('portal-has-char-card').style.display = 'block';
-                        document.getElementById('portal-char-name').innerText = data.user.player.name;
-                        document.getElementById('portal-char-gender').innerText = data.user.player.gender;
-                        document.getElementById('portal-char-id').innerText = `#${data.user.player.id}`;
-                        document.getElementById('portal-avatar-img').src = data.user.player.avatarUrl;
+                        const p = data.user.player;
+                        document.getElementById('portal-char-name').innerText = p.name || '-';
+                        document.getElementById('portal-char-gender').innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
+                        document.getElementById('portal-char-id').innerText = `#${p.id || 0}`;
+                        if (p.avatarUrl) {
+                            document.getElementById('portal-avatar-img').src = p.avatarUrl;
+                        }
                     }
                 }
             } else {
