@@ -212,40 +212,60 @@ function checkLoginState() {
     showPublicHome();
 }
 
+async function executeLogin(username, password) {
+    if (!username || !password) {
+        return showToast('Vui lòng nhập đầy đủ tên tài khoản và mật khẩu!', 'error');
+    }
+
+    try {
+        const resp = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            currentLoggedUser = data.user;
+            sessionStorage.setItem('nro_logged_user', JSON.stringify(data.user));
+            closeLoginModal();
+            showToast(data.message, 'success');
+
+            if (data.user.admin >= 1) {
+                showAdminPanel();
+            } else {
+                showPublicHome();
+            }
+        } else {
+            showToast(data.message || 'Đăng nhập thất bại', 'error');
+        }
+    } catch (err) {
+        showToast('Không thể kết nối đến Web Server', 'error');
+    }
+}
+
+async function handleLoginSubmit(e) {
+    if (e) e.preventDefault();
+    const u = document.getElementById('admin-user');
+    const p = document.getElementById('admin-pass');
+    const username = u ? u.value.trim() : '';
+    const password = p ? p.value.trim() : '';
+    await executeLogin(username, password);
+}
+
+async function handleQuickInlineLogin(e) {
+    if (e) e.preventDefault();
+    const u = document.getElementById('inline-user');
+    const p = document.getElementById('inline-pass');
+    const username = u ? u.value.trim() : '';
+    const password = p ? p.value.trim() : '';
+    await executeLogin(username, password);
+}
+
 function setupLoginForm() {
     const form = document.getElementById('login-form');
     if (!form) return;
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = document.getElementById('admin-user').value.trim();
-        const password = document.getElementById('admin-pass').value.trim();
-
-        try {
-            const resp = await fetch('/api/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await resp.json();
-
-            if (data.success) {
-                currentLoggedUser = data.user;
-                sessionStorage.setItem('nro_logged_user', JSON.stringify(data.user));
-                closeLoginModal();
-                showToast(data.message, 'success');
-
-                if (data.user.admin >= 1) {
-                    showAdminPanel();
-                } else {
-                    showPublicHome();
-                }
-            } else {
-                showToast(data.message || 'Đăng nhập thất bại', 'error');
-            }
-        } catch (err) {
-            showToast('Không thể kết nối đến Web Server', 'error');
-        }
-    });
+    form.addEventListener('submit', handleLoginSubmit);
 }
 
 function logoutAdmin() {

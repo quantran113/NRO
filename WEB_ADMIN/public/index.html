@@ -37,7 +37,7 @@
             </div>
 
             <!-- Login Form -->
-            <form id="login-form" autocomplete="off" action="javascript:void(0);">
+            <form id="login-form" autocomplete="off" onsubmit="handleLoginSubmit(event)">
                 <!-- Fake inputs to trick Chrome/Safari Autofill -->
                 <input type="text" name="fakeusernameremembered" style="display:none;" tabindex="-1" />
                 <input type="password" name="fakepasswordremembered" style="display:none;" tabindex="-1" />
@@ -154,19 +154,21 @@
 
             <!-- USER ACCOUNT & ADMIN PROFILE WIDGET BAR -->
             <div class="teamobi-user-bar">
-                <!-- UNLOGGED WIDGET -->
-                <div id="widget-unlogged-state" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="font-size: 13px; font-weight: 700; color: #e65100;">
-                        <i class="fa-solid fa-user-lock"></i> Chưa đăng nhập tài khoản?
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button type="button" class="t-action-btn primary" onclick="openLoginModal()">
+                <!-- UNLOGGED WIDGET WITH QUICK INLINE LOGIN -->
+                <div id="widget-unlogged-state">
+                    <form onsubmit="handleQuickInlineLogin(event)" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; width: 100%;">
+                        <div style="font-size: 13px; font-weight: 700; color: #e65100; white-space: nowrap;">
+                            <i class="fa-solid fa-user-lock"></i> Đăng nhập:
+                        </div>
+                        <input type="text" id="inline-user" class="input-field" placeholder="Tên tài khoản..." style="max-width: 150px; padding: 5px 10px; font-size: 12px;" required>
+                        <input type="password" id="inline-pass" class="input-field" placeholder="Mật khẩu..." style="max-width: 150px; padding: 5px 10px; font-size: 12px;" required>
+                        <button type="submit" class="t-action-btn primary" style="padding: 6px 14px;">
                             <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP
                         </button>
-                        <button type="button" class="t-action-btn secondary" onclick="openLoginModal(); switchAuthTab('register');">
-                            <i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ MỚI
+                        <button type="button" class="t-action-btn secondary" onclick="openLoginModal(); switchAuthTab('register');" style="padding: 6px 14px;">
+                            <i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ
                         </button>
-                    </div>
+                    </form>
                 </div>
 
                 <!-- LOGGED IN WIDGET -->
