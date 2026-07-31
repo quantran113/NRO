@@ -2212,7 +2212,7 @@ async function loadAdminGiftcodes() {
 
         rows.forEach(gc => {
             const tr = document.createElement('tr');
-            tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            tr.style.borderBottom = '1px solid #f1f5f9';
 
             let detailStr = '';
             try {
