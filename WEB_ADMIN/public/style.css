@@ -1438,71 +1438,18 @@ tr:hover td {
     }
 
     .table-responsive {
-        border: none;
-        background: transparent;
-        overflow-x: visible !important;
-    }
-
-    .table-responsive table, 
-    .table-responsive thead, 
-    .table-responsive tbody, 
-    .table-responsive th, 
-    .table-responsive td, 
-    .table-responsive tr { 
-        display: block; 
-    }
-    
-    .table-responsive thead tr { 
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
+        width: 100%;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid var(--teamobi-orange-border);
     }
     
     .table-responsive tbody tr { 
         background: #ffffff;
-        border: 1px solid var(--teamobi-orange-border) !important;
-        border-radius: 10px !important;
-        margin-bottom: 12px !important;
-        padding: 12px !important;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .table-responsive tbody tr:hover {
-        border-color: var(--teamobi-orange) !important;
-        box-shadow: var(--shadow-orange);
-    }
-    
-    .table-responsive td { 
-        border: none !important;
-        border-bottom: 1px dashed #e2e8f0 !important;
-        padding: 8px 0 !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        font-size: 13px !important;
-        color: var(--text-main);
-    }
-
-    .table-responsive td::before {
-        content: attr(data-label);
-        font-weight: 800;
-        color: var(--teamobi-orange-dark);
-        font-size: 11px;
-        text-transform: uppercase;
-        margin-right: 12px;
-    }
-
-    .table-responsive td:last-child {
-        border-bottom: none !important;
-        padding-top: 8px !important;
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-    }
-
-    .table-responsive td:last-child button {
-        flex: 1;
-        justify-content: center;
+        border-radius: 10px;
+        border: 1px solid var(--teamobi-orange-border);
     }
 }
 
