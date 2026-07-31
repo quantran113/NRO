@@ -1958,6 +1958,78 @@ async function submitAdjustPlayerEventPoint() {
     }
 }
 
+function handleEventPointPlayerSearchInput() {
+    const input = document.getElementById('target-player-event-point');
+    const dropdown = document.getElementById('event-point-player-suggestions');
+    const badge = document.getElementById('event-point-player-status-badge');
+    if (!input || !dropdown) return;
+
+    const val = input.value.trim().toLowerCase();
+    if (!val) {
+        dropdown.style.display = 'none';
+        if (badge) { badge.className = 'badge-offline'; badge.innerText = 'Chưa chọn'; }
+        return;
+    }
+
+    const matches = playersList.filter(p => p.name && p.name.toLowerCase().includes(val));
+    if (matches.length === 0) {
+        dropdown.style.display = 'none';
+        if (badge) { badge.className = 'badge-offline'; badge.innerText = 'Chưa chọn'; }
+        return;
+    }
+
+    dropdown.innerHTML = '';
+    matches.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = `<strong>${escapeHtml(p.name)}</strong> <span style="font-size: 11px; color: var(--text-muted);">(${p.online ? 'Online' : 'Offline'} - ⭐ ${p.eventPoint || 0} điểm)</span>`;
+        item.onclick = () => {
+            input.value = p.name;
+            dropdown.style.display = 'none';
+            if (badge) {
+                badge.className = p.online ? 'badge-online' : 'badge-offline';
+                badge.innerText = p.online ? 'ONLINE' : 'OFFLINE';
+            }
+        };
+        dropdown.appendChild(item);
+    });
+    dropdown.style.display = 'block';
+}
+
+function setDirectEventPointPreset(val) {
+    const valInput = document.getElementById('direct-event-point-val-input');
+    const actionSelect = document.getElementById('direct-event-point-action-select');
+    if (!valInput) return;
+    if (actionSelect && actionSelect.value === 'add') {
+        const cur = parseInt(valInput.value) || 0;
+        valInput.value = cur + val;
+    } else {
+        valInput.value = val;
+    }
+}
+
+async function executeDirectEventPointUpdate(e) {
+    if (e) e.preventDefault();
+    const playerName = document.getElementById('target-player-event-point').value.trim();
+    const action = document.getElementById('direct-event-point-action-select').value;
+    const eventPoint = parseInt(document.getElementById('direct-event-point-val-input').value) || 0;
+
+    if (!playerName) return showToast('Vui lòng nhập tên nhân vật!', 'error');
+
+    try {
+        const resp = await fetch('/api/admin/player/update-event-point', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerName, action, eventPoint })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        await loadPlayers();
+    } catch (err) {
+        showToast('Lỗi khi cập nhật Điểm Sự Kiện', 'error');
+    }
+}
+
 function renderPlayerTable() {
     const tbody = document.getElementById('player-table-body');
     if (!tbody) return;
