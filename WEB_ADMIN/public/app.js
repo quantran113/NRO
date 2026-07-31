@@ -326,33 +326,60 @@ async function buyGoldForPlayer(quantity) {
     }
 }
 
-// --- NEW TAB SWITCHER LOGIC ---
-function switchTab(tabName) {
+// --- PUBLIC NAVBAR SWITCHER ---
+function selectPublicTab(tabName, event) {
+    if (event) event.preventDefault();
+    const navBtns = document.querySelectorAll('.teamobi-nav-bar .t-nav-btn');
+    navBtns.forEach(btn => btn.classList.remove('active'));
+
+    const targetBtn = document.getElementById('pub-nav-' + tabName);
+    if (targetBtn) targetBtn.classList.add('active');
+
+    if (tabName === 'home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tabName === 'gioi-thieu') {
+        const el = document.getElementById('gioi-thieu-sec');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    } else if (tabName === 'huong-dan') {
+        const el = document.getElementById('huong-dan-sec');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    } else if (tabName === 'nap-vang') {
+        const el = document.getElementById('giftcode-sec');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    } else if (tabName === 'dien-dan') {
+        const el = document.getElementById('forum-sec');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// --- ADMIN SIDEBAR MENU SWITCHER ---
+function selectAdminTab(tabName) {
     currentTab = tabName;
 
     // 1. Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(el => {
-        el.style.setProperty('display', 'none', 'important');
-    });
+    const allTabs = document.getElementsByClassName('tab-content');
+    for (let i = 0; i < allTabs.length; i++) {
+        allTabs[i].style.setProperty('display', 'none', 'important');
+    }
 
     // 2. Show target tab content
-    const targetTab = document.getElementById(`tab-${tabName}`);
+    const targetTab = document.getElementById('tab-' + tabName);
     if (targetTab) {
         targetTab.style.setProperty('display', 'block', 'important');
     }
 
-    // 3. Remove active-nav-item from all menu items
-    document.querySelectorAll('.admin-nav-item').forEach(btn => {
-        btn.classList.remove('active-nav-item');
-    });
+    // 3. Update active state on sidebar menu items
+    const allBtns = document.getElementsByClassName('admin-nav-item');
+    for (let i = 0; i < allBtns.length; i++) {
+        allBtns[i].classList.remove('active-nav-item');
+    }
 
-    // 4. Add active-nav-item to target menu item by ID
-    const activeBtn = document.getElementById(`menu-btn-${tabName}`);
+    const activeBtn = document.getElementById('menu-btn-' + tabName);
     if (activeBtn) {
         activeBtn.classList.add('active-nav-item');
     }
 
-    // 5. Tab-specific data reload triggers wrapped safely
+    // 4. Tab-specific data reload triggers
     try {
         if (tabName === 'accounts' && typeof loadAccountData === 'function') loadAccountData();
         else if (tabName === 'players' && typeof loadPlayers === 'function') loadPlayers();
@@ -365,6 +392,10 @@ function switchTab(tabName) {
     } catch (e) {
         console.error('Error reloading tab data:', e);
     }
+}
+
+function switchTab(tabName) {
+    selectAdminTab(tabName);
 }
 
 async function loadStats() {
