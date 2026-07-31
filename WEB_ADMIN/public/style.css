@@ -239,11 +239,12 @@ body {
     background: linear-gradient(135deg, #ff7a18 0%, #e65100 100%) !important;
     color: #ffffff !important;
     border-color: #e65100 !important;
-    box-shadow: 0 4px 14px rgba(230, 81, 0, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(230, 81, 0, 0.35) !important;
     font-weight: 800 !important;
 }
 
-.sidebar-menu .nav-btn.active i {
+.sidebar-menu .nav-btn.active i,
+.sidebar-menu .nav-btn.active span {
     color: #ffffff !important;
 }
 

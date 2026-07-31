@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupLoginForm();
     setupRegisterForm();
     setupOutsideClickListener();
+    loadStats();
 });
 
 // --- LOGIN & AUTH ---
@@ -325,7 +326,7 @@ function switchTab(tabName) {
     // Update active class specifically on sidebar menu buttons
     document.querySelectorAll('.sidebar-menu .nav-btn').forEach(btn => {
         const onclickAttr = btn.getAttribute('onclick') || '';
-        if (onclickAttr.includes(`switchTab('${tabName}')`) || onclickAttr.includes(`switchTab("${tabName}")`)) {
+        if (onclickAttr.includes(`'${tabName}'`)) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
@@ -357,9 +358,15 @@ async function loadStats() {
         const resp = await fetch('/api/admin/stats');
         if (resp.ok) {
             const data = await resp.json();
-            document.getElementById('stat-accounts').innerText = data.totalAccounts || 0;
-            document.getElementById('stat-players').innerText = data.totalPlayers || 0;
-            document.getElementById('stat-online').innerText = data.onlinePlayers || 0;
+            const elAcc = document.getElementById('stat-accounts');
+            const elPl = document.getElementById('stat-players');
+            const elOn = document.getElementById('stat-online');
+            const elPubOn = document.getElementById('public-stat-online');
+
+            if (elAcc) elAcc.innerText = (data.totalAccounts || 0).toLocaleString('vi-VN');
+            if (elPl) elPl.innerText = (data.totalPlayers || 0).toLocaleString('vi-VN');
+            if (elOn) elOn.innerText = (data.onlinePlayers || 0).toLocaleString('vi-VN');
+            if (elPubOn) elPubOn.innerText = (data.onlinePlayers || 0).toLocaleString('vi-VN');
         }
     } catch (e) {
         console.error('Failed to load stats', e);
