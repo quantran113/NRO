@@ -418,18 +418,45 @@ body {
     z-index: 999;
 }
 
-@media (max-width: 992px) {
-    .sidebar {
-        display: none;
-    }
+/* Mobile Toggle Button & Backdrop */
+.mobile-toggle-btn {
+    display: none;
+    background: var(--teamobi-orange-bg);
+    color: var(--teamobi-orange-dark);
+    border: 1px solid var(--teamobi-orange-border);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
 
-    .main-content {
-        margin-left: 0;
-    }
+.mobile-toggle-btn:hover, .mobile-toggle-btn:active {
+    background: var(--teamobi-orange);
+    color: #ffffff;
+}
 
-    .mobile-top-bar {
-        display: flex;
-    }
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99990;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.active {
+    display: block !important;
+    opacity: 1 !important;
 }
 
 /* ==========================================
@@ -1388,31 +1415,141 @@ tr:hover td {
     background: #fff8f3;
 }
 
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px;
+/* ==========================================
+   MOBILE & TABLET RESPONSIVE DESIGN (iOS & Android)
+   ========================================== */
+
+/* Tablet & Mobile Screens (<= 992px) */
+@media (max-width: 992px) {
+    .mobile-toggle-btn {
+        display: flex !important;
     }
 
-    .grant-grid, .pet-grid {
-        grid-template-columns: 1fr !important;
-        gap: 14px;
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: -280px !important;
+        width: 270px !important;
+        z-index: 99995 !important;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 6px 0 25px rgba(0, 0, 0, 0.2) !important;
+        display: flex !important;
+    }
+
+    .sidebar.open {
+        left: 0 !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    .mobile-top-bar {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #ffffff;
+        border-bottom: 1px solid var(--teamobi-orange-border);
+        position: sticky;
+        top: 0;
+        z-index: 9990;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     .container {
-        padding: 14px 10px;
+        padding: 14px 10px !important;
     }
-}
 
-@media (max-width: 480px) {
     .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .grant-grid, .pet-grid, .form-row, .grid-2, .grid-3 {
         grid-template-columns: 1fr !important;
+        gap: 12px !important;
     }
 }
 
+/* Smartphone Screens (<= 576px) */
+@media (max-width: 576px) {
+    body {
+        font-size: 13px;
+    }
+
+    .container {
+        padding: 10px 6px !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .stat-card {
+        padding: 12px 10px !important;
+    }
+
+    .stat-card h3 {
+        font-size: 18px !important;
+    }
+
+    .stat-card p {
+        font-size: 11px !important;
+    }
+
+    .glass {
+        padding: 14px 10px !important;
+        border-radius: 8px !important;
+    }
+
+    /* Modal Responsive on Mobile */
+    .modal-card {
+        width: 95vw !important;
+        max-width: 100% !important;
+        padding: 16px 12px !important;
+        border-radius: 12px !important;
+        max-height: 90vh !important;
+    }
+
+    .modal-header h3 {
+        font-size: 15px !important;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse !important;
+        gap: 8px !important;
+    }
+
+    .modal-footer button {
+        width: 100% !important;
+        padding: 10px !important;
+    }
+
+    /* Form Inputs on Mobile - prevent iOS auto-zoom */
+    .input-field, .select-field, textarea {
+        font-size: 14px !important;
+        padding: 9px 10px !important;
+    }
+
+    /* Action buttons in tables */
+    td div {
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+    }
+
+    td button {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+    }
+
+    /* Login Card Mobile */
     .login-card {
-        padding: 24px 18px !important;
-        width: 92vw !important;
+        width: 94vw !important;
+        padding: 24px 16px !important;
     }
 }
 

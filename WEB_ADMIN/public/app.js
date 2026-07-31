@@ -378,6 +378,7 @@ function selectPublicTab(tabName, event) {
 // --- ADMIN SIDEBAR MENU SWITCHER ---
 function selectAdminTab(tabName) {
     currentTab = tabName;
+    if (typeof closeMobileSidebar === 'function') closeMobileSidebar();
 
     // 1. Hide all tab contents
     const allTabs = document.getElementsByClassName('tab-content');
@@ -415,6 +416,24 @@ function selectAdminTab(tabName) {
     } catch (e) {
         console.error('Error reloading tab data:', e);
     }
+}
+
+function toggleMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (sidebar) {
+        sidebar.classList.toggle('open');
+        if (backdrop) {
+            backdrop.classList.toggle('active', sidebar.classList.contains('open'));
+        }
+    }
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (sidebar) sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('active');
 }
 
 function switchTab(tabName) {
