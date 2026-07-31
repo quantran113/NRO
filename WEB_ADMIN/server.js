@@ -491,31 +491,54 @@ app.get('/api/item-templates', async (req, res) => {
 });
 
 // Change Character Name Endpoint (Admin)
-app.post('/api/admin/player/change-name', async (req, res) => {
+app.post(['/api/rename-player', '/api/admin/player/change-name'], async (req, res) => {
     try {
-        const { playerId, newName } = req.body;
-        if (!playerId || !newName) {
-            return res.status(400).json({ status: 'error', message: 'Thiếu ID nhân vật hoặc tên mới' });
+        const { oldName, newName, playerId } = req.body;
+        const targetOldName = oldName ? oldName.trim() : '';
+        const cleanNewName = newName ? newName.trim() : '';
+
+        if (!cleanNewName) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu tên nhân vật mới' });
         }
-        const cleanName = newName.trim();
-        if (cleanName.length < 2 || cleanName.length > 20) {
+        if (cleanNewName.length < 2 || cleanNewName.length > 20) {
             return res.status(400).json({ status: 'error', message: 'Tên nhân vật phải từ 2 đến 20 ký tự' });
         }
 
-        const [existing] = await pool.execute('SELECT id FROM player WHERE name = ? AND id != ?', [cleanName, playerId]);
+        // 1. Try Java API
+        try {
+            const resp = await fetch(`${JAVA_API_URL}/api/rename-player`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ oldName: targetOldName, newName: cleanNewName, playerId })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                return res.json(data);
+            }
+        } catch (err) { }
+
+        // 2. Fallback to MySQL DB
+        const [existing] = await pool.execute('SELECT id FROM player WHERE name = ?', [cleanNewName]);
         if (existing.length > 0) {
-            return res.status(400).json({ status: 'error', message: `Tên nhân vật [${cleanName}] đã tồn tại!` });
+            return res.status(400).json({ status: 'error', message: `Tên nhân vật [${cleanNewName}] đã tồn tại!` });
         }
 
-        await pool.execute('UPDATE player SET name = ? WHERE id = ?', [cleanName, playerId]);
-        res.json({ status: 'success', message: `Đã đổi tên nhân vật thành [${cleanName}] thành công!` });
+        if (targetOldName) {
+            await pool.execute('UPDATE player SET name = ? WHERE name = ?', [cleanNewName, targetOldName]);
+        } else if (playerId) {
+            await pool.execute('UPDATE player SET name = ? WHERE id = ?', [cleanNewName, playerId]);
+        } else {
+            return res.status(400).json({ status: 'error', message: 'Thiếu thông tin nhân vật' });
+        }
+
+        res.json({ status: 'success', message: `Đã đổi tên nhân vật thành [${cleanNewName}] thành công!` });
     } catch (err) {
         res.status(500).json({ status: 'error', message: err.message });
     }
 });
 
 // Skip / Change Task Endpoint (Java API with MySQL fallback)
-app.post('/api/admin/player/next-task', async (req, res) => {
+app.post(['/api/next-task', '/api/admin/player/next-task'], async (req, res) => {
     try {
         const { playerName, taskId } = req.body;
         if (!playerName) {
