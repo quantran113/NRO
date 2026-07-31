@@ -1388,45 +1388,7 @@ tr:hover td {
     background: #fff8f3;
 }
 
-@media (max-width: 992px) {
-    header {
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        padding: 10px 14px;
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
-    }
-
-    .brand {
-        justify-content: center;
-    }
-
-    .nav-links {
-        display: flex;
-        overflow-x: auto;
-        padding: 2px 0 4px 0;
-        gap: 6px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-
-    .nav-links::-webkit-scrollbar {
-        display: none;
-    }
-
-    .nav-btn {
-        flex-shrink: 0;
-        padding: 7px 12px;
-        font-size: 12px;
-        white-space: nowrap;
-    }
-
-    .container {
-        padding: 14px 10px;
-    }
-
+@media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px;
@@ -1437,26 +1399,16 @@ tr:hover td {
         gap: 14px;
     }
 
-    .table-responsive {
-        width: 100%;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        background: #ffffff;
-        border-radius: 10px;
-        border: 1px solid var(--teamobi-orange-border);
-    }
-    
-    .table-responsive tbody tr { 
-        background: #ffffff;
-        border-radius: 10px;
-        border: 1px solid var(--teamobi-orange-border);
+    .container {
+        padding: 14px 10px;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
     .stats-grid {
         grid-template-columns: 1fr !important;
     }
+}
 
     .login-card {
         padding: 24px 18px !important;
