@@ -184,6 +184,7 @@ function showAdminPanel() {
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) sidebar.style.display = 'flex';
 
+    switchTab(currentTab || 'grant');
     initAdminData();
 }
 
@@ -321,10 +322,10 @@ function switchTab(tabName) {
         targetTab.style.display = 'block';
     }
 
-    // Update active class on all nav-btn elements
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    // Update active class specifically on sidebar menu buttons
+    document.querySelectorAll('.sidebar-menu .nav-btn').forEach(btn => {
         const onclickAttr = btn.getAttribute('onclick') || '';
-        if (onclickAttr.includes(`'${tabName}'`) || onclickAttr.includes(`"${tabName}"`)) {
+        if (onclickAttr.includes(`switchTab('${tabName}')`) || onclickAttr.includes(`switchTab("${tabName}")`)) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
