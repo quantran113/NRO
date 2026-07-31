@@ -63,6 +63,7 @@ public class AdminHttpServer {
             server.createContext("/api/map-templates", new MapTemplatesHandler());
             server.createContext("/api/npc-shops", new NpcShopsHandler());
             server.createContext("/api/next-task", new NextTaskHandler());
+            server.createContext("/api/rename-player", new RenamePlayerHandler());
             server.createContext("/api/reload-giftcode", new ReloadGiftCodeHandler());
             server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
             server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
@@ -1255,6 +1256,81 @@ public class AdminHttpServer {
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/rename-player ---
+    private static class RenamePlayerHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStream is = exchange.getRequestBody();
+                String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
+
+                String oldName = body != null && body.get("oldName") != null ? body.get("oldName").toString().trim() : "";
+                String newName = body != null && body.get("newName") != null ? body.get("newName").toString().trim() : "";
+
+                if (oldName.isEmpty() || newName.isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Vui lòng nhập đầy đủ tên nhân vật!\"}");
+                    return;
+                }
+
+                if (oldName.equalsIgnoreCase(newName)) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật mới trùng với tên cũ!\"}");
+                    return;
+                }
+
+                // Check if newName already exists in DB
+                try (Connection conn = LocalManager.getConnection();
+                     PreparedStatement ps = conn.prepareStatement("SELECT id FROM player WHERE name = ?")) {
+                    ps.setString(1, newName);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật '" + newName + "' đã được sử dụng!\"}");
+                            return;
+                        }
+                    }
+                }
+
+                // Update DB
+                int rows = 0;
+                try (Connection conn = LocalManager.getConnection();
+                     PreparedStatement ps = conn.prepareStatement("UPDATE player SET name = ? WHERE name = ?")) {
+                    ps.setString(1, newName);
+                    ps.setString(2, oldName);
+                    rows = ps.executeUpdate();
+                }
+
+                if (rows == 0) {
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật '" + oldName + "'!\"}");
+                    return;
+                }
+
+                // Update in-memory player if online
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(oldName)) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                if (player != null) {
+                    player.name = newName;
+                    Service.gI().sendThongBao(player, "Tên nhân vật của bạn đã được đổi thành: " + newName);
+                    Service.gI().Send_Info_NV(player);
+                }
+
+                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã đổi tên nhân vật '" + oldName + "' thành '" + newName + "' thành công!\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Lỗi máy chủ: " + e.getMessage() + "\"}");
             }
         }
     }

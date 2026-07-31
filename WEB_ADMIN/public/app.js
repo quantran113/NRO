@@ -1898,7 +1898,7 @@ function nextPlayerTask(playerName) {
         `Bạn có chắc chắn muốn chuyển sang nhiệm vụ tiếp theo cho nhân vật <strong style="color: var(--gold);">${escapeHtml(playerName)}</strong>?`,
         async () => {
             try {
-                const resp = await fetch('/api/admin/player/next-task', {
+                const resp = await fetch('/api/next-task', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ playerName })
@@ -1911,6 +1911,48 @@ function nextPlayerTask(playerName) {
             }
         }
     );
+}
+
+let currentRenameOldName = '';
+function changePlayerName(idOrName, nameStr) {
+    const targetName = typeof nameStr === 'string' && nameStr ? nameStr : idOrName;
+    currentRenameOldName = String(targetName);
+    const label = document.getElementById('rename-player-old-name');
+    const input = document.getElementById('rename-player-new-name-input');
+    if (label) label.textContent = currentRenameOldName;
+    if (input) input.value = currentRenameOldName;
+    showModal('modal-rename-player');
+}
+
+async function submitRenamePlayer() {
+    const input = document.getElementById('rename-player-new-name-input');
+    if (!input) return;
+    const newName = input.value.trim();
+    if (!newName) {
+        showToast('Vui lòng nhập tên nhân vật mới', 'error');
+        return;
+    }
+    if (newName === currentRenameOldName) {
+        showToast('Tên nhân vật mới trùng với tên cũ', 'error');
+        return;
+    }
+    try {
+        const resp = await fetch('/api/rename-player', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ oldName: currentRenameOldName, newName })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            showToast(data.message || 'Đổi tên thành công!', 'success');
+            closeModal('modal-rename-player');
+            await loadPlayers();
+        } else {
+            showToast(data.message || 'Đổi tên thất bại', 'error');
+        }
+    } catch (e) {
+        showToast('Lỗi kết nối khi đổi tên nhân vật', 'error');
+    }
 }
 
 function openModal(id) {

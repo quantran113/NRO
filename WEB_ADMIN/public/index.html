@@ -8,7 +8,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>NRO Server Admin Control Panel - Cấp Đồ, Đệ Tử & Sự Kiện Realtime</title>
-    <link rel="stylesheet" href="style.css?v=20260731_v110">
+    <link rel="stylesheet" href="style.css?v=20260731_v111">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -1644,10 +1644,35 @@
         </div>
     </div>
 
+    <!-- CUSTOM MODAL: RENAME PLAYER -->
+    <div id="modal-rename-player" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pen-to-square" style="color: var(--cyan);"></i> ĐỔI TÊN NHÂN VẬT</h3>
+                <button type="button" class="modal-close-btn" onclick="closeModal('modal-rename-player')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding-top: 15px;">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+                    Đang đổi tên cho nhân vật: <strong id="rename-player-old-name" style="color: var(--teamobi-orange-dark);">N/A</strong>
+                </p>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-signature" style="color: var(--teamobi-orange);"></i> Tên Nhân Vật Mới</label>
+                    <input type="text" id="rename-player-new-name-input" class="input-field" placeholder="Nhập tên nhân vật mới...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-rename-player')">HỦY BỎ</button>
+                <button type="button" class="btn-primary" onclick="submitRenamePlayer()" style="background: linear-gradient(135deg, #00f3ff, #0284c7); color: #fff; font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> XÁC NHẬN ĐỔI TÊN
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
 
-    <script src="app.js?v=20260731_v110"></script>
+    <script src="app.js?v=20260731_v111"></script>
 </body>
 
 </html>
