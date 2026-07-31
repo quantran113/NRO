@@ -839,19 +839,25 @@ body {
     letter-spacing: 0.5px;
 }
 
-.input-field, .select-field {
+.input-field, .select-field, select {
     width: 100%;
     padding: 11px 14px;
-    background: #ffffff;
+    background-color: #ffffff !important;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    color: var(--text-main);
+    color: #1e293b !important;
     font-size: 14px;
     outline: none;
     transition: var(--transition);
 }
 
-.input-field:focus, .select-field:focus {
+select option, .select-field option {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    padding: 8px 12px;
+}
+
+.input-field:focus, .select-field:focus, select:focus {
     border-color: var(--teamobi-orange);
     box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
 }

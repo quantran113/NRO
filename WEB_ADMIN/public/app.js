@@ -719,7 +719,7 @@ function renderShopOptionsList() {
         row.style.marginBottom = '8px';
         row.innerHTML = `
             <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
-                <input type="text" class="input-field" placeholder="🔍 Gõ tên hoặc ID để lọc..." style="padding: 4px 8px; font-size: 11px; background: rgba(0,0,0,0.5);" oninput="filterOptionSelect(this, null, null, ${idx})" />
+                <input type="text" class="input-field" placeholder="🔍 Gõ tên hoặc ID để lọc..." style="padding: 6px 10px; font-size: 12px; background: #ffffff; color: var(--text-main); border: 1px solid #cbd5e1;" oninput="filterOptionSelect(this, null, null, ${idx})" />
                 <select class="select-field" style="width: 100%; font-size: 12px;" onchange="updateShopOptionValue(${idx}, 'id', this.value)">
                     ${selectOptions}
                 </select>
@@ -1312,7 +1312,7 @@ function renderCartList() {
             optionsHtml += `
                 <div class="option-row" style="margin-bottom: 8px;">
                     <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
-                        <input type="text" class="input-field" placeholder="🔍 Gõ tên hoặc ID để lọc (VD: Sức đánh, 50)..." style="padding: 4px 8px; font-size: 11px; background: rgba(0,0,0,0.5); border-color: rgba(0,243,255,0.3);" oninput="filterOptionSelect(this, ${idx}, ${optIdx})" />
+                        <input type="text" class="input-field" placeholder="🔍 Gõ tên hoặc ID để lọc (VD: Sức đánh, 50)..." style="padding: 6px 10px; font-size: 12px; background: #ffffff; color: var(--text-main); border: 1px solid #cbd5e1;" oninput="filterOptionSelect(this, ${idx}, ${optIdx})" />
                         <select class="select-field" style="width: 100%; font-size: 12px;" onchange="updateCartOptionValue(${idx}, ${optIdx}, 'id', this.value)">
                             ${selectOptions}
                         </select>
@@ -2089,28 +2089,32 @@ function renderGcItemsRows() {
 
     currentGcItems.forEach((item, index) => {
         const row = document.createElement('div');
-        row.className = 'glass';
-        row.style.padding = '12px';
-        row.style.marginBottom = '10px';
-        row.style.border = '1px solid rgba(255,255,255,0.1)';
+        row.style.padding = '14px';
+        row.style.marginBottom = '12px';
+        row.style.background = '#ffffff';
+        row.style.border = '1px solid #ffe0b2';
+        row.style.borderRadius = '10px';
+        row.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
 
         const isCurrency = item.id < 0;
 
         let optionsHtml = '';
         if (!isCurrency) {
             optionsHtml = `
-                <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="font-size: 11px; color: var(--cyan);"><i class="fa-solid fa-bolt"></i> Option của vật phẩm này</span>
-                        <button type="button" class="btn-secondary" style="font-size: 10px; padding: 2px 6px;" onclick="addGcItemOption(${index})">+ Thêm Option</button>
+                <div style="margin-top: 10px; border-top: 1px dashed #ffd8a8; padding-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #e65100;"><i class="fa-solid fa-bolt"></i> Option / Chỉ Số Vật Phẩm</span>
+                        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px; background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; font-weight: 700;" onclick="addGcItemOption(${index})">+ Thêm Option</button>
                     </div>
                     ${item.options.map((opt, optIdx) => `
-                        <div style="display: flex; gap: 6px; margin-bottom: 4px; align-items: center;">
-                            <select class="input-field" style="font-size: 11px; padding: 4px;" onchange="updateGcOptionField(${index}, ${optIdx}, 'id', this.value)">
+                        <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center;">
+                            <select class="select-field" style="flex: 1; font-size: 12px; padding: 6px 10px; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1;" onchange="updateGcOptionField(${index}, ${optIdx}, 'id', this.value)">
                                 ${optionTemplates.map(o => `<option value="${o.id}" ${o.id === opt.id ? 'selected' : ''}>#${o.id} - ${escapeHtml(o.name)}</option>`).join('')}
                             </select>
-                            <input type="number" class="input-field" style="width: 80px; font-size: 11px; padding: 4px;" value="${opt.param}" placeholder="Param" onchange="updateGcOptionField(${index}, ${optIdx}, 'param', this.value)">
-                            <button type="button" class="btn-secondary" style="font-size: 10px; padding: 2px 6px; color: var(--red);" onclick="removeGcItemOption(${index}, ${optIdx})">&times;</button>
+                            <input type="number" class="input-field" style="width: 110px; font-size: 12px; padding: 6px 10px; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 700;" value="${opt.param}" placeholder="Param" onchange="updateGcOptionField(${index}, ${optIdx}, 'param', this.value)">
+                            <button type="button" class="btn-danger" style="font-size: 11px; padding: 6px 10px;" onclick="removeGcItemOption(${index}, ${optIdx})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </div>
                     `).join('')}
                 </div>
@@ -2119,19 +2123,19 @@ function renderGcItemsRows() {
 
         row.innerHTML = `
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <span style="font-weight: bold; color: ${isCurrency ? 'var(--gold)' : 'var(--cyan)'}; font-size: 13px;">
+                <span style="font-weight: bold; color: ${isCurrency ? 'var(--teamobi-orange-dark)' : 'var(--cyan)'}; font-size: 13px;">
                     ${isCurrency ? (item.id === -1 ? '💰 VÀNG' : item.id === -2 ? '💎 NGỌC' : '🔴 NGỌC KHÓA') : '📦 ID Item:'}
                 </span>
                 ${!isCurrency ? `
-                    <select class="input-field" style="flex: 1; min-width: 180px; font-size: 12px;" onchange="updateGcItemField(${index}, 'id', this.value)">
+                    <select class="select-field" style="flex: 1; min-width: 180px; font-size: 12px; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1;" onchange="updateGcItemField(${index}, 'id', this.value)">
                         ${itemTemplates.map(t => `<option value="${t.id}" ${t.id === item.id ? 'selected' : ''}>#${t.id} - ${escapeHtml(t.name)}</option>`).join('')}
                     </select>
                 ` : `<span style="font-weight: bold; color: var(--text-main);">${item.name || ''}</span>`}
                 <div style="display: flex; gap: 4px; align-items: center;">
                     <span style="font-size: 12px; color: var(--text-muted);">Số lượng:</span>
-                    <input type="number" class="input-field" style="width: 100px; font-weight: bold;" value="${item.quantity}" onchange="updateGcItemField(${index}, 'quantity', this.value)">
+                    <input type="number" class="input-field" style="width: 100px; font-weight: bold; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1;" value="${item.quantity}" onchange="updateGcItemField(${index}, 'quantity', this.value)">
                 </div>
-                <button type="button" class="btn-secondary" style="color: var(--red); padding: 6px 10px;" onclick="removeGcItemRow(${index})">
+                <button type="button" class="btn-danger" style="padding: 6px 10px;" onclick="removeGcItemRow(${index})">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
