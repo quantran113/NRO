@@ -1913,6 +1913,14 @@ function nextPlayerTask(playerName) {
     );
 }
 
+function openModal(id) {
+    if (typeof showModal === 'function') showModal(id);
+    else {
+        const el = document.getElementById(id);
+        if (el) el.style.setProperty('display', 'flex', 'important');
+    }
+}
+
 function openAdjustPlayerEventPointModal(playerName, currentPoint) {
     const targetInput = document.getElementById('modal-event-point-target-name');
     const valInput = document.getElementById('modal-event-point-val-input');
@@ -1922,7 +1930,7 @@ function openAdjustPlayerEventPointModal(playerName, currentPoint) {
     if (valInput) valInput.value = currentPoint || 0;
     if (actionSelect) actionSelect.value = 'set';
 
-    openModal('modal-adjust-event-point');
+    showModal('modal-adjust-event-point');
 }
 
 function setModalEventPointPreset(val) {
@@ -2031,124 +2039,7 @@ async function executeDirectEventPointUpdate(e) {
     }
 }
 
-function handleTabEventPointPlayerSearchInput() {
-    const input = document.getElementById('tab-target-player-event-point');
-    const dropdown = document.getElementById('tab-event-point-player-suggestions');
-    const badge = document.getElementById('tab-event-point-player-status-badge');
-    if (!input || !dropdown) return;
 
-    const val = input.value.trim().toLowerCase();
-    if (!val) {
-        dropdown.style.display = 'none';
-        if (badge) { badge.className = 'badge-offline'; badge.innerText = 'Chưa chọn'; }
-        return;
-    }
-
-    const matches = playersList.filter(p => p.name && p.name.toLowerCase().includes(val));
-    if (matches.length === 0) {
-        dropdown.style.display = 'none';
-        if (badge) { badge.className = 'badge-offline'; badge.innerText = 'Chưa chọn'; }
-        return;
-    }
-
-    dropdown.innerHTML = '';
-    matches.forEach(p => {
-        const item = document.createElement('div');
-        item.className = 'suggestion-item';
-        item.innerHTML = `<strong>${escapeHtml(p.name)}</strong> <span style="font-size: 11px; color: var(--text-muted);">(${p.online ? 'Online' : 'Offline'} - ⭐ ${p.eventPoint || 0} điểm)</span>`;
-        item.onclick = () => {
-            input.value = p.name;
-            dropdown.style.display = 'none';
-            if (badge) {
-                badge.className = p.online ? 'badge-online' : 'badge-offline';
-                badge.innerText = p.online ? 'ONLINE' : 'OFFLINE';
-            }
-        };
-        dropdown.appendChild(item);
-    });
-    dropdown.style.display = 'block';
-}
-
-function setTabDirectEventPointPreset(val) {
-    const valInput = document.getElementById('tab-direct-event-point-val-input');
-    const actionSelect = document.getElementById('tab-direct-event-point-action-select');
-    if (!valInput) return;
-    if (actionSelect && actionSelect.value === 'add') {
-        const cur = parseInt(valInput.value) || 0;
-        valInput.value = cur + val;
-    } else {
-        valInput.value = val;
-    }
-}
-
-async function executeTabEventPointUpdate(e) {
-    if (e) e.preventDefault();
-    const playerName = document.getElementById('tab-target-player-event-point').value.trim();
-    const action = document.getElementById('tab-direct-event-point-action-select').value;
-    const eventPoint = parseInt(document.getElementById('tab-direct-event-point-val-input').value) || 0;
-
-    if (!playerName) return showToast('Vui lòng nhập tên nhân vật!', 'error');
-
-    try {
-        const resp = await fetch('/api/admin/player/update-event-point', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ playerName, action, eventPoint })
-        });
-        const data = await resp.json();
-        showToast(data.message, data.status === 'success' ? 'success' : 'error');
-        await loadPlayers();
-    } catch (err) {
-        showToast('Lỗi khi cập nhật Điểm Sự Kiện', 'error');
-    }
-}
-
-function renderTabEventPointTable() {
-    const tbody = document.getElementById('tab-event-point-table-body');
-    if (!tbody) return;
-    const searchElem = document.getElementById('tab-event-point-search');
-    const query = searchElem ? searchElem.value.toLowerCase().trim() : '';
-    tbody.innerHTML = '';
-
-    const filtered = playersList.filter(p => !query || (p.name && p.name.toLowerCase().includes(query)));
-
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Không có dữ liệu nhân vật</td></tr>';
-        return;
-    }
-
-    filtered.forEach(p => {
-        const tr = document.createElement('tr');
-
-        const genderText = p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda';
-        const statusBadge = p.online
-            ? '<span class="badge-online">ONLINE</span>'
-            : '<span class="badge-offline">OFFLINE</span>';
-
-        const avatarSrc = p.avatarUrl || `/icons/${p.avatarId || 521}.png`;
-        const eventPointBadge = `<span style="background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 13px; white-space: nowrap;"><i class="fa-solid fa-star"></i> ${(p.eventPoint !== undefined ? p.eventPoint : 0).toLocaleString('vi-VN')} điểm</span>`;
-
-        tr.innerHTML = `
-            <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${p.id}</td>
-            <td data-label="Tên Nhân Vật" style="padding: 12px; font-weight: 700; color: var(--text-main);">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <img src="${avatarSrc}" onerror="this.src='/icons/521.png';" style="width: 34px; height: 34px; object-fit: contain; background: var(--teamobi-orange-bg); border-radius: 8px; padding: 2px; border: 1px solid var(--teamobi-orange-border);" />
-                    <span>${escapeHtml(p.name)}</span>
-                </div>
-            </td>
-            <td data-label="Tài Khoản" style="padding: 12px; color: var(--teamobi-orange-dark); font-size: 13px;">${escapeHtml(p.username || 'N/A')}</td>
-            <td data-label="Hành Tinh" style="padding: 12px; color: var(--cyan);">${genderText}</td>
-            <td data-label="Điểm Sự Kiện" style="padding: 12px;">${eventPointBadge}</td>
-            <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
-            <td data-label="Thao Tác" style="padding: 12px;">
-                <button class="btn-secondary" style="padding: 6px 14px; font-size: 12px; background: #fff3e0; color: #e65100; font-weight: 800; border: 1px solid #ffb74d;" onclick="openAdjustPlayerEventPointModal('${escapeHtml(p.name)}', ${p.eventPoint || 0})">
-                    <i class="fa-solid fa-star"></i> ⭐ Đổi / Cấp Điểm
-                </button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
 
 function renderPlayerTable() {
     const tbody = document.getElementById('player-table-body');
