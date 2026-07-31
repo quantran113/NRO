@@ -1469,9 +1469,14 @@ public class AdminHttpServer {
                     }
                 }
 
-                if (player != null && player.event != null) {
+                int newPt = 0;
+                boolean isOnline = false;
+                if (player != null) {
+                    isOnline = true;
+                    if (player.event == null) {
+                        player.event = new nro.models.player.PlayerEvent(player);
+                    }
                     int currentPt = player.event.getEventPoint();
-                    int newPt = currentPt;
                     if ("set".equalsIgnoreCase(action)) {
                         newPt = eventPoint;
                     } else if ("sub".equalsIgnoreCase(action)) {
@@ -1483,24 +1488,24 @@ public class AdminHttpServer {
                     player.event.setEventPoint(newPt);
                     nro.models.services.Service.gI().sendThongBao(player, "Admin vừa cập nhật Điểm Sự Kiện cho bạn thành: " + newPt + " điểm!");
                     nro.models.database.PlayerDAO.updatePlayer(player);
+                }
 
-                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật Điểm Sự Kiện nhân vật [" + player.name + "] thành [" + newPt + " điểm] (ONLINE)!\"}");
+                int updated = 0;
+                try (Connection conn = LocalManager.getConnection();
+                     PreparedStatement ps = conn.prepareStatement("UPDATE player SET event_point = CASE WHEN ? = 'set' THEN ? WHEN ? = 'sub' THEN GREATEST(0, event_point - ?) ELSE event_point + ? END WHERE name = ?")) {
+                    ps.setString(1, action);
+                    ps.setInt(2, eventPoint);
+                    ps.setString(3, action);
+                    ps.setInt(4, eventPoint);
+                    ps.setInt(5, eventPoint);
+                    ps.setString(6, playerName.trim());
+                    updated = ps.executeUpdate();
+                }
+
+                if (isOnline || updated > 0) {
+                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật Điểm Sự Kiện nhân vật [" + playerName.trim() + "] thành công (" + (isOnline ? "ONLINE" : "OFFLINE") + ")!\"}");
                 } else {
-                    try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement ps = conn.prepareStatement("UPDATE player SET event_point = CASE WHEN ? = 'set' THEN ? WHEN ? = 'sub' THEN GREATEST(0, event_point - ?) ELSE event_point + ? END WHERE name = ?")) {
-                        ps.setString(1, action);
-                        ps.setInt(2, eventPoint);
-                        ps.setString(3, action);
-                        ps.setInt(4, eventPoint);
-                        ps.setInt(5, eventPoint);
-                        ps.setString(6, playerName.trim());
-                        int updated = ps.executeUpdate();
-                        if (updated > 0) {
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật Điểm Sự Kiện nhân vật [" + playerName + "] thành công trong CSDL (OFFLINE)!\"}");
-                        } else {
-                            sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "] trong CSDL!\"}");
-                        }
-                    }
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName.trim() + "] trong CSDL!\"}");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
