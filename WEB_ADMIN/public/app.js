@@ -2308,10 +2308,15 @@ function renderGcItemsRows() {
                         <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px; background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; font-weight: 700;" onclick="addGcItemOption(${index})">+ Thêm Option</button>
                     </div>
                     ${item.options.map((opt, optIdx) => `
-                        <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center;">
-                            <select class="select-field" style="flex: 1; font-size: 12px; padding: 6px 10px; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1;" onchange="updateGcOptionField(${index}, ${optIdx}, 'id', this.value)">
-                                ${optionTemplates.map(o => `<option value="${o.id}" ${o.id === opt.id ? 'selected' : ''}>#${o.id} - ${escapeHtml(o.name)}</option>`).join('')}
-                            </select>
+                        <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 180px; position: relative;">
+                                <input type="text" class="input-field" style="font-size: 11px; padding: 4px 8px; margin-bottom: 4px; background: #fafafa;"
+                                    placeholder="🔍 Gõ mã ID hoặc tên option..."
+                                    oninput="filterGcOptionSelect(this, ${index}, ${optIdx})">
+                                <select class="select-field" style="width: 100%; font-size: 12px; padding: 6px 10px; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1;" onchange="updateGcOptionField(${index}, ${optIdx}, 'id', this.value)">
+                                    ${optionTemplates.map(o => `<option value="${o.id}" ${o.id === opt.id ? 'selected' : ''}>#${o.id} - ${escapeHtml(o.name)}</option>`).join('')}
+                                </select>
+                            </div>
                             <input type="number" class="input-field" style="width: 110px; font-size: 12px; padding: 6px 10px; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 700;" value="${opt.param}" placeholder="Param" onchange="updateGcOptionField(${index}, ${optIdx}, 'param', this.value)">
                             <button type="button" class="btn-danger" style="font-size: 11px; padding: 6px 10px;" onclick="removeGcItemOption(${index}, ${optIdx})">
                                 <i class="fa-solid fa-trash"></i>
@@ -2325,12 +2330,17 @@ function renderGcItemsRows() {
         row.innerHTML = `
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <span style="font-weight: bold; color: ${isCurrency ? 'var(--teamobi-orange-dark)' : 'var(--cyan)'}; font-size: 13px;">
-                    ${isCurrency ? (item.id === -1 ? '💰 VÀNG' : item.id === -2 ? '💎 NGỌC' : '🔴 NGỌC KHÓA') : '📦 ID Item:'}
+                    ${isCurrency ? (item.id === -1 ? '💰 VÀNG' : item.id === -2 ? '💎 NGỌC' : '🔴 NGỌC KHÓA') : '📦 Vật Phẩm:'}
                 </span>
                 ${!isCurrency ? `
-                    <select class="select-field" style="flex: 1; min-width: 180px; font-size: 12px; background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1;" onchange="updateGcItemField(${index}, 'id', this.value)">
-                        ${itemTemplates.map(t => `<option value="${t.id}" ${t.id === item.id ? 'selected' : ''}>#${t.id} - ${escapeHtml(t.name)}</option>`).join('')}
-                    </select>
+                    <div style="flex: 1; min-width: 220px; position: relative;">
+                        <input type="text" class="input-field" style="font-size: 12px; padding: 6px 10px; background: #ffffff; font-weight: 700; color: var(--teamobi-orange-dark); border: 1px solid #ffcc80;"
+                            placeholder="🔍 Gõ mã ID hoặc tên vật phẩm (VD: 1795)..."
+                            value="${item.id > 0 ? '#' + item.id + ' - ' + (item.name || '') : ''}"
+                            oninput="filterGcItemSearch(this, ${index})"
+                            onfocus="filterGcItemSearch(this, ${index})">
+                        <div class="suggestions-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 10000; max-height: 200px; overflow-y: auto; background: #ffffff; border: 1px solid #ffcc80; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);"></div>
+                    </div>
                 ` : `<span style="font-weight: bold; color: var(--text-main);">${item.name || ''}</span>`}
                 <div style="display: flex; gap: 4px; align-items: center;">
                     <span style="font-size: 12px; color: var(--text-muted);">Số lượng:</span>
@@ -2344,6 +2354,82 @@ function renderGcItemsRows() {
         `;
         container.appendChild(row);
     });
+}
+
+function filterGcItemSearch(inputEl, gcIndex) {
+    const val = inputEl.value.trim().toLowerCase();
+    const dropdown = inputEl.nextElementSibling;
+    if (!dropdown) return;
+
+    if (itemTemplates.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    let matches = itemTemplates;
+    if (val) {
+        const cleanVal = val.startsWith('#') ? val.substring(1).trim() : val;
+        matches = itemTemplates.filter(i =>
+            i.id.toString().includes(cleanVal) ||
+            (i.name && i.name.toLowerCase().includes(cleanVal))
+        );
+    }
+
+    if (!matches || matches.length === 0) {
+        dropdown.innerHTML = '<div style="padding: 8px; font-size: 12px; color: var(--text-muted);">❌ Không tìm thấy vật phẩm nào</div>';
+        dropdown.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    matches.slice(0, 20).forEach(t => {
+        html += `
+            <div style="padding: 8px 10px; font-size: 12px; border-bottom: 1px solid #fff3e0; cursor: pointer; display: flex; align-items: center; justify-content: space-between;"
+                 onclick="selectGcItemSearchResult(${gcIndex}, ${t.id}, '${escapeHtml(t.name).replace(/'/g, "\\'")}')">
+                <span style="font-weight: 700; color: var(--text-main);">${escapeHtml(t.name)}</span>
+                <span style="background: #fff3e0; color: #e65100; padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 11px;">#${t.id}</span>
+            </div>
+        `;
+    });
+    dropdown.innerHTML = html;
+    dropdown.style.display = 'block';
+}
+
+function selectGcItemSearchResult(gcIndex, itemId, itemName) {
+    if (currentGcItems[gcIndex]) {
+        currentGcItems[gcIndex].id = itemId;
+        currentGcItems[gcIndex].name = itemName;
+        renderGiftCodeItemsList();
+    }
+}
+
+function filterGcOptionSelect(inputEl, gcIndex, optIdx) {
+    const val = inputEl.value.toLowerCase().trim();
+    const select = inputEl.nextElementSibling;
+    if (!select) return;
+
+    const listToUse = (optionTemplates && optionTemplates.length > 0) ? optionTemplates : POPULAR_OPTIONS;
+    const matches = listToUse.filter(o =>
+        !val ||
+        o.id.toString().includes(val) ||
+        (o.name && o.name.toLowerCase().includes(val))
+    );
+
+    let html = '';
+    if (matches.length === 0) {
+        html = '<option value="">❌ Không tìm thấy option nào khớp</option>';
+    } else {
+        matches.forEach(o => {
+            html += `<option value="${o.id}">${o.id} - ${escapeHtml(o.name)}</option>`;
+        });
+    }
+
+    select.innerHTML = html;
+    if (matches.length > 0) {
+        const selectedId = matches[0].id;
+        select.value = selectedId;
+        updateGcOptionField(gcIndex, optIdx, 'id', selectedId);
+    }
 }
 
 async function handleCreateGiftCode(e) {
