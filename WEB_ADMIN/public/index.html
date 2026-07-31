@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 </head>
 
 <body>
@@ -827,7 +828,8 @@
                         </button>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div id="account-grid" class="ag-theme-alpine" style="width: 100%; min-height: 400px; margin-bottom: 12px;"></div>
+                <div class="table-responsive" style="display: none;">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -857,7 +859,8 @@
                     <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..."
                         style="max-width: 300px;" oninput="renderPlayerTable()">
                 </div>
-                <div class="table-responsive">
+                <div id="player-grid" class="ag-theme-alpine" style="width: 100%; min-height: 400px; margin-bottom: 12px;"></div>
+                <div class="table-responsive" style="display: none;">
                     <table class="data-table">
                         <thead>
                             <tr>
