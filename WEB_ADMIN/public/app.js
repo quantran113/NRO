@@ -231,6 +231,13 @@ function checkLoginState() {
     if (saved) {
         try {
             currentLoggedUser = JSON.parse(saved);
+            if (currentLoggedUser && currentLoggedUser.player) {
+                if (!currentLoggedUser.player.avatarUrl || currentLoggedUser.player.avatarUrl.includes('64.png')) {
+                    const g = currentLoggedUser.player.gender;
+                    currentLoggedUser.player.avatarUrl = (g === 1 || g === 'Namếc') ? '/icons/29.png' : (g === 2 || g === 'Xayda') ? '/icons/30.png' : '/icons/28.png';
+                    sessionStorage.setItem('nro_logged_user', JSON.stringify(currentLoggedUser));
+                }
+            }
             if (currentLoggedUser && currentLoggedUser.admin >= 1) {
                 closeLoginModal();
                 showAdminPanel();
