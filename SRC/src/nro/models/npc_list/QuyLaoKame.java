@@ -89,20 +89,23 @@ public class QuyLaoKame extends Npc {
 
     @Override
     public void openBaseMenu(Player player) {
-        Item ruacon = InventoryService.gI().findItemBag(player, 874);
         if (canOpenNpc(player)) {
             ArrayList<String> menu = new ArrayList<>();
-            if (!player.canReward) {
-                menu.add("Nói\nchuyện");
-                menu.add("Đổi điểm\nsự kiện\n[" + player.event.getEventPoint() + "]");
-                menu.add("Nhận quà\nKOL");
-                menu.add("Nhận quà\nKOL VIP");
-                if (ruacon != null && ruacon.quantity >= 1) {
-                    menu.add("Giao\nRùa con");
-                }
-            } else {
+            menu.add("Nói\nchuyện");
+            menu.add("Shop Quy Lão\n[Kỹ Năng]");
+            menu.add("Đổi điểm\nsự kiện\n[" + player.event.getEventPoint() + " điểm]");
+            menu.add("Shop Đổi\nĐiểm QDDN");
+            menu.add("Nhận quà\nKOL");
+            menu.add("Nhận quà\nKOL VIP");
+
+            Item ruacon = InventoryService.gI().findItemBag(player, 874);
+            if (ruacon != null && ruacon.quantity >= 1) {
+                menu.add("Giao\nRùa con");
+            }
+            if (player.canReward) {
                 menu.add("Giao\nLân con");
             }
+
             String[] menus = menu.toArray(String[]::new);
             if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
                 this.createOtherMenu(player, ConstNpc.BASE_MENU, "Con muốn hỏi gì nào?", menus);
@@ -113,11 +116,6 @@ public class QuyLaoKame extends Npc {
     @Override
     public void confirmMenu(Player player, int select) {
         if (!canOpenNpc(player)) {
-            return;
-        }
-
-        if (player.canReward) {
-            RewardService.gI().rewardLancon(player);
             return;
         }
 
@@ -158,16 +156,36 @@ public class QuyLaoKame extends Npc {
                 handleTalk(player);
                 break;
             case 1:
-                ShopService.gI().opendShop(player, "SHOP_DOI_DIEM", false);
+                ShopService.gI().opendShop(player, "QUY_LAO", false);
                 break;
             case 2:
-                handleKOLQuest(player, false);
+                ShopService.gI().opendShop(player, "SHOP_DOI_DIEM", false);
                 break;
             case 3:
-                handleKOLQuest(player, true);
+                ShopService.gI().opendShop(player, "QDDN", false);
                 break;
             case 4:
-                handleTradeRuacon(player);
+                handleKOLQuest(player, false);
+                break;
+            case 5:
+                handleKOLQuest(player, true);
+                break;
+            default:
+                int currentIdx = 6;
+                Item ruacon = InventoryService.gI().findItemBag(player, 874);
+                if (ruacon != null && ruacon.quantity >= 1) {
+                    if (select == currentIdx) {
+                        handleTradeRuacon(player);
+                        return;
+                    }
+                    currentIdx++;
+                }
+                if (player.canReward) {
+                    if (select == currentIdx) {
+                        RewardService.gI().rewardLancon(player);
+                        return;
+                    }
+                }
                 break;
         }
     }
