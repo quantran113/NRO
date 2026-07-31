@@ -95,27 +95,56 @@ function clearLoginInputs() {
     if (p) p.value = '';
 }
 
+function showPublicHome() {
+    const appLayout = document.querySelector('.app-layout');
+    if (appLayout) appLayout.style.display = 'none';
+
+    const playerPortal = document.getElementById('player-portal-view');
+    if (playerPortal) playerPortal.style.display = 'none';
+
+    const publicHome = document.getElementById('public-home-view');
+    if (publicHome) publicHome.style.display = 'block';
+
+    closeLoginModal();
+}
+
+function openLoginModal() {
+    const loginScreen = document.getElementById('login-screen');
+    if (loginScreen) loginScreen.style.display = 'flex';
+}
+
+function closeLoginModal() {
+    const loginScreen = document.getElementById('login-screen');
+    if (loginScreen) loginScreen.style.display = 'none';
+}
+
 function checkLoginState() {
     const saved = sessionStorage.getItem('nro_logged_user');
     if (saved) {
         try {
             currentLoggedUser = JSON.parse(saved);
-            document.getElementById('login-screen').style.display = 'none';
+            closeLoginModal();
+
+            const publicHome = document.getElementById('public-home-view');
+            if (publicHome) publicHome.style.display = 'none';
+
             if (currentLoggedUser.admin >= 1) {
-                const header = document.querySelector('header');
-                if (header) header.style.display = 'flex';
-                const stats = document.querySelector('.stats-grid');
-                if (stats) stats.style.display = 'grid';
+                const appLayout = document.querySelector('.app-layout');
+                if (appLayout) appLayout.style.display = 'flex';
+
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) sidebar.style.display = 'flex';
+
+                const playerPortal = document.getElementById('player-portal-view');
+                if (playerPortal) playerPortal.style.display = 'none';
+
                 initAdminData();
             } else {
-                const header = document.querySelector('header');
-                if (header) header.style.display = 'none';
-                const stats = document.querySelector('.stats-grid');
-                if (stats) stats.style.display = 'none';
+                const appLayout = document.querySelector('.app-layout');
+                if (appLayout) appLayout.style.display = 'none';
 
-                document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-                const portal = document.getElementById('player-portal-view');
-                if (portal) portal.style.display = 'block';
+                const playerPortal = document.getElementById('player-portal-view');
+                if (playerPortal) playerPortal.style.display = 'block';
 
                 document.getElementById('portal-welcome-name').innerText = `Xin chào, ${currentLoggedUser.username}!`;
                 if (!currentLoggedUser.hasPlayer) {
@@ -133,9 +162,7 @@ function checkLoginState() {
             return;
         } catch (e) { }
     }
-    document.getElementById('login-screen').style.display = 'flex';
-    clearLoginInputs();
-    [50, 150, 300, 600, 1000].forEach(ms => setTimeout(clearLoginInputs, ms));
+    showPublicHome();
 }
 
 function setupLoginForm() {
@@ -157,29 +184,29 @@ function setupLoginForm() {
             if (data.success) {
                 currentLoggedUser = data.user;
                 sessionStorage.setItem('nro_logged_user', JSON.stringify(data.user));
-                document.getElementById('login-screen').style.display = 'none';
+                closeLoginModal();
                 showToast(data.message, 'success');
 
+                const publicHome = document.getElementById('public-home-view');
+                if (publicHome) publicHome.style.display = 'none';
+
                 if (data.user.admin >= 1) {
-                    const header = document.querySelector('header');
-                    if (header) header.style.display = 'flex';
-                    const stats = document.querySelector('.stats-grid');
-                    if (stats) stats.style.display = 'grid';
+                    const appLayout = document.querySelector('.app-layout');
+                    if (appLayout) appLayout.style.display = 'flex';
+                    const sidebar = document.querySelector('.sidebar');
+                    if (sidebar) sidebar.style.display = 'flex';
                     const portal = document.getElementById('player-portal-view');
                     if (portal) portal.style.display = 'none';
                     initAdminData();
                 } else {
-                    const header = document.querySelector('header');
-                    if (header) header.style.display = 'none';
-                    const stats = document.querySelector('.stats-grid');
-                    if (stats) stats.style.display = 'none';
+                    const appLayout = document.querySelector('.app-layout');
+                    if (appLayout) appLayout.style.display = 'none';
 
                     document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
                     const portal = document.getElementById('player-portal-view');
                     if (portal) portal.style.display = 'block';
 
                     document.getElementById('portal-welcome-name').innerText = `Xin chào, ${data.user.username}!`;
-
                     if (!data.user.hasPlayer) {
                         document.getElementById('portal-no-char-alert').style.display = 'block';
                         document.getElementById('portal-has-char-card').style.display = 'none';
@@ -204,8 +231,8 @@ function setupLoginForm() {
 function logoutAdmin() {
     sessionStorage.removeItem('nro_logged_user');
     currentLoggedUser = null;
-    document.getElementById('login-screen').style.display = 'flex';
     clearLoginInputs();
+    showPublicHome();
 }
 
 async function buyGoldForPlayer(quantity) {

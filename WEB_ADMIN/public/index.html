@@ -12,8 +12,10 @@
 <body>
 
     <!-- ADMIN LOGIN & REGISTRATION MODAL -->
-    <div id="login-screen">
-        <div class="login-card glass" style="max-width: 420px; width: 100%;">
+    <!-- ADMIN & USER LOGIN MODAL OVERLAY -->
+    <div id="login-screen" class="modal-overlay" style="display: none;">
+        <div class="login-card glass" style="max-width: 420px; width: 100%; position: relative;">
+            <button type="button" class="modal-close-btn" onclick="closeLoginModal()" style="position: absolute; top: 12px; right: 16px; font-size: 22px; cursor: pointer; border: none; background: transparent; color: #64748b;">&times;</button>
             <div class="brand-icon" style="margin: 0 auto 12px; background: transparent !important; box-shadow: none !important;">
                 <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 54px; height: 54px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));" />
             </div>
@@ -41,9 +43,9 @@
                 <input type="password" name="fakepasswordremembered" style="display:none;" tabindex="-1" />
 
                 <div class="form-group">
-                    <label><i class="fa-solid fa-user"></i> Tài khoản Admin</label>
+                    <label><i class="fa-solid fa-user"></i> Tên tài khoản</label>
                     <input type="text" id="admin-user" name="admin_username_real_sec" class="input-field"
-                        placeholder="Nhập tài khoản admin..." autocomplete="off" value="" required>
+                        placeholder="Nhập tên tài khoản..." autocomplete="off" value="" required>
                 </div>
                 <div class="form-group">
                     <label><i class="fa-solid fa-key"></i> Mật khẩu</label>
@@ -51,7 +53,7 @@
                         placeholder="Nhập mật khẩu..." autocomplete="new-password" value="" required>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">
-                    <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP ADMIN
+                    <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP TÀI KHOẢN
                 </button>
             </form>
 
@@ -83,6 +85,91 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    <!-- PUBLIC GAME HOMEPAGE (UNAUTHENTICATED VISITORS) -->
+    <div id="public-home-view" style="display: none;">
+        <!-- PUBLIC NAVBAR HEADER -->
+        <header class="public-navbar">
+            <div class="brand" onclick="showPublicHome()" style="cursor: pointer;">
+                <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" />
+                <h1>NGỌC RỒNG <span>PRO</span></h1>
+            </div>
+            <nav class="public-nav-links">
+                <a href="javascript:void(0)" class="pub-link active" onclick="showPublicHome()"><i class="fa-solid fa-house"></i> TRANG CHỦ</a>
+                <a href="#" class="pub-link"><i class="fa-solid fa-comments"></i> DIỄN ĐÀN</a>
+                <a href="#download-section" class="pub-link"><i class="fa-solid fa-download"></i> TẢI GAME</a>
+                <a href="#features-section" class="pub-link"><i class="fa-solid fa-star"></i> TÍNH NĂNG</a>
+            </nav>
+            <div class="public-header-actions">
+                <button type="button" class="btn-primary" onclick="openLoginModal()" style="padding: 8px 18px; font-size: 13px; font-weight: 800;">
+                    <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP / ĐĂNG KÝ
+                </button>
+            </div>
+        </header>
+
+        <!-- HERO BANNER SECTION -->
+        <section class="public-hero">
+            <div class="hero-content">
+                <div class="hero-badge">🔥 HỘI TỤ VIÊN NGỌC RỒNG 4 SAO 2026</div>
+                <h1 class="hero-title">NGỌC RỒNG ONLINE PRO</h1>
+                <p class="hero-subtitle">Game Nhập Vai Chú Bé Rồng Chuẩn Teamobi Mượt Mà - Sự Kiện X2 TNSM - Hỗ Trợ Đa Nền Tảng APK, IPA, PC</p>
+                
+                <!-- DOWNLOAD BUTTONS CONTAINER -->
+                <div id="download-section" class="download-grid">
+                    <a href="#" class="download-card android">
+                        <div class="dl-icon"><i class="fa-brands fa-android"></i></div>
+                        <div class="dl-info">
+                            <span class="dl-title">TẢI BẢN ANDROID</span>
+                            <span class="dl-sub">File APK Chơi Ngay</span>
+                        </div>
+                    </a>
+                    <a href="#" class="download-card ios">
+                        <div class="dl-icon"><i class="fa-brands fa-apple"></i></div>
+                        <div class="dl-info">
+                            <span class="dl-title">TẢI BẢN IOS / IPHONE</span>
+                            <span class="dl-sub">File IPA / TestFlight</span>
+                        </div>
+                    </a>
+                    <a href="#" class="download-card pc">
+                        <div class="dl-icon"><i class="fa-solid fa-desktop"></i></div>
+                        <div class="dl-info">
+                            <span class="dl-title">TẢI BẢN PC MÁY TÍNH</span>
+                            <span class="dl-sub">File EXE / JAR Giả Lập</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAME FEATURES & NEWS SECTION -->
+        <section id="features-section" class="public-container" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+            <h2 style="text-align: center; color: var(--teamobi-orange-dark); font-size: 24px; font-weight: 800; margin-bottom: 24px; text-transform: uppercase;">
+                🌟 TÍNH NĂNG NỔI BẬT HỆ THỐNG
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <div class="glass" style="padding: 24px; border-top: 4px solid #ff6600; text-align: center;">
+                    <div style="font-size: 40px; color: #ff6600; margin-bottom: 12px;"><i class="fa-solid fa-skull-crossbones"></i></div>
+                    <h3 style="font-size: 18px; color: #1e293b; font-weight: 800; margin-bottom: 8px;">SỰ KIỆN & BOSS REALTIME</h3>
+                    <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Hệ thống Boss xuất hiện liên tục trên khắp các hành tinh, sự kiện x2 tiềm năng sức mạnh nảy lửa hàng tuần.</p>
+                </div>
+                <div class="glass" style="padding: 24px; border-top: 4px solid #10b981; text-align: center;">
+                    <div style="font-size: 40px; color: #10b981; margin-bottom: 12px;"><i class="fa-solid fa-gift"></i></div>
+                    <h3 style="font-size: 18px; color: #1e293b; font-weight: 800; margin-bottom: 8px;">GIFTCODE TÂN THỦ VIP</h3>
+                    <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Đăng ký tài khoản nhận ngay GiftCode nhập quà trực tiếp vào túi đồ game: Thỏi vàng, Ngọc xanh và Trang bị VIP.</p>
+                </div>
+                <div class="glass" style="padding: 24px; border-top: 4px solid #0284c7; text-align: center;">
+                    <div style="font-size: 40px; color: #0284c7; margin-bottom: 12px;"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3 style="font-size: 18px; color: #1e293b; font-weight: 800; margin-bottom: 8px;">BẢO MẬT & HỖ TRỢ 24/7</h3>
+                    <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Giao diện Web Portal mượt mà trên điện thoại và PC. Hệ thống tự động nạp đổi quà nhanh chóng, an toàn.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PUBLIC FOOTER -->
+        <footer style="background: #ffffff; border-top: 1px solid #ffe0b2; padding: 24px; text-align: center; color: #64748b; font-size: 13px; margin-top: 50px;">
+            <p style="margin: 0; font-weight: 700;">© 2026 Ngọc Rồng Online Server Pro - Game Nhập Vai Chú Bé Rồng Chuẩn Teamobi.</p>
+        </footer>
     </div>
 
     <div class="app-layout">
