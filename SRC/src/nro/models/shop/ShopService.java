@@ -593,7 +593,7 @@ public class ShopService {
         Shop shop = player.idMark.getShopOpen();
         ItemShop is = shop.getItemShop(itemTempId);
         if (is == null) {
-            Service.gI().sendThongBao(player, "KhÃÂ´ng thÃ¡Â»Â thÃ¡Â»Â±c hiÃ¡Â»Ân");
+            Service.gI().sendThongBao(player, "Không thể thực hiện");
             return;
         }
         if (!subMoneyByItemShop(player, is)) {
@@ -605,19 +605,19 @@ public class ShopService {
     }
 
     /**
-     * Mua vÃ¡ÂºÂ­t phÃ¡ÂºÂ©m trong cÃ¡Â»Â­a hÃÂ ng
+     * Mua vật phẩm trong cửa hàng
      *
-     * @param player ngÃÂ°Ã¡Â»Âi chÃÂ¡i
-     * @param itemTempId id template vÃ¡ÂºÂ­t phÃ¡ÂºÂ©m
+     * @param player người chơi
+     * @param itemTempId id template vật phẩm
      */
     private void learnKyNang(Player pl, ItemShop is) {
 
         if (pl.nPoint.power < is.temp.strRequire) {
-            Service.gI().sendThongBao(pl, "SÃ¡Â»Â©c mÃ¡ÂºÂ¡nh cÃ¡Â»Â§a bÃ¡ÂºÂ¡n khÃÂ´ng ÃÂÃ¡Â»Â§");
+            Service.gI().sendThongBao(pl, "Sức mạnh của bạn không đủ");
             return;
         }
         if (pl.nPoint.tiemNang < is.cost) {
-            Service.gI().sendThongBao(pl, "BÃ¡ÂºÂ¡n khÃÂ´ng ÃÂÃ¡Â»Â§ tiÃ¡Â»Âm nÃÂng ÃÂÃ¡Â»Â hÃ¡Â»Âc chiÃÂªu thÃ¡Â»Â©c nÃÂ y");
+            Service.gI().sendThongBao(pl, "Bạn không đủ tiềm năng để học tuyệt kỹ này");
             return;
         }
         var skillPlayer = pl.playerSkill.getSkillbyId(SkillUtil.getSkillByItemID(pl, is.temp.id).template.id);
@@ -626,17 +626,17 @@ public class ShopService {
         if (skillPlayer != null) {
 
             if (skillPlayer.point >= level) {
-                Service.gI().sendThongBao(pl, "BÃ¡ÂºÂ¡n ÃÂÃÂ£ hÃ¡Â»Âc kÃ¡Â»Â¹ nÃÂng nÃÂ y rÃ¡Â»Âi");
+                Service.gI().sendThongBao(pl, "Bạn đã học kỹ năng này rồi");
                 return;
 
             }
             if (level - skillPlayer.point != 1) {
-                Service.gI().sendThongBao(pl, "BÃ¡ÂºÂ¡n chÃÂ°a thÃ¡Â»Â hÃ¡Â»Âc kÃ¡Â»Â¹ nÃÂng nÃÂ y");
+                Service.gI().sendThongBao(pl, "Bạn chưa thể học kỹ năng này");
                 return;
             }
         }
         if (pl.BoughtSkill.contains(is.temp.id)) {
-            Service.gI().sendThongBao(pl, "BÃ¡ÂºÂ¡n ÃÂÃÂ£ hÃ¡Â»Âc kÃ¡Â»Â¹ nÃÂng nÃÂ y rÃ¡Â»Âi");
+            Service.gI().sendThongBao(pl, "Bạn đã học kỹ năng này rồi");
             return;
         }
         ArrayList<String> menu = new ArrayList<>();
@@ -664,9 +664,9 @@ public class ShopService {
         var potential = SkillUtil.findSkillTemplate(skillTemplateId).skillss.stream()
                 .filter(s -> s.point == level)
                 .findFirst()
-                .map(s -> (int) s.powRequire) // ÃÂp kiÃ¡Â»Âu Long -> int
-                .orElse(0); // GiÃÂ¡ trÃ¡Â»Â mÃ¡ÂºÂ·c ÃÂÃ¡Â»Ânh lÃÂ  int
-        String text = "Con cÃÂ³ muÃ¡Â»Ân hÃ¡Â»Âc kÃ¡Â»Â¹ nÃÂng " + SkillUtil.findSkillTemplate(SkillUtil.getTempSkillSkillByItemID(is.temp.id)).name + " cÃ¡ÂºÂ¥p " + level + "\nCÃ¡ÂºÂ§n " + potential + " ÃÂiÃ¡Â»Âm tiÃ¡Â»Âm nÃÂng vÃÂ  thÃ¡Â»Âi gian hÃ¡Â»Âc lÃÂ  " + timeStudy;
+                .map(s -> (int) s.powRequire) // Ép kiểu Long -> int
+                .orElse(0); // Giá trị mặc định là int
+        String text = "Con có muốn học kỹ năng " + SkillUtil.findSkillTemplate(SkillUtil.getTempSkillSkillByItemID(is.temp.id)).name + " cấp " + level + "\nCần " + potential + " điểm tiềm năng và thời gian học là " + timeStudy;
         pl.LearnSkill.ItemTemplateSkillId = is.temp.id;
         pl.LearnSkill.Time = -1;
         pl.LearnSkill.Potential = potential;
@@ -680,11 +680,11 @@ public class ShopService {
         int[][] listDauThan = {{13, 293}, {60, 294}, {61, 295}, {62, 296}, {63, 297}, {64, 298}, {65, 299}, {352, 596}, {523, 597}};
 
         if (is == null) {
-            Service.gI().sendThongBao(player, "KhÃÂ´ng thÃ¡Â»Â thÃ¡Â»Â±c hiÃ¡Â»Ân");
+            Service.gI().sendThongBao(player, "Không thể thực hiện");
             return;
         }
 
-        // ÃÂÃ¡Â»Âi bÃ¡ÂºÂ±ng phiÃ¡ÂºÂ¿u giÃ¡ÂºÂ£m giÃÂ¡
+        // Đổi bằng phiếu giảm giá
         if (is.tabShop.id == 30) {
             Item pGG = InventoryService.gI().findItem(player.inventory.itemsBag, 459);
             if (pGG != null) {
@@ -692,9 +692,9 @@ public class ShopService {
                 InventoryService.gI().subQuantityItemsBag(player, pGG, 1);
                 InventoryService.gI().addItemBag(player, item);
                 InventoryService.gI().sendItemBags(player);
-                Service.gI().sendThongBao(player, "ÃÂÃ¡Â»Âi thÃÂ nh cÃÂ´ng " + is.temp.name);
+                Service.gI().sendThongBao(player, "Đổi thành công " + is.temp.name);
             } else {
-                Service.gI().sendThongBao(player, "BÃ¡ÂºÂ¡n khÃÂ´ng cÃÂ³ phiÃ¡ÂºÂ¿u giÃ¡ÂºÂ£m giÃÂ¡!");
+                Service.gI().sendThongBao(player, "Bạn không có phiếu giảm giá!");
             }
             return;
         }
@@ -904,7 +904,6 @@ public class ShopService {
 
         if (itemTempId == 1523 || itemTempId == 1524 || itemTempId == 521) {
             updateAutoTrainPurchase(player, itemTempId);
-            Service.gI().sendThongBao(player, "Mua thÃÂ nh cÃÂ´ng " + is.temp.name);
         }
     }
 
@@ -1043,7 +1042,7 @@ public class ShopService {
         Item item = null;
         if (where == 0) {
             if (index < 0) {
-                Service.gI().sendThongBao(pl, "KhÃÂ´ng thÃ¡Â»Â thÃ¡Â»Â±c hiÃ¡Â»Ân");
+                Service.gI().sendThongBao(pl, "Không thể thực hiện");
                 return;
             }
             item = pl.inventory.itemsBody.get(index);
@@ -1055,7 +1054,7 @@ public class ShopService {
         }
         if (item != null && item.isNotNullItem()) {
             if (item.template.id == 570) {
-                Service.gI().sendThongBao(pl, "BÃ¡ÂºÂ¡n khÃÂ´ng thÃ¡Â»Â bÃÂ¡n vÃ¡ÂºÂ­t phÃ¡ÂºÂ©m nÃÂ y");
+                Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm này");
                 return;
             }
             int quantity = item.quantity;
@@ -1074,8 +1073,8 @@ public class ShopService {
             }
             cost *= quantity;
 
-            String text = "BÃ¡ÂºÂ¡n cÃÂ³ muÃ¡Â»Ân bÃÂ¡n\nx" + quantity
-                    + " " + item.template.name + "\nvÃ¡Â»Âi giÃÂ¡ lÃÂ  " + Util.numberToMoney(cost) + " vÃÂ ng?";
+            String text = "Bạn có muốn bán\nx" + quantity
+                    + " " + item.template.name + "\nvới giá là " + Util.numberToMoney(cost) + " vàng?";
             Message msg = null;
             try {
                 msg = new Message(7);
@@ -1095,11 +1094,11 @@ public class ShopService {
 
     public void sellItem(Player pl, int where, int index) {
         if (pl.idMark.getShopOpen() == null || pl.idMark.getTagNameShop() == null) {
-            Service.gI().sendThongBao(pl, "KhÃÂ´ng thÃ¡Â»Â thÃ¡Â»Â±c hiÃ¡Â»Ân");
+            Service.gI().sendThongBao(pl, "Không thể thực hiện");
             return;
         }
         if (index < 0) {
-            Service.gI().sendThongBao(pl, "KhÃÂ´ng thÃ¡Â»Â thÃ¡Â»Â±c hiÃ¡Â»Ân");
+            Service.gI().sendThongBao(pl, "Không thể thực hiện");
             return;
         }
         Item item = null;
@@ -1110,11 +1109,11 @@ public class ShopService {
         }
         if (item != null) {
             if (item.template.id == 570) {
-                Service.gI().sendThongBao(pl, "BÃ¡ÂºÂ¡n khÃÂ´ng thÃ¡Â»Â bÃÂ¡n vÃ¡ÂºÂ­t phÃ¡ÂºÂ©m nÃÂ y");
+                Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm này");
                 return;
             }
             if (InventoryService.gI().getParam(pl, 93, item.template.id) > 0) {
-                Service.gI().sendThongBao(pl, "BÃ¡ÂºÂ¡n khÃÂ´ng thÃ¡Â»Â bÃÂ¡n vÃ¡ÂºÂ­t phÃ¡ÂºÂ©m cÃÂ³ hÃ¡ÂºÂ¡n sÃ¡Â»Â­ dÃ¡Â»Â¥ng");
+                Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm có hạn sử dụng");
                 return;
             }
             int quantity = item.quantity;
@@ -1130,15 +1129,14 @@ public class ShopService {
             cost *= quantity;
 
             if (pl.inventory.gold + cost > Inventory.LIMIT_GOLD) {
-                Service.gI().sendThongBao(pl, "VÃÂ ng sau khi bÃÂ¡n vÃÂ°Ã¡Â»Â£t quÃÂ¡ giÃ¡Â»Âi hÃ¡ÂºÂ¡n");
+                Service.gI().sendThongBao(pl, "Vàng sau khi bán vượt quá giới hạn");
                 return;
             }
             pl.inventory.gold += cost;
             Service.gI().sendMoney(pl);
-            Service.gI().sendThongBao(pl, "ÃÂÃÂ£ bÃÂ¡n " + item.template.name
-                    + " thu ÃÂÃÂ°Ã¡Â»Â£c " + Util.numberToMoney(cost) + " vÃÂ ng");
+            Service.gI().sendThongBao(pl, "Đã bán " + item.template.name + " thu được " + Util.numberToMoney(cost) + " vàng");
 
-            //Add vÃ¡ÂºÂ­t phÃ¡ÂºÂ©m ÃÂÃÂ£ bÃÂ¡n
+            //Add vÃ¡ÂºÂ­t phÃ¡ÂºÂ©m Ã„Â‘ÃƒÂ£ bÃƒÂ¡n
             if (item.template.id != 457) {
                 BuyBackService.gI().addItem(pl, item);
             }
