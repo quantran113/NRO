@@ -156,10 +156,10 @@ function updatePortalUserWidget() {
             if (cGender) cGender.innerText = p.gender !== undefined ? (p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda') : '-';
             if (cId) cId.innerText = `#${p.id || 0}`;
             if (cAvatar) {
-                let defaultAvatar = '/icons/28.png';
-                if (p.gender === 1 || p.gender === 'Namếc') defaultAvatar = '/icons/29.png';
-                else if (p.gender === 2 || p.gender === 'Xayda') defaultAvatar = '/icons/30.png';
-                cAvatar.src = (p.avatarUrl && !p.avatarUrl.includes('64.png')) ? p.avatarUrl : defaultAvatar;
+                let defaultAvatar = '/icons/521.png';
+                if (p.gender === 1 || p.gender === 'Namếc') defaultAvatar = '/icons/523.png';
+                else if (p.gender === 2 || p.gender === 'Xayda') defaultAvatar = '/icons/519.png';
+                cAvatar.src = (p.avatarUrl && !p.avatarUrl.includes('64.png') && !p.avatarUrl.includes('28.png')) ? p.avatarUrl : defaultAvatar;
             }
         }
     }
@@ -232,9 +232,9 @@ function checkLoginState() {
         try {
             currentLoggedUser = JSON.parse(saved);
             if (currentLoggedUser && currentLoggedUser.player) {
-                if (!currentLoggedUser.player.avatarUrl || currentLoggedUser.player.avatarUrl.includes('64.png')) {
+                if (!currentLoggedUser.player.avatarUrl || currentLoggedUser.player.avatarUrl.includes('64.png') || currentLoggedUser.player.avatarUrl.includes('28.png')) {
                     const g = currentLoggedUser.player.gender;
-                    currentLoggedUser.player.avatarUrl = (g === 1 || g === 'Namếc') ? '/icons/29.png' : (g === 2 || g === 'Xayda') ? '/icons/30.png' : '/icons/28.png';
+                    currentLoggedUser.player.avatarUrl = (g === 1 || g === 'Namếc') ? '/icons/523.png' : (g === 2 || g === 'Xayda') ? '/icons/519.png' : '/icons/521.png';
                     sessionStorage.setItem('nro_logged_user', JSON.stringify(currentLoggedUser));
                 }
             }

@@ -64,15 +64,16 @@ app.post('/api/admin/login', async (req, res) => {
             if (players.length > 0) {
                 const p = players[0];
                 let headId = p.head;
-                if (!headId || headId <= 0 || headId === 64 || headId === 65) {
-                    headId = p.gender === 1 ? 29 : (p.gender === 2 ? 30 : 28);
+                let avatarId = (p.gender === 1) ? 523 : (p.gender === 2 ? 519 : 521);
+                if (headId && headMap[headId]) {
+                    avatarId = headMap[headId];
                 }
                 playerInfo = {
                     id: p.id,
                     name: p.name,
                     gender: p.gender === 0 ? 'Trái Đất' : p.gender === 1 ? 'Namếc' : 'Xayda',
                     head: headId,
-                    avatarUrl: `/icons/${headId}.png`
+                    avatarUrl: `/icons/${avatarId}.png`
                 };
             }
         } catch (e) { }
@@ -422,12 +423,10 @@ app.get('/api/players', async (req, res) => {
 
         const dbPlayers = rows.map(r => {
             let headId = r.head;
-            if (!headId || headId <= 0 || headId === 64 || headId === 65) {
-                if (r.gender === 0) headId = 28;
-                else if (r.gender === 1) headId = 29;
-                else if (r.gender === 2) headId = 30;
+            let avatarId = (r.gender === 1) ? 523 : (r.gender === 2 ? 519 : 521);
+            if (headId && headMap[headId]) {
+                avatarId = headMap[headId];
             }
-            let avatarId = (headMap[headId] !== undefined && headMap[headId] !== 64) ? headMap[headId] : headId;
 
             let taskId = 0;
             try {
