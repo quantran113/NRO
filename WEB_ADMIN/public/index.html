@@ -87,44 +87,55 @@
 
     <!-- MAIN APP HEADER -->
     <header>
-        <div class="brand">
-            <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" />
-            <h1>QUẢN TRỊ <span>NRO SERVER</span></h1>
+        <div class="header-left">
+            <div class="brand">
+                <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" />
+                <h1>QUẢN TRỊ <span>NRO</span></h1>
+            </div>
+            <nav class="nav-links">
+                <button class="nav-btn active" onclick="switchTab('grant')">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Cấp Đồ
+                </button>
+                <button class="nav-btn" onclick="switchTab('pet')">
+                    <i class="fa-solid fa-paw"></i> Đệ Tử
+                </button>
+                <button class="nav-btn" onclick="switchTab('events')">
+                    <i class="fa-solid fa-calendar-star"></i> Sự Kiện
+                </button>
+                <button class="nav-btn" onclick="switchTab('drops')">
+                    <i class="fa-solid fa-dice"></i> Rơi Đồ
+                </button>
+                <button class="nav-btn" onclick="switchTab('shops')">
+                    <i class="fa-solid fa-store"></i> Shop NPC
+                </button>
+                <button class="nav-btn" onclick="switchTab('giftcode')">
+                    <i class="fa-solid fa-gift"></i> GiftCode
+                </button>
+                <button class="nav-btn" onclick="switchTab('accounts')">
+                    <i class="fa-solid fa-users-gear"></i> Tài Khoản
+                </button>
+                <button class="nav-btn" onclick="switchTab('players')">
+                    <i class="fa-solid fa-users"></i> Nhân Vật
+                </button>
+                <button class="nav-btn" onclick="switchTab('bots')">
+                    <i class="fa-solid fa-robot"></i> Bot
+                </button>
+                <button class="nav-btn" onclick="switchTab('bosses')">
+                    <i class="fa-solid fa-skull-crossbones"></i> Boss
+                </button>
+            </nav>
         </div>
-        <div class="nav-links">
-            <button class="nav-btn active" onclick="switchTab('grant')">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> CẤP ĐỒ REALTIME
-            </button>
-            <button class="nav-btn" onclick="switchTab('pet')">
-                <i class="fa-solid fa-paw"></i> CẤP ĐỆ TỬ STUDIO
-            </button>
-            <button class="nav-btn" onclick="switchTab('events')">
-                <i class="fa-solid fa-calendar-star"></i> SỰ KIỆN & X2 TNSM
-            </button>
-            <button class="nav-btn" onclick="switchTab('drops')">
-                <i class="fa-solid fa-dice"></i> QUẢN LÝ RƠI ĐỒ
-            </button>
-            <button class="nav-btn" onclick="switchTab('shops')">
-                <i class="fa-solid fa-store"></i> QUẢN LÝ SHOP NPC
-            </button>
-            <button class="nav-btn" onclick="switchTab('giftcode')">
-                <i class="fa-solid fa-gift"></i> TỰ TẠO GIFTCODE
-            </button>
-            <button class="nav-btn" onclick="switchTab('accounts')">
-                <i class="fa-solid fa-users-gear"></i> QUẢN LÝ TÀI KHOẢN
-            </button>
-            <button class="nav-btn" onclick="switchTab('players')">
-                <i class="fa-solid fa-users"></i> DANH SÁCH NHÂN VẬT
-            </button>
-            <button class="nav-btn" onclick="switchTab('bots')">
-                <i class="fa-solid fa-robot"></i> QUẢN LÝ BOT GIẢ
-            </button>
-            <button class="nav-btn" onclick="switchTab('bosses')">
-                <i class="fa-solid fa-skull-crossbones"></i> QUẢN LÝ BOSS
-            </button>
-            <button class="nav-btn" onclick="logoutAdmin()">
-                <i class="fa-solid fa-power-off"></i> ĐĂNG XUẤT
-            </button>
+        <div class="header-right">
+            <div class="user-profile-badge">
+                <div class="user-avatar-small"><i class="fa-solid fa-user-shield"></i></div>
+                <div class="user-info-text">
+                    <span class="user-name-label" id="nav-username-display">Admin</span>
+                    <span class="user-role-tag">Online</span>
+                </div>
+                <button type="button" class="btn-logout" onclick="logoutAdmin()" title="Đăng Xuất">
+                    <i class="fa-solid fa-power-off"></i> <span>Thoát</span>
+                </button>
+            </div>
         </div>
     </header>
 
