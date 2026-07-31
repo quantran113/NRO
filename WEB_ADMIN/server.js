@@ -417,7 +417,7 @@ app.get('/api/players', async (req, res) => {
 
     try {
         const [rows] = await pool.execute(`
-            SELECT p.id, p.name, p.gender, p.head, p.account_id, p.data_task, a.username 
+            SELECT p.id, p.name, p.gender, p.head, p.account_id, p.data_task, COALESCE(p.event_point, 0) as event_point, a.username 
             FROM player p 
             LEFT JOIN account a ON p.account_id = a.id 
             LIMIT 200
@@ -459,6 +459,7 @@ app.get('/api/players', async (req, res) => {
                 username: r.username || 'N/A',
                 taskId: taskId,
                 taskName: taskName,
+                eventPoint: parseInt(r.event_point) || 0,
                 online: isOnline
             };
         });
@@ -555,6 +556,50 @@ app.post('/api/admin/player/next-task', async (req, res) => {
 
         await pool.execute('UPDATE player SET data_task = ? WHERE id = ?', [JSON.stringify(taskArr), player.id]);
         res.json({ status: 'success', message: `Đã chuyển nhiệm vụ cho nhân vật [${playerName}] sang Nhiệm Vụ #${nextTaskId}!` });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+// Update Player Event Point Endpoint (Admin)
+app.post('/api/admin/player/update-event-point', async (req, res) => {
+    try {
+        const { playerName, action, eventPoint } = req.body;
+        if (!playerName) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu tên nhân vật' });
+        }
+
+        const val = parseInt(eventPoint) || 0;
+        const act = action || 'set';
+
+        // 1. Try Java API
+        try {
+            const resp = await fetch(`${JAVA_API_URL}/api/adjust-player-event-point`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName: playerName.trim(), action: act, eventPoint: val })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                return res.json(data);
+            }
+        } catch (err) { }
+
+        // 2. Fallback to MySQL DB directly
+        let sql = 'UPDATE player SET event_point = ? WHERE name = ?';
+        let params = [val, playerName.trim()];
+        if (act === 'add') {
+            sql = 'UPDATE player SET event_point = event_point + ? WHERE name = ?';
+        } else if (act === 'sub') {
+            sql = 'UPDATE player SET event_point = GREATEST(0, event_point - ?) WHERE name = ?';
+        }
+
+        const [result] = await pool.execute(sql, params);
+        if (result.affectedRows > 0) {
+            res.json({ status: 'success', message: `Đã cập nhật Điểm Sự Kiện cho nhân vật [${playerName}] thành công!` });
+        } else {
+            res.status(404).json({ status: 'error', message: `Không tìm thấy nhân vật [${playerName}]` });
+        }
     } catch (err) {
         res.status(500).json({ status: 'error', message: err.message });
     }

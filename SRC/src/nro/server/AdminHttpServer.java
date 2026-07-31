@@ -66,6 +66,7 @@ public class AdminHttpServer {
             server.createContext("/api/reload-giftcode", new ReloadGiftCodeHandler());
             server.createContext("/api/use-giftcode", new UseGiftCodeHandler());
             server.createContext("/api/adjust-player-power", new AdjustPlayerPowerHandler());
+            server.createContext("/api/adjust-player-event-point", new AdjustPlayerEventPointHandler());
             server.createContext("/api/manage-bots", new ManageBotsHandler());
             server.createContext("/api/bosses", new BossesHandler());
             server.createContext("/api/bosses/spawn", new SpawnBossHandler());
@@ -1423,6 +1424,83 @@ public class AdminHttpServer {
                 } else {
                     sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Nhân vật [" + playerName
                             + "] phải ONLINE trong game để điều chỉnh Sức Mạnh!\"}");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- /api/adjust-player-event-point ---
+    private static class AdjustPlayerEventPointHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    sendJsonResponse(exchange, 405, "{\"status\": \"error\", \"message\": \"Method Not Allowed\"}");
+                    return;
+                }
+                InputStream is = exchange.getRequestBody();
+                JSONObject body = (JSONObject) JSONValue.parse(new InputStreamReader(is, StandardCharsets.UTF_8));
+                if (body == null) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
+                    return;
+                }
+
+                String playerName = (String) body.get("playerName");
+                String action = body.containsKey("action") ? (String) body.get("action") : "set";
+                int eventPoint = body.containsKey("eventPoint") ? ((Number) body.get("eventPoint")).intValue() : 0;
+
+                if (playerName == null || playerName.trim().isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    return;
+                }
+
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName.trim())) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                if (player != null && player.event != null) {
+                    int currentPt = player.event.getEventPoint();
+                    int newPt = currentPt;
+                    if ("set".equalsIgnoreCase(action)) {
+                        newPt = eventPoint;
+                    } else if ("sub".equalsIgnoreCase(action)) {
+                        newPt = Math.max(0, currentPt - eventPoint);
+                    } else { // "add"
+                        newPt = currentPt + eventPoint;
+                    }
+
+                    player.event.setEventPoint(newPt);
+                    nro.models.services.Service.gI().sendThongBao(player, "Admin vừa cập nhật Điểm Sự Kiện cho bạn thành: " + newPt + " điểm!");
+                    nro.models.database.PlayerDAO.updatePlayer(player);
+
+                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật Điểm Sự Kiện nhân vật [" + player.name + "] thành [" + newPt + " điểm] (ONLINE)!\"}");
+                } else {
+                    try (Connection conn = LocalManager.getConnection();
+                         PreparedStatement ps = conn.prepareStatement("UPDATE player SET event_point = CASE WHEN ? = 'set' THEN ? WHEN ? = 'sub' THEN GREATEST(0, event_point - ?) ELSE event_point + ? END WHERE name = ?")) {
+                        ps.setString(1, action);
+                        ps.setInt(2, eventPoint);
+                        ps.setString(3, action);
+                        ps.setInt(4, eventPoint);
+                        ps.setInt(5, eventPoint);
+                        ps.setString(6, playerName.trim());
+                        int updated = ps.executeUpdate();
+                        if (updated > 0) {
+                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật Điểm Sự Kiện nhân vật [" + playerName + "] thành công trong CSDL (OFFLINE)!\"}");
+                        } else {
+                            sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "] trong CSDL!\"}");
+                        }
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

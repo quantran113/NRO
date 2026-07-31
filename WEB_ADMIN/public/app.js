@@ -1912,6 +1912,52 @@ function nextPlayerTask(playerName) {
     );
 }
 
+function openAdjustPlayerEventPointModal(playerName, currentPoint) {
+    const targetInput = document.getElementById('modal-event-point-target-name');
+    const valInput = document.getElementById('modal-event-point-val-input');
+    const actionSelect = document.getElementById('modal-event-point-action-select');
+
+    if (targetInput) targetInput.value = playerName;
+    if (valInput) valInput.value = currentPoint || 0;
+    if (actionSelect) actionSelect.value = 'set';
+
+    openModal('modal-adjust-event-point');
+}
+
+function setModalEventPointPreset(val) {
+    const valInput = document.getElementById('modal-event-point-val-input');
+    const actionSelect = document.getElementById('modal-event-point-action-select');
+    if (!valInput) return;
+    if (actionSelect && actionSelect.value === 'add') {
+        const cur = parseInt(valInput.value) || 0;
+        valInput.value = cur + val;
+    } else {
+        valInput.value = val;
+    }
+}
+
+async function submitAdjustPlayerEventPoint() {
+    const playerName = document.getElementById('modal-event-point-target-name').value;
+    const action = document.getElementById('modal-event-point-action-select').value;
+    const eventPoint = parseInt(document.getElementById('modal-event-point-val-input').value) || 0;
+
+    if (!playerName) return showToast('Thiếu tên nhân vật!', 'error');
+
+    try {
+        const resp = await fetch('/api/admin/player/update-event-point', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerName, action, eventPoint })
+        });
+        const data = await resp.json();
+        showToast(data.message, data.status === 'success' ? 'success' : 'error');
+        closeModal('modal-adjust-event-point');
+        await loadPlayers();
+    } catch (e) {
+        showToast('Lỗi khi cập nhật Điểm Sự Kiện', 'error');
+    }
+}
+
 function renderPlayerTable() {
     const tbody = document.getElementById('player-table-body');
     if (!tbody) return;
@@ -1921,7 +1967,7 @@ function renderPlayerTable() {
     const filtered = playersList.filter(p => !query || (p.name && p.name.toLowerCase().includes(query)));
 
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Không có dữ liệu nhân vật</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 20px;">Không có dữ liệu nhân vật</td></tr>';
         return;
     }
 
@@ -1933,22 +1979,27 @@ function renderPlayerTable() {
             ? '<span class="badge-online">ONLINE</span>'
             : '<span class="badge-offline">OFFLINE</span>';
 
-        const avatarSrc = p.avatarUrl || `/icons/${p.avatarId || 64}.png`;
+        const avatarSrc = p.avatarUrl || `/icons/${p.avatarId || 521}.png`;
         const taskBadge = `<span style="background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); border: 1px solid var(--teamobi-orange-border); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">#${p.taskId !== undefined ? p.taskId : 0} - ${escapeHtml(p.taskName || 'Nhiệm vụ')}</span>`;
+        const eventPointBadge = `<span style="background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; white-space: nowrap;"><i class="fa-solid fa-star"></i> ${(p.eventPoint !== undefined ? p.eventPoint : 0).toLocaleString('vi-VN')} đ</span>`;
 
         tr.innerHTML = `
             <td data-label="ID" style="padding: 12px; color: var(--text-muted);">#${p.id}</td>
             <td data-label="Tên Nhân Vật" style="padding: 12px; font-weight: 700; color: var(--text-main);">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <img src="${avatarSrc}" onerror="this.src='/icons/64.png';" style="width: 34px; height: 34px; object-fit: contain; background: var(--teamobi-orange-bg); border-radius: 8px; padding: 2px; border: 1px solid var(--teamobi-orange-border);" />
+                    <img src="${avatarSrc}" onerror="this.src='/icons/521.png';" style="width: 34px; height: 34px; object-fit: contain; background: var(--teamobi-orange-bg); border-radius: 8px; padding: 2px; border: 1px solid var(--teamobi-orange-border);" />
                     <span>${escapeHtml(p.name)}</span>
                 </div>
             </td>
             <td data-label="Tài Khoản" style="padding: 12px; color: var(--teamobi-orange-dark); font-size: 13px;">${escapeHtml(p.username || 'N/A')}</td>
             <td data-label="Hành Tinh" style="padding: 12px; color: var(--cyan);">${genderText}</td>
             <td data-label="Nhiệm Vụ" style="padding: 12px;">${taskBadge}</td>
+            <td data-label="Điểm Sự Kiện" style="padding: 12px;">${eventPointBadge}</td>
             <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
             <td data-label="Thao Tác" style="padding: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: #fff3e0; color: #e65100; font-weight: 700; border: 1px solid #ffb74d;" onclick="openAdjustPlayerEventPointModal('${escapeHtml(p.name)}', ${p.eventPoint || 0})">
+                    <i class="fa-solid fa-star"></i> ⭐ Đổi Điểm
+                </button>
                 <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: 700; border: 1px solid #10b981;" onclick="openAdjustPlayerPowerModal('${escapeHtml(p.name)}')">
                     <i class="fa-solid fa-bolt"></i> ⚡ SM/Tiềm Năng
                 </button>
