@@ -87,228 +87,250 @@
         </div>
     </div>
 
-    <!-- PUBLIC GAME HOMEPAGE & FORUM PORTAL (TEAMOBI STYLE) -->
-    <div id="public-home-view" style="display: none;">
-        <!-- PUBLIC NAVBAR HEADER -->
-        <header class="public-navbar">
-            <div class="brand" onclick="showPublicHome()" style="cursor: pointer;">
-                <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" />
-                <h1>NGỌC RỒNG <span>PRO</span></h1>
+    <!-- PUBLIC GAME HOMEPAGE (EXACT REPLICA OF OFFICIAL TEAMOBI NRO WEBSITE) -->
+    <div id="public-home-view" style="display: none; background: #d6c5b3; padding: 10px 0; min-height: 100vh;">
+        
+        <!-- MAIN TEAMOBI WRAPPER (850PX CENTERED) -->
+        <div class="teamobi-nro-wrapper">
+            
+            <!-- 180 MINUTES HEALTH NOTICE BAR -->
+            <div class="teamobi-notice-bar">
+                <i class="fa-solid fa-triangle-exclamation"></i> Chơi quá 180 phút một ngày sẽ ảnh hưởng xấu đến sức khỏe.
             </div>
-            <nav class="public-nav-links">
-                <a href="javascript:void(0)" class="pub-link active" onclick="showPublicHome()"><i class="fa-solid fa-house"></i> TRANG CHỦ</a>
-                <a href="#" class="pub-link"><i class="fa-solid fa-comments"></i> DIỄN ĐÀN</a>
-                <a href="#download-section" class="pub-link"><i class="fa-solid fa-download"></i> TẢI GAME</a>
-                <a href="#giftcode-section" class="pub-link"><i class="fa-solid fa-gift"></i> GIFTCODE</a>
-                <a href="#shop-section" class="pub-link"><i class="fa-solid fa-coins"></i> NẠP VÀNG</a>
+
+            <!-- LOGO HEADER SECTION -->
+            <div class="teamobi-logo-header">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <img src="/logo.svg" alt="Dragon Ball Logo" style="width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));" />
+                    <h1 class="teamobi-site-title">CHÚ BÉ RỒNG <span>ONLINE</span></h1>
+                </div>
+            </div>
+
+            <!-- HORIZONTAL MENU BAR -->
+            <nav class="teamobi-nav-bar">
+                <a href="javascript:void(0)" class="t-nav-btn active" onclick="showPublicHome()"><i class="fa-solid fa-house"></i> Trang Chủ</a>
+                <a href="#gioi-thieu-sec" class="t-nav-btn"><i class="fa-solid fa-circle-info"></i> Giới Thiệu</a>
+                <a href="#huong-dan-sec" class="t-nav-btn"><i class="fa-solid fa-book"></i> Hướng Dẫn</a>
+                <a href="#giftcode-sec" class="t-nav-btn"><i class="fa-solid fa-gift"></i> Giftcode / Vàng</a>
+                <a href="#" class="t-nav-btn"><i class="fa-solid fa-comments"></i> Diễn Đàn</a>
             </nav>
-            <div class="public-header-actions" id="public-auth-header-btn">
-                <button type="button" class="btn-primary" onclick="openLoginModal()" style="padding: 8px 18px; font-size: 13px; font-weight: 800;">
-                    <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP / ĐĂNG KÝ
-                </button>
+
+            <!-- GAME BANNER GRAPHIC SECTION -->
+            <div class="teamobi-banner-box">
+                <div class="banner-inner">
+                    <img src="/logo.svg" alt="NRO Banner" style="width: 80px; height: 80px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); margin-bottom: 8px;" />
+                    <div style="font-weight: 900; font-size: 24px; color: #ffeb3b; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); text-transform: uppercase;">NGỌC RỒNG ONLINE PRO 2026</div>
+                    <div style="font-size: 13px; color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">Hội Tụ Viên Ngọc Rồng 4 Sao Chuẩn Teamobi Mượt Mà Nhất</div>
+                </div>
             </div>
-        </header>
 
-        <!-- MAIN PORTAL CONTAINER (2 COLUMNS GRID) -->
-        <div class="public-container" style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
-            <div class="teamobi-portal-grid">
-                
-                <!-- LEFT COLUMN (70%): DOWNLOAD, FORUM ANNOUNCEMENTS, GIFTCODE & SHOP -->
-                <div class="portal-main-col">
-                    
-                    <!-- HERO DOWNLOAD CARDS -->
-                    <div id="download-section" class="download-grid" style="margin-bottom: 24px;">
-                        <a href="#" class="download-card android">
-                            <div class="dl-icon"><i class="fa-brands fa-android"></i></div>
-                            <div class="dl-info">
-                                <span class="dl-title">TẢI BẢN ANDROID</span>
-                                <span class="dl-sub">File APK Chơi Ngay</span>
-                            </div>
-                        </a>
-                        <a href="#" class="download-card ios">
-                            <div class="dl-icon"><i class="fa-brands fa-apple"></i></div>
-                            <div class="dl-info">
-                                <span class="dl-title">TẢI BẢN IOS / IPHONE</span>
-                                <span class="dl-sub">File IPA / TestFlight</span>
-                            </div>
-                        </a>
-                        <a href="#" class="download-card pc">
-                            <div class="dl-icon"><i class="fa-solid fa-desktop"></i></div>
-                            <div class="dl-info">
-                                <span class="dl-title">TẢI BẢN PC MÁY TÍNH</span>
-                                <span class="dl-sub">File EXE / JAR Giả Lập</span>
-                            </div>
-                        </a>
+            <!-- 6 3D ORANGE DOWNLOAD BUTTONS GRID -->
+            <div id="download-section" class="teamobi-dl-grid">
+                <a href="#" class="t-dl-btn">
+                    <span class="btn-main-title">Java</span>
+                    <span class="btn-sub-info">250 - JAD</span>
+                </a>
+                <a href="#" class="t-dl-btn highlight">
+                    <span class="btn-main-title">ANDROID APK</span>
+                    <span class="btn-sub-info">250 - Hướng dẫn cài</span>
+                </a>
+                <a href="#" class="t-dl-btn">
+                    <span class="btn-main-title">ANDROID Google Play</span>
+                    <span class="btn-sub-info">250</span>
+                </a>
+                <a href="#" class="t-dl-btn highlight">
+                    <span class="btn-main-title">PC Windows</span>
+                    <span class="btn-sub-info">250</span>
+                </a>
+                <a href="#" class="t-dl-btn">
+                    <span class="btn-main-title">IPHONE</span>
+                    <span class="btn-sub-info">iOS</span>
+                </a>
+                <a href="#giftcode-sec" class="t-dl-btn gold">
+                    <span class="btn-main-title">NẠP VÀNG</span>
+                    <span class="btn-sub-info">Mã Giftcode & Thỏi Vàng</span>
+                </a>
+            </div>
+
+            <!-- USER ACCOUNT & ADMIN PROFILE WIDGET BAR -->
+            <div class="teamobi-user-bar">
+                <!-- UNLOGGED WIDGET -->
+                <div id="widget-unlogged-state" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #e65100;">
+                        <i class="fa-solid fa-user-lock"></i> Chưa đăng nhập tài khoản?
                     </div>
-
-                    <!-- FORUM ANNOUNCEMENTS & POSTS BOARD -->
-                    <div class="glass" style="padding: 20px; margin-bottom: 24px; background: #ffffff; border: 1px solid #ffe0b2; border-top: 4px solid var(--teamobi-orange);">
-                        <h3 style="color: var(--teamobi-orange-dark); font-size: 16px; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-                            <i class="fa-solid fa-bullhorn"></i> THÔNG BÁO BÀI VIẾT DIỄN ĐÀN TEAMOBI
-                        </h3>
-                        <div class="forum-posts-list">
-                            <div class="forum-post-item">
-                                <span class="post-badge pinned">THÔNG BÁO</span>
-                                <a href="#" class="post-title">[Thông báo] Khởi chạy Server Ngọc Rồng 2026 - Chuẩn Teamobi Mượt Mà</a>
-                                <span class="post-date">Hôm nay</span>
-                            </div>
-                            <div class="forum-post-item">
-                                <span class="post-badge event">SỰ KIỆN</span>
-                                <a href="#" class="post-title">[Sự kiện] Chuỗi sự kiện X2 Tiềm Năng Sức Mạnh & Săn Boss Nhận Đồ VIP</a>
-                                <span class="post-date">Hôm qua</span>
-                            </div>
-                            <div class="forum-post-item">
-                                <span class="post-badge guide">HƯỚNG DẪN</span>
-                                <a href="#" class="post-title">[Hướng dẫn] Hướng dẫn Tân thủ nhận GiftCode & Đệ Tử Studio</a>
-                                <span class="post-date">2 ngày trước</span>
-                            </div>
-                            <div class="forum-post-item">
-                                <span class="post-badge news">TIN TỨC</span>
-                                <a href="#" class="post-title">[Cập nhật] Cập nhật tính năng Shop NPC và Rơi đồ Realtime</a>
-                                <span class="post-date">3 ngày trước</span>
-                            </div>
-                        </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="t-action-btn primary" onclick="openLoginModal()">
+                            <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP
+                        </button>
+                        <button type="button" class="t-action-btn secondary" onclick="openLoginModal(); switchAuthTab('register');">
+                            <i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ MỚI
+                        </button>
                     </div>
-
-                    <!-- REDEEM GIFTCODE CARD -->
-                    <div id="giftcode-section" class="glass" style="padding: 20px; border: 1px solid var(--teamobi-orange-border); margin-bottom: 24px; background: #ffffff; border-top: 4px solid #10b981;">
-                        <h3 style="color: #059669; font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-weight: 800;">
-                            <i class="fa-solid fa-gift"></i> NHẬP MÃ GIFTCODE NHẬN QUÀ GAME
-                        </h3>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-                            Nhập mã GiftCode do Admin phát để nhận ngay Tiền Vàng, Ngọc và Trang Bị VIP trực tiếp vào nhân vật!
-                        </p>
-                        <form onsubmit="handleUserRedeemGiftcode(event)" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                            <input type="text" id="user-gc-input" class="input-field" placeholder="Nhập mã Giftcode..."
-                                style="flex: 1; min-width: 200px; font-weight: 800; color: var(--teamobi-orange-dark); text-transform: uppercase;"
-                                required>
-                            <button type="submit" class="btn-primary" style="padding: 10px 24px; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669);">
-                                🎁 NHẬN QUÀ NGAY
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- BUY GOLD STORE -->
-                    <div id="shop-section" class="glass" style="padding: 20px; border: 1px solid #bae6fd; margin-bottom: 24px; background: #ffffff; border-top: 4px solid #0284c7;">
-                        <h3 style="color: #0284c7; font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-weight: 800;">
-                            <i class="fa-solid fa-coins"></i> CỬA HÀNG MUA VÀNG GAME NRO
-                        </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
-                            <div class="glass" style="padding: 16px; border: 1px solid var(--teamobi-orange-border); text-align: center; background: #ffffff;">
-                                <div style="font-size: 30px; margin-bottom: 4px;">💰</div>
-                                <h4 style="color: var(--teamobi-orange-dark); font-size: 14px; font-weight: 800;">GÓI 50 THỎI VÀNG</h4>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 12px 0;">Nhận ngay 50 Thỏi Vàng</p>
-                                <button type="button" class="btn-primary" onclick="buyGoldForPlayer(50)" style="width: 100%; font-weight: 800;">
-                                    🛒 MUA 50 THỎI
-                                </button>
-                            </div>
-                            <div class="glass" style="padding: 16px; border: 1px solid #bae6fd; text-align: center; background: #ffffff;">
-                                <div style="font-size: 30px; margin-bottom: 4px;">👑</div>
-                                <h4 style="color: var(--cyan); font-size: 14px; font-weight: 800;">GÓI 200 THỎI VÀNG</h4>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 12px 0;">Nhận ngay 200 Thỏi VIP</p>
-                                <button type="button" class="btn-primary" onclick="buyGoldForPlayer(200)" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; font-weight: 800; width: 100%;">
-                                    🛒 MUA 200 THỎI
-                                </button>
-                            </div>
-                            <div class="glass" style="padding: 16px; border: 1px solid #e9d5ff; text-align: center; background: #ffffff;">
-                                <div style="font-size: 30px; margin-bottom: 4px;">💎</div>
-                                <h4 style="color: #9333ea; font-size: 14px; font-weight: 800;">GÓI 500 THỎI VÀNG</h4>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 12px 0;">Nhận ngay 500 Thỏi Siêu Cấp</p>
-                                <button type="button" class="btn-primary" onclick="buyGoldForPlayer(500)" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; font-weight: 800; width: 100%;">
-                                    🛒 MUA 500 THỎI
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                <!-- RIGHT SIDEBAR COLUMN (30%): USER PROFILE / LOGIN WIDGET & SERVER STATS -->
-                <div class="portal-side-col">
-                    
-                    <!-- USER / LOGIN SIDEBAR WIDGET CARD -->
-                    <div id="user-widget-card" class="glass" style="padding: 20px; background: #ffffff; border: 1px solid #ffe0b2; border-top: 4px solid var(--teamobi-orange); margin-bottom: 20px;">
-                        
-                        <!-- UNLOGGED STATE WIDGET -->
-                        <div id="widget-unlogged-state">
-                            <h3 style="color: var(--teamobi-orange-dark); font-size: 15px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                                <i class="fa-solid fa-user-lock"></i> ĐĂNG NHẬP THÀNH VIÊN
-                            </h3>
-                            <button type="button" class="btn-primary" onclick="openLoginModal()" style="width: 100%; padding: 10px; font-weight: 800; margin-bottom: 8px;">
-                                <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP TÀI KHOẢN
-                            </button>
-                            <button type="button" class="btn-secondary" onclick="openLoginModal(); switchAuthTab('register');" style="width: 100%; padding: 8px; font-size: 12px;">
-                                <i class="fa-solid fa-user-plus"></i> Đăng Ký Tài Khoản Mới
-                            </button>
+                <!-- LOGGED IN WIDGET -->
+                <div id="widget-logged-state" style="display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img id="portal-avatar-img" src="/icons/64.png" onerror="this.src='/icons/64.png';" style="width: 36px; height: 36px; object-fit: contain; background: #ffffff; border-radius: 6px; border: 1px solid #ffcc80;" />
+                            <div>
+                                <span style="font-size: 11px; color: #666; display: block;">Tài khoản đăng nhập:</span>
+                                <strong id="portal-welcome-name" style="font-size: 14px; color: #e65100;">Player</strong>
+                            </div>
                         </div>
 
-                        <!-- LOGGED IN USER STATE WIDGET -->
-                        <div id="widget-logged-state" style="display: none;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
-                                <div id="portal-avatar-box" style="width: 46px; height: 46px; border-radius: 10px; background: var(--teamobi-orange-bg); border: 2px solid var(--teamobi-orange-border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-                                    <img id="portal-avatar-img" src="/icons/64.png" onerror="this.src='/icons/64.png';" style="width: 36px; height: 36px; object-fit: contain;">
-                                </div>
-                                <div style="overflow: hidden;">
-                                    <h4 id="portal-welcome-name" style="font-size: 15px; color: var(--teamobi-orange-dark); font-weight: 800; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Player</h4>
-                                    <span id="portal-sub-info" style="font-size: 11px; color: var(--text-muted);">Thành viên Game</span>
-                                </div>
-                            </div>
+                        <!-- CHAR INFO INLINE BADGE -->
+                        <div id="portal-has-char-card" style="display: none; background: #ffffff; border: 1px solid #ffd8a8; padding: 4px 10px; border-radius: 6px; font-size: 12px;">
+                            NV: <strong id="portal-char-name" style="color: #333;">-</strong> | Hành tinh: <strong id="portal-char-gender" style="color: #e65100;">-</strong> | ID: <strong id="portal-char-id" style="color: #0284c7;">-</strong>
+                        </div>
+                        <div id="portal-no-char-alert" style="display: none; color: #dc2626; font-size: 12px; font-weight: 700;">
+                            ⚠️ Chưa tạo nhân vật trong game
+                        </div>
 
-                            <!-- CHARACTER INFO CARD (IF HAS PLAYER) -->
-                            <div id="portal-has-char-card" style="display: none; background: var(--teamobi-orange-bg); border: 1px solid var(--teamobi-orange-border); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 12px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                    <span style="color: var(--text-muted);">Nhân vật:</span>
-                                    <strong id="portal-char-name" style="color: var(--text-main);">-</strong>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                    <span style="color: var(--text-muted);">Hành tinh:</span>
-                                    <strong id="portal-char-gender" style="color: var(--teamobi-orange-dark);">-</strong>
-                                </div>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: var(--text-muted);">ID Game:</span>
-                                    <strong id="portal-char-id" style="color: var(--cyan);">-</strong>
-                                </div>
-                            </div>
-
-                            <div id="portal-no-char-alert" style="display: none; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 11px; color: var(--red); text-align: center;">
-                                ⚠️ Tài khoản chưa tạo nhân vật trong game!
-                            </div>
-
-                            <!-- ADMIN ACCESS BUTTON (ONLY VISIBLE TO ADMINS) -->
-                            <button id="admin-panel-access-btn" type="button" class="btn-primary" onclick="showAdminPanel()" style="display: none; width: 100%; padding: 10px; font-weight: 800; background: linear-gradient(135deg, #ff7a18, #e65100); margin-bottom: 8px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button id="admin-panel-access-btn" type="button" class="t-action-btn admin" onclick="showAdminPanel()" style="display: none;">
                                 <i class="fa-solid fa-users-gear"></i> MỞ QUẢN TRỊ ADMIN PANEL
                             </button>
-
-                            <button type="button" class="btn-secondary" onclick="logoutAdmin()" style="width: 100%; padding: 8px; font-size: 12px; color: var(--red); border-color: #fca5a5;">
-                                <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất Tài Khoản
+                            <button type="button" class="t-action-btn danger" onclick="logoutAdmin()">
+                                <i class="fa-solid fa-right-from-bracket"></i> ĐĂNG XUẤT
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- SERVER LIVE STATS WIDGET -->
-                    <div class="glass" style="padding: 16px; background: #ffffff; border: 1px solid #ffe0b2; border-top: 4px solid #10b981;">
-                        <h3 style="color: #059669; font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-circle-nodes"></i> THỐNG KÊ MÁY CHỦ
-                        </h3>
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 6px;">
-                            <span style="color: var(--text-muted);">Trạng thái:</span>
-                            <span class="badge-online" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-size: 11px; padding: 2px 8px; font-weight: 700;">🟢 HOẠT ĐỘNG</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
-                            <span style="color: var(--text-muted);">Đang Online Live:</span>
-                            <strong id="public-stat-online" style="color: var(--teamobi-orange-dark); font-size: 15px; font-weight: 800;">0</strong>
+            <!-- MAIN CONTENT SECTION (MATCHING SCREENSHOT CONTENT & TEXT EXACTLY) -->
+            <div class="teamobi-main-body">
+                
+                <!-- SECTION 1: GIỚI THIỆU -->
+                <div id="gioi-thieu-sec" class="teamobi-section">
+                    <h2 class="sec-title">Giới Thiệu</h2>
+                    <div class="sec-content">
+                        <p><strong>Ngọc Rồng Online</strong> là Trò Chơi Trực Tuyến với cốt truyện xoay quanh bộ truyện tranh 7 viên Ngọc Rồng. Người chơi sẽ hóa thân thành một trong những anh hùng của 3 hành tinh: Trái Đất, Xayda, Namếc. Cùng luyện tập, tăng cường sức mạnh và kỹ năng. Đoàn kết cùng chiến đấu chống lại các thế lực hung ác. Cùng nhau tranh tài.</p>
+                        
+                        <p><strong>Đặc điểm nổi bật:</strong><br>
+                        - Thể loại hành động, nhập vai. Trực tiếp điều khiển nhân vật hành động. Dễ chơi, dễ điều khiển nhân vật. Đồ họa sắc nét. Có phiên bản đồ họa cao cho điện thoại mạnh và phiên bản pixel cho máy cấu hình thấp.<br>
+                        - Cốt truyện bám sát nguyên tác. Người chơi sẽ gặp tất cả nhân vật từ Bulma, Quy lão kame, Jacky-chun, Tàu Pảy Pảy... cho đến Fide, Píc, Póc, Xên, Broly, đội Bojack.<br>
+                        - Đặc điểm nổi bật nhất: Tham gia đại hội võ thuật. Tham gia đại hội võ thuật. Tham gia săn lùng ngọc rồng để mang lại điều ước cho bản thân.<br>
+                        - Tương thích tất cả các dòng máy trên thị trường hiện nay: Máy tính PC, Điện thoại di động Nokia Java, Android, iPhone, Windows Phone, và máy tính bảng Android, iPad.</p>
+
+                        <!-- IMAGES SHOWCASE (CƠ BẢN & VIP) -->
+                        <div style="text-align: center; margin: 16px 0;">
+                            <div style="font-weight: bold; color: #cc4400; font-size: 13px; margin-bottom: 6px;">Cơ Bản</div>
+                            <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+                                <img src="/icons/1.png" onerror="this.style.display='none'" style="width: 120px; border: 1px solid #ffb74d; border-radius: 4px; background: #fff;" alt="Cơ bản 1">
+                                <img src="/icons/2.png" onerror="this.style.display='none'" style="width: 120px; border: 1px solid #ffb74d; border-radius: 4px; background: #fff;" alt="Cơ bản 2">
+                            </div>
+
+                            <div style="font-weight: bold; color: #cc4400; font-size: 13px; margin-bottom: 6px;">VIP</div>
+                            <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+                                <img src="/icons/3.png" onerror="this.style.display='none'" style="width: 120px; border: 1px solid #ffb74d; border-radius: 4px; background: #fff;" alt="VIP 1">
+                                <img src="/icons/4.png" onerror="this.style.display='none'" style="width: 120px; border: 1px solid #ffb74d; border-radius: 4px; background: #fff;" alt="VIP 2">
+                            </div>
                         </div>
                     </div>
+                </div>
 
+                <!-- SECTION 2: HƯỚNG DẪN TÂN THỦ -->
+                <div id="huong-dan-sec" class="teamobi-section">
+                    <h2 class="sec-title">Hướng Dẫn Tân Thủ</h2>
+                    <div class="sec-content">
+                        <p><strong>1. Đăng ký tài khoản</strong><br>
+                        Ngọc Rồng Online sử dụng Tài Khoản riêng, không chung với bất kỳ Trò Chơi nào khác.<br>
+                        Bạn có thể đăng ký tài khoản miễn phí ngay trong game, hoặc trên trang Diễn Đàn.<br>
+                        Khi đăng ký, bạn nên sử dụng đúng số điện thoại hoặc email thật của mình. Nếu bạn có đủ thông tin sai, người có số điện thoại hoặc email thật sẽ có thể lấy lại mật khẩu của bạn.<br>
+                        Số điện thoại và email của bạn sẽ không hiện ra cho người khác thấy. Admin không bao giờ hỏi mật khẩu của bạn.</p>
+
+                        <p><strong>2. Hướng dẫn điều khiển</strong><br>
+                        Đối với máy bàn phím: Dùng phím mũi tên, phím số, để điều khiển nhân vật. Phím chọn giữa để tương tác.<br>
+                        Đối với máy cảm ứng: Dùng tay chạm vào màn hình cảm ứng để di chuyển. Chạm nhanh 2 lần vào 1 đối tượng để tương tác.<br>
+                        Đối với PC: Dùng chuột, click chuột phải để di chuyển, click chuột trái để chọn, click đôi vào đối tượng để tương tác.</p>
+
+                        <p><strong>3. Một số thông tin cần bản</strong><br>
+                        - Đậu thần dùng để tăng KI và HP ngay lập tức.<br>
+                        - Bạn chỉ mang theo người được 10 hạt đậu. Nếu muốn mang nhiều hơn, hãy xin bạn bè trong Bang.<br>
+                        - Tất cả các sách kỹ năng đều có thể học miễn phí tại Quy Lão kame, khi bạn có đủ điểm tiềm năng.<br>
+                        - Bạn không thể bay, dùng kỹ năng, nếu hết KI.<br>
+                        - Tấn công quái vật cùng bạn bè trong Bang sẽ mang lại nhiều điểm tiềm năng hơn đánh một mình.<br>
+                        - Tập luyện với bạn bè tại khu vực thích hợp sẽ mang lại nhiều điểm tiềm năng hơn đánh quái.<br>
+                        - Khi được nâng cấp, đậu thần sẽ phục hồi nhiều HP và KI hơn.<br>
+                        - Vào trò chơi điểm danh mỗi ngày để nhận quà Ngọc miễn phí.<br>
+                        - Đùi gà sẽ phục hồi 100% HP, KI. Cà chua phục hồi 100% KI. Cà rốt phục hồi 100% HP.<br>
+                        - Cây đậu thần kết một hạt sau một thời gian, cho dù bạn đang offline.<br>
+                        - Sau 3 ngày không tham gia trò chơi, bạn sẽ bị giảm sức mạnh do lười luyện tập.<br>
+                        - Bạn sẽ giảm thể lực khi đánh quái, nhưng sẽ tăng lại thể lực khi không đánh nữa.</p>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: BẠN NÊN TẢI PHIÊN BẢN NÀO? -->
+                <div class="teamobi-section">
+                    <h2 class="sec-title">Bạn nên tải phiên bản nào?</h2>
+                    <div class="sec-content">
+                        <p>Nếu bạn dùng điện thoại Nokia cũ, có bàn phím như Nokia 6300, Nokia E72, Nokia X2, Nokia C2. Hãy tải bản <strong>JAVA</strong>.<br>
+                        Nếu bạn dùng máy cảm ứng dùng Android như: Samsung Galaxy A, HTC, LG, Sky, HKPhone. Hãy tải bản <strong>Android APK</strong> hoặc <strong>Android Playstore</strong> đều được.<br>
+                        Nếu bạn dùng điện thoại cảm ứng của NOKIA Lumia, hoặc các máy HTC chạy Windows Phone, hãy tải bản cho <strong>Windows Phone</strong>.<br>
+                        Nếu bạn dùng máy vi tính cá nhân, laptop chạy Windows XP - Windows 7, hãy tải bản <strong>PC</strong>.<br>
+                        Nếu bạn dùng iPhone, iPod, iPad, hãy tải bản iPhone Appstore. Nếu bạn biết chắc rằng máy mình đã jailbreak, có cài AppSync hoặc AppStoreVN, hãy cài từ bản iPhone Jailbreak để tốc độ nhanh hơn.</p>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: GIFTCODE & NẠP VÀNG SHOP WIDGET -->
+                <div id="giftcode-sec" class="teamobi-section highlight-box">
+                    <h2 class="sec-title gold"><i class="fa-solid fa-gift"></i> Nhập Giftcode & Nhận Vàng Game</h2>
+                    <div class="sec-content">
+                        
+                        <!-- GIFTCODE FORM -->
+                        <div style="background: #ffffff; border: 1px solid #ffd8a8; padding: 14px; border-radius: 6px; margin-bottom: 16px;">
+                            <div style="font-weight: bold; color: #e65100; margin-bottom: 6px; font-size: 13px;">🎁 Nhập Mã Giftcode Đổi Quà:</div>
+                            <form onsubmit="handleUserRedeemGiftcode(event)" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <input type="text" id="user-gc-input" class="input-field" placeholder="NHẬP MÃ GIFTCODE TẠI ĐÂY..." style="flex: 1; min-width: 180px; text-transform: uppercase; font-weight: 800; border-color: #ffb74d;" required>
+                                <button type="submit" class="t-action-btn gold" style="padding: 8px 18px;">
+                                    🎁 NHẬN QUÀ
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- BUY GOLD STORE -->
+                        <div style="font-weight: bold; color: #e65100; margin-bottom: 8px; font-size: 13px;">💰 Cửa Hàng Thỏi Vàng Game NRO:</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            <div style="background: #ffffff; border: 1px solid #ffd8a8; border-radius: 6px; padding: 12px; text-align: center;">
+                                <div style="font-size: 24px;">💰</div>
+                                <div style="font-weight: 800; color: #e65100; font-size: 13px;">GÓI 50 THỎI VÀNG</div>
+                                <button type="button" class="t-action-btn primary" onclick="buyGoldForPlayer(50)" style="width: 100%; margin-top: 8px; font-size: 11px;">
+                                    MUA 50 THỎI
+                                </button>
+                            </div>
+                            <div style="background: #ffffff; border: 1px solid #bae6fd; border-radius: 6px; padding: 12px; text-align: center;">
+                                <div style="font-size: 24px;">👑</div>
+                                <div style="font-weight: 800; color: #0284c7; font-size: 13px;">GÓI 200 THỎI VÀNG</div>
+                                <button type="button" class="t-action-btn primary" onclick="buyGoldForPlayer(200)" style="width: 100%; margin-top: 8px; font-size: 11px; background: #0284c7;">
+                                    MUA 200 THỎI
+                                </button>
+                            </div>
+                            <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 6px; padding: 12px; text-align: center;">
+                                <div style="font-size: 24px;">💎</div>
+                                <div style="font-weight: 800; color: #9333ea; font-size: 13px;">GÓI 500 THỎI VÀNG</div>
+                                <button type="button" class="t-action-btn primary" onclick="buyGoldForPlayer(500)" style="width: 100%; margin-top: 8px; font-size: 11px; background: #9333ea;">
+                                    MUA 500 THỎI
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
             </div>
-        </div>
 
-        <!-- PUBLIC FOOTER -->
-        <footer style="background: #ffffff; border-top: 1px solid #ffe0b2; padding: 24px; text-align: center; color: #64748b; font-size: 13px; margin-top: 50px;">
-            <p style="margin: 0; font-weight: 700;">© 2026 Ngọc Rồng Online Server Pro - Diễn Đàn & Trang Chủ Game Chuẩn Teamobi.</p>
-        </footer>
+            <!-- FOOTER SECTION (EXACT MATCHING SCREENSHOT) -->
+            <footer class="teamobi-footer">
+                <p>Game Chú Bé Rồng Số 147/QĐ-PTTH&TTĐT do Bộ Thông Tin và Truyền Thông cấp ngày 28/04/2025<br>
+                Giấy phép cung cấp dịch vụ trò chơi điện tử G1 trên mạng số: 358/GP-BTTTT<br>
+                do Bộ Thông Tin và Truyền Thông cấp ngày 28 tháng 9 năm 2023<br>
+                <strong>Bản Quyền thuộc về Gobi - Điều Khoản Sử Dụng</strong></p>
+            </footer>
+
+        </div>
     </div>
 
     <div class="app-layout">

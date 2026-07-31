@@ -310,115 +310,229 @@ body {
 }
 
 /* ==========================================
-   PUBLIC GAME HOMEPAGE & LANDING PORTAL STYLING
+   OFFICIAL TEAMOBI NRO WEBSITE REPLICA STYLING
    ========================================== */
-.public-navbar {
-    height: 68px;
-    padding: 0 32px;
-    background: #ffffff;
-    border-bottom: 2px solid #ffe0b2;
-    box-shadow: 0 4px 15px rgba(230, 81, 0, 0.06);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+.teamobi-nro-wrapper {
+    max-width: 850px;
+    margin: 0 auto;
+    background: #fbf0db;
+    border: 2px solid #e65100;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+    overflow: hidden;
+    font-family: Arial, Tahoma, Helvetica, sans-serif;
 }
 
-.public-nav-links {
-    display: flex;
-    gap: 16px;
-    align-items: center;
+/* 180 Min Health Notice Bar */
+.teamobi-notice-bar {
+    background: #ff5500;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px 10px;
+    border-bottom: 1px solid #cc4400;
 }
 
-.pub-link {
-    color: #475569;
-    font-weight: 700;
-    font-size: 14px;
+/* Logo Header Header */
+.teamobi-logo-header {
+    background: linear-gradient(180deg, #ff7a18 0%, #e65100 100%);
+    padding: 16px 10px;
+    text-align: center;
+    border-bottom: 2px solid #b33600;
+}
+
+.teamobi-site-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    font-family: 'Arial Black', Impact, sans-serif;
+}
+
+.teamobi-site-title span {
+    color: #ffeb3b;
+}
+
+/* Horizontal Nav Bar */
+.teamobi-nav-bar {
+    background: #cc4400;
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    border-bottom: 2px solid #993300;
+    flex-wrap: wrap;
+}
+
+.t-nav-btn {
+    flex: 1;
+    min-width: 120px;
+    background: linear-gradient(180deg, #ff7700 0%, #d94800 100%);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 8px;
     text-decoration: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    border-right: 1px solid #b33b00;
+    transition: background 0.15s ease;
 }
 
-.pub-link:hover, .pub-link.active {
-    color: #e65100;
-    background: #fff8f3;
+.t-nav-btn:hover, .t-nav-btn.active {
+    background: linear-gradient(180deg, #ff9933 0%, #e65500 100%);
+    color: #ffeb3b;
 }
 
-/* 2 Columns Portal Grid Layout */
-.teamobi-portal-grid {
+/* Banner Box */
+.teamobi-banner-box {
+    background: linear-gradient(135deg, #e65100 0%, #b33600 100%);
+    padding: 30px 15px;
+    text-align: center;
+    border-bottom: 2px solid #e65100;
+}
+
+/* 6 3D Orange Download Buttons Grid */
+.teamobi-dl-grid {
+    background: #ffd8a8;
+    padding: 12px;
     display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    border-bottom: 2px solid #ffaa44;
 }
 
-@media (max-width: 992px) {
-    .teamobi-portal-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Forum Posts List Styling */
-.forum-posts-list {
+.t-dl-btn {
+    background: linear-gradient(180deg, #ff7a18 0%, #d64500 100%);
+    border: 2px solid #992b00;
+    border-radius: 8px;
+    padding: 8px 4px;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 6px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-
-.forum-post-item {
-    display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    justify-content: center;
+    transition: transform 0.1s ease, filter 0.15s ease;
 }
 
-.forum-post-item:hover {
-    background: #fff8f3;
-    border-color: #ffd8a8;
+.t-dl-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 
-.post-badge {
-    font-size: 10px;
-    font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    flex-shrink: 0;
+.t-dl-btn.highlight {
+    background: linear-gradient(180deg, #ff9900 0%, #e65100 100%);
+    border-color: #7a2000;
 }
 
-.post-badge.pinned { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-.post-badge.event { background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
-.post-badge.guide { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-.post-badge.news { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+.t-dl-btn.gold {
+    background: linear-gradient(180deg, #ffc107 0%, #ff8f00 100%);
+    border-color: #b26a00;
+}
 
-.post-title {
+.t-dl-btn .btn-main-title {
     font-size: 13px;
-    font-weight: 700;
-    color: #1e293b;
-    text-decoration: none;
-    flex: 1;
-    white-space: nowrap;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
+}
+
+.t-dl-btn.gold .btn-main-title {
+    color: #422000;
+    text-shadow: none;
+}
+
+.t-dl-btn .btn-sub-info {
+    font-size: 10px;
+    color: #ffe0b2;
+    margin-top: 2px;
+}
+
+.t-dl-btn.gold .btn-sub-info {
+    color: #5c3000;
+}
+
+/* User Profile Widget Bar */
+.teamobi-user-bar {
+    background: #ffe3c2;
+    border-bottom: 2px solid #ffb74d;
+    padding: 10px 14px;
+}
+
+.t-action-btn {
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.t-action-btn.primary { background: #ff6600; color: #fff; border-color: #cc5200; }
+.t-action-btn.secondary { background: #ffffff; color: #e65100; border-color: #ffb74d; }
+.t-action-btn.gold { background: #ffb300; color: #3d2400; border-color: #cc8f00; }
+.t-action-btn.admin { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+.t-action-btn.danger { background: #ef4444; color: #fff; }
+
+/* Main Body Content Sections */
+.teamobi-main-body {
+    padding: 14px;
+    background: #fbf0db;
+}
+
+.teamobi-section {
+    margin-bottom: 18px;
+    background: #fff8eb;
+    border: 1px solid #ffe0b2;
+    border-radius: 4px;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.post-title:hover {
-    color: #e65100;
+.sec-title {
+    background: linear-gradient(180deg, #ff7a18 0%, #e65100 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 8px 12px;
+    margin: 0;
+    border-bottom: 1px solid #cc4400;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.post-date {
+.sec-title.gold {
+    background: linear-gradient(180deg, #ffb300 0%, #e68a00 100%);
+    color: #3b2000;
+    text-shadow: none;
+}
+
+.sec-content {
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #333333;
+    line-height: 1.6;
+}
+
+.sec-content p {
+    margin-bottom: 12px;
+}
+
+/* Teamobi Footer */
+.teamobi-footer {
+    background: #e65100;
+    color: #ffffff;
+    text-align: center;
     font-size: 11px;
-    color: #94a3b8;
-    flex-shrink: 0;
+    padding: 14px 10px;
+    line-height: 1.6;
+    border-top: 2px solid #b33600;
+}
+
+.teamobi-footer strong {
+    color: #ffeb3b;
 }
 
 /* Public Hero Section */
