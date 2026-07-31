@@ -331,9 +331,8 @@ function switchTab(tabName) {
 
     // Update active class specifically on sidebar menu buttons
     document.querySelectorAll('.sidebar-menu .nav-btn').forEach(btn => {
-        const btnTab = btn.getAttribute('data-tab') || '';
-        const onclickAttr = btn.getAttribute('onclick') || '';
-        if (btnTab === tabName || onclickAttr.includes(`'${tabName}'`)) {
+        const btnTab = btn.getAttribute('data-tab');
+        if (btnTab === tabName) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
