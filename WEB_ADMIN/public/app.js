@@ -1166,7 +1166,7 @@ function filterItems() {
         return;
     }
     const filtered = itemTemplates.filter(item =>
-        item.id.toString() === query ||
+        item.id.toString().includes(query) ||
         (item.name && item.name.toLowerCase().includes(query))
     );
     renderItemCatalog(filtered.slice(0, 120));
