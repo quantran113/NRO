@@ -389,13 +389,13 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="user-profile-badge">
-                    <div class="user-avatar-small"><i class="fa-solid fa-user-shield"></i></div>
-                    <div class="user-info-text">
-                        <span class="user-name-label" id="nav-username-display">Admin</span>
-                        <span class="user-role-tag"><i class="fa-solid fa-circle" style="font-size: 8px; color: #10b981;"></i> Online</span>
+                <div class="user-profile-badge" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #ffffff; border: 1px solid #ffe0b2; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    <img id="admin-sidebar-avatar-img" src="/icons/521.png" onerror="this.src='/icons/521.png';" style="width: 38px; height: 38px; object-fit: contain; background: #fff8f3; border-radius: 8px; border: 1px solid #ffcc80; padding: 2px;" />
+                    <div class="user-info-text" style="flex: 1; overflow: hidden;">
+                        <span class="user-name-label" id="nav-username-display" style="font-weight: 800; color: #e65100; font-size: 13px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Admin</span>
+                        <span class="user-role-tag" id="nav-userrole-display" style="font-size: 11px; color: #10b981; font-weight: 700; display: block;"><i class="fa-solid fa-circle" style="font-size: 8px; color: #10b981;"></i> Quản Trị Viên</span>
                     </div>
-                    <button type="button" class="btn-logout" onclick="logoutAdmin()" title="Đăng Xuất">
+                    <button type="button" class="btn-logout" onclick="logoutAdmin()" title="Đăng Xuất" style="border: none; background: #fee2e2; color: #ef4444; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
                 </div>

@@ -160,6 +160,19 @@ function updatePortalUserWidget() {
                 cAvatar.src = imgUrl;
             }
         }
+
+        const navUserDisplay = document.getElementById('nav-username-display');
+        if (navUserDisplay) navUserDisplay.innerText = currentLoggedUser.username || 'Admin';
+
+        const adminSidebarAvatar = document.getElementById('admin-sidebar-avatar-img');
+        if (adminSidebarAvatar) {
+            let adminAvatarSrc = '/icons/521.png';
+            if (currentLoggedUser.player) {
+                const p = currentLoggedUser.player;
+                adminAvatarSrc = (p.avatarUrl && !p.avatarUrl.includes('64.png') && !p.avatarUrl.includes('28.png')) ? p.avatarUrl : (p.avatarId ? `/icons/${p.avatarId}.png` : ((p.gender === 1 || p.gender === 'Namếc') ? '/icons/523.png' : (p.gender === 2 || p.gender === 'Xayda') ? '/icons/519.png' : '/icons/521.png'));
+            }
+            adminSidebarAvatar.src = adminAvatarSrc;
+        }
     }
 }
 
