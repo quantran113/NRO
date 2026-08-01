@@ -220,6 +220,23 @@ app.post('/api/admin/bosses/action', async (req, res) => {
     }
 });
 
+app.get(['/api/player-inventory', '/api/admin/player-inventory'], async (req, res) => {
+    try {
+        const playerName = req.query.playerName || '';
+        if (!playerName) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu tên nhân vật' });
+        }
+        const resp = await fetch(`${JAVA_API_URL}/api/player-inventory?playerName=${encodeURIComponent(playerName)}`);
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể kết nối Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Admin Stats Endpoint
 app.get('/api/admin/stats', async (req, res) => {
     try {

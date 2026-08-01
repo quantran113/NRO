@@ -72,6 +72,7 @@ public class AdminHttpServer {
             server.createContext("/api/bosses", new BossesHandler());
             server.createContext("/api/bosses/spawn", new SpawnBossHandler());
             server.createContext("/api/bosses/action", new BossActionHandler());
+            server.createContext("/api/player-inventory", new PlayerInventoryHandler());
 
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -2058,6 +2059,278 @@ public class AdminHttpServer {
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- GET / POST /api/player-inventory ---
+    private static class PlayerInventoryHandler implements HttpHandler {
+        private String getBodySlotName(int slot) {
+            return switch (slot) {
+                case 0 -> "Áo";
+                case 1 -> "Quần";
+                case 2 -> "Găng";
+                case 3 -> "Giày";
+                case 4 -> "Rada/Thang";
+                case 5 -> "Cải Trang";
+                case 6 -> "Thẻ Đệ/Nón";
+                case 7 -> "Phụ Kiện/Cánh";
+                case 8 -> "Linh Thú/Pet";
+                case 9 -> "Danh Hiệu";
+                case 10 -> "Chân Mây/Bội";
+                case 11 -> "Vũ Khí Khác";
+                default -> "Trang Bị #" + slot;
+            };
+        }
+
+        private JSONObject parseItemToJson(Item item, int slotIndex) {
+            if (item == null || item.template == null) return null;
+            JSONObject obj = new JSONObject();
+            obj.put("slot", slotIndex);
+            obj.put("slotName", getBodySlotName(slotIndex));
+            obj.put("id", item.template.id);
+            obj.put("name", item.template.name);
+            obj.put("iconID", item.template.iconID != 0 ? item.template.iconID : item.template.id);
+            obj.put("quantity", item.quantity);
+            obj.put("type", item.template.type);
+
+            JSONArray optArr = new JSONArray();
+            if (item.itemOptions != null) {
+                for (Item.ItemOption io : item.itemOptions) {
+                    if (io != null && io.optionTemplate != null) {
+                        JSONObject optObj = new JSONObject();
+                        optObj.put("id", io.optionTemplate.id);
+                        optObj.put("name", io.optionTemplate.name != null ? io.optionTemplate.name : ("Option #" + io.optionTemplate.id));
+                        optObj.put("param", io.param);
+                        optArr.add(optObj);
+                    }
+                }
+            }
+            obj.put("options", optArr);
+            return obj;
+        }
+
+        private JSONObject parseRawDbItemToJson(String itemJsonStr, int slotIndex) {
+            if (itemJsonStr == null || itemJsonStr.trim().isEmpty() || "null".equalsIgnoreCase(itemJsonStr)) return null;
+            try {
+                Object parsed = JSONValue.parse(itemJsonStr);
+                if (!(parsed instanceof JSONArray)) return null;
+                JSONArray dataItem = (JSONArray) parsed;
+                if (dataItem.isEmpty()) return null;
+
+                int tempId = Integer.parseInt(String.valueOf(dataItem.get(0)));
+                if (tempId == -1) return null;
+
+                int quantity = dataItem.size() > 1 ? Integer.parseInt(String.valueOf(dataItem.get(1))) : 1;
+
+                ItemTemplate temp = ItemService.gI().getTemplate((short) tempId);
+                if (temp == null) return null;
+
+                JSONObject obj = new JSONObject();
+                obj.put("slot", slotIndex);
+                obj.put("slotName", getBodySlotName(slotIndex));
+                obj.put("id", temp.id);
+                obj.put("name", temp.name);
+                obj.put("iconID", temp.iconID != 0 ? temp.iconID : temp.id);
+                obj.put("quantity", quantity);
+                obj.put("type", temp.type);
+
+                JSONArray optArr = new JSONArray();
+                if (dataItem.size() > 2) {
+                    Object optsObj = dataItem.get(2);
+                    JSONArray rawOpts = null;
+                    if (optsObj instanceof JSONArray) {
+                        rawOpts = (JSONArray) optsObj;
+                    } else if (optsObj instanceof String) {
+                        rawOpts = (JSONArray) JSONValue.parse((String) optsObj);
+                    }
+                    if (rawOpts != null) {
+                        for (Object o : rawOpts) {
+                            JSONArray singleOpt = null;
+                            if (o instanceof JSONArray) singleOpt = (JSONArray) o;
+                            else if (o instanceof String) singleOpt = (JSONArray) JSONValue.parse((String) o);
+
+                            if (singleOpt != null && singleOpt.size() >= 2) {
+                                int optId = Integer.parseInt(String.valueOf(singleOpt.get(0)));
+                                int param = Integer.parseInt(String.valueOf(singleOpt.get(1)));
+                                ItemOptionTemplate optTemp = Manager.ITEM_OPTION_TEMPLATES.stream().filter(t -> t != null && t.id == optId).findFirst().orElse(null);
+                                JSONObject optObj = new JSONObject();
+                                optObj.put("id", optId);
+                                optObj.put("name", optTemp != null && optTemp.name != null ? optTemp.name : ("Option #" + optId));
+                                optObj.put("param", param);
+                                optArr.add(optObj);
+                            }
+                        }
+                    }
+                }
+                obj.put("options", optArr);
+                return obj;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                String query = exchange.getRequestURI().getQuery();
+                String playerName = "";
+                if (query != null && query.contains("playerName=")) {
+                    playerName = query.split("playerName=")[1].split("&")[0];
+                    playerName = java.net.URLDecoder.decode(playerName, StandardCharsets.UTF_8);
+                }
+
+                if (playerName.isEmpty() && "POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                    JSONObject body = (JSONObject) JSONValue.parse(reader);
+                    if (body != null && body.get("playerName") != null) {
+                        playerName = body.get("playerName").toString().trim();
+                    }
+                }
+
+                if (playerName.isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Vui lòng cung cấp tên nhân vật!\"}");
+                    return;
+                }
+
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName)) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                JSONObject res = new JSONObject();
+                res.put("status", "success");
+                res.put("playerName", playerName);
+
+                if (player != null && player.inventory != null) {
+                    // LIVE ONLINE PLAYER
+                    res.put("isOnline", true);
+                    res.put("playerId", player.id);
+                    res.put("gender", player.gender);
+                    res.put("gold", player.inventory.gold);
+                    res.put("gem", player.inventory.gem);
+                    res.put("ruby", player.inventory.ruby);
+
+                    JSONArray bodyArr = new JSONArray();
+                    if (player.inventory.itemsBody != null) {
+                        for (int i = 0; i < player.inventory.itemsBody.size(); i++) {
+                            Item item = player.inventory.itemsBody.get(i);
+                            JSONObject itemObj = parseItemToJson(item, i);
+                            if (itemObj != null) bodyArr.add(itemObj);
+                        }
+                    }
+                    res.put("itemsBody", bodyArr);
+
+                    JSONArray bagArr = new JSONArray();
+                    if (player.inventory.itemsBag != null) {
+                        for (int i = 0; i < player.inventory.itemsBag.size(); i++) {
+                            Item item = player.inventory.itemsBag.get(i);
+                            JSONObject itemObj = parseItemToJson(item, i);
+                            if (itemObj != null) bagArr.add(itemObj);
+                        }
+                    }
+                    res.put("itemsBag", bagArr);
+
+                    JSONArray boxArr = new JSONArray();
+                    if (player.inventory.itemsBox != null) {
+                        for (int i = 0; i < player.inventory.itemsBox.size(); i++) {
+                            Item item = player.inventory.itemsBox.get(i);
+                            JSONObject itemObj = parseItemToJson(item, i);
+                            if (itemObj != null) boxArr.add(itemObj);
+                        }
+                    }
+                    res.put("itemsBox", boxArr);
+
+                    sendJsonResponse(exchange, 200, res.toJSONString());
+                    return;
+                }
+
+                // OFFLINE PLAYER FROM DATABASE
+                try (Connection conn = LocalManager.getConnection();
+                     PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender, items_body, items_bag, items_box, inventory FROM player WHERE name = ?")) {
+                    ps.setString(1, playerName);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            long pid = rs.getLong("id");
+                            int gender = rs.getInt("gender");
+                            String itemsBodyStr = rs.getString("items_body");
+                            String itemsBagStr = rs.getString("items_bag");
+                            String itemsBoxStr = rs.getString("items_box");
+                            String inventoryStr = rs.getString("inventory");
+
+                            res.put("isOnline", false);
+                            res.put("playerId", pid);
+                            res.put("gender", gender);
+
+                            long gold = 0, gem = 0, ruby = 0;
+                            if (inventoryStr != null && !inventoryStr.isEmpty()) {
+                                try {
+                                    JSONArray invArr = (JSONArray) JSONValue.parse(inventoryStr);
+                                    if (invArr != null) {
+                                        if (invArr.size() > 0) gold = Long.parseLong(String.valueOf(invArr.get(0)));
+                                        if (invArr.size() > 1) gem = Long.parseLong(String.valueOf(invArr.get(1)));
+                                        if (invArr.size() > 2) ruby = Long.parseLong(String.valueOf(invArr.get(2)));
+                                    }
+                                } catch (Exception ex) {}
+                            }
+                            res.put("gold", gold);
+                            res.put("gem", gem);
+                            res.put("ruby", ruby);
+
+                            JSONArray bodyArr = new JSONArray();
+                            if (itemsBodyStr != null && !itemsBodyStr.isEmpty()) {
+                                JSONArray rawArr = (JSONArray) JSONValue.parse(itemsBodyStr);
+                                if (rawArr != null) {
+                                    for (int i = 0; i < rawArr.size(); i++) {
+                                        JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
+                                        if (itemObj != null) bodyArr.add(itemObj);
+                                    }
+                                }
+                            }
+                            res.put("itemsBody", bodyArr);
+
+                            JSONArray bagArr = new JSONArray();
+                            if (itemsBagStr != null && !itemsBagStr.isEmpty()) {
+                                JSONArray rawArr = (JSONArray) JSONValue.parse(itemsBagStr);
+                                if (rawArr != null) {
+                                    for (int i = 0; i < rawArr.size(); i++) {
+                                        JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
+                                        if (itemObj != null) bagArr.add(itemObj);
+                                    }
+                                }
+                            }
+                            res.put("itemsBag", bagArr);
+
+                            JSONArray boxArr = new JSONArray();
+                            if (itemsBoxStr != null && !itemsBoxStr.isEmpty()) {
+                                JSONArray rawArr = (JSONArray) JSONValue.parse(itemsBoxStr);
+                                if (rawArr != null) {
+                                    for (int i = 0; i < rawArr.size(); i++) {
+                                        JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
+                                        if (itemObj != null) boxArr.add(itemObj);
+                                    }
+                                }
+                            }
+                            res.put("itemsBox", boxArr);
+
+                            sendJsonResponse(exchange, 200, res.toJSONString());
+                            return;
+                        }
+                    }
+                }
+
+                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật '" + playerName + "'!\"}");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
             }
         }
     }

@@ -2146,6 +2146,9 @@ function renderPlayerTable() {
             <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
             <td data-label="Thao Tác" style="padding: 10px 12px; white-space: nowrap;">
                 <div style="display: flex; gap: 6px; flex-wrap: nowrap; align-items: center;">
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(255, 102, 0, 0.15); color: var(--teamobi-orange-dark); font-weight: 800; border: 1px solid var(--teamobi-orange-border); white-space: nowrap;" onclick="openPlayerInventoryModal('${escapeHtml(p.name)}')">
+                        <i class="fa-solid fa-briefcase"></i> 🎒 Hành Trang
+                    </button>
                     <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: #fff3e0; color: #e65100; font-weight: 800; border: 1px solid #ffb74d; white-space: nowrap;" onclick="openAdjustPlayerEventPointModal('${escapeHtml(p.name)}', ${p.eventPoint || 0})">
                         <i class="fa-solid fa-star"></i> ⭐ Đổi Điểm
                     </button>
@@ -3145,4 +3148,123 @@ async function submitSpawnBoss() {
     } catch (err) {
         showToast('Lỗi kết nối: ' + err.message, 'error');
     }
+}
+
+// --- PLAYER INVENTORY INSPECTOR ---
+let currentInventoryData = null;
+let currentInvSubTab = 'body';
+
+async function openPlayerInventoryModal(playerName) {
+    if (!playerName) return;
+    openModal('modal-player-inventory');
+    document.getElementById('inv-modal-player-name').innerText = playerName;
+    document.getElementById('inv-items-container').innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1; padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--teamobi-orange);"></i>Đang nạp hành trang nhân vật ' + escapeHtml(playerName) + '...</p>';
+
+    try {
+        const resp = await fetch(`/api/player-inventory?playerName=${encodeURIComponent(playerName)}`);
+        const data = await resp.json();
+
+        if (data.status !== 'success') {
+            showToast(data.message || 'Không thể tải hành trang', 'error');
+            closeModal('modal-player-inventory');
+            return;
+        }
+
+        currentInventoryData = data;
+        document.getElementById('inv-gold-display').innerText = (data.gold || 0).toLocaleString('vi-VN');
+        document.getElementById('inv-gem-display').innerText = (data.gem || 0).toLocaleString('vi-VN');
+        document.getElementById('inv-ruby-display').innerText = (data.ruby || 0).toLocaleString('vi-VN');
+
+        const badge = document.getElementById('inv-status-badge');
+        if (data.isOnline) {
+            badge.className = 'badge-online';
+            badge.innerText = 'ONLINE';
+        } else {
+            badge.className = 'badge-offline';
+            badge.innerText = 'OFFLINE';
+        }
+
+        document.getElementById('inv-count-body').innerText = (data.itemsBody || []).length;
+        document.getElementById('inv-count-bag').innerText = (data.itemsBag || []).length;
+        document.getElementById('inv-count-box').innerText = (data.itemsBox || []).length;
+
+        switchInvSubTab('body');
+
+    } catch (err) {
+        showToast('Lỗi kết nối khi tải hành trang: ' + err.message, 'error');
+    }
+}
+
+function switchInvSubTab(tabName) {
+    currentInvSubTab = tabName;
+    const btnBody = document.getElementById('inv-tab-btn-body');
+    const btnBag = document.getElementById('inv-tab-btn-bag');
+    const btnBox = document.getElementById('inv-tab-btn-box');
+
+    const activeStyle = 'padding: 6px 12px; font-size: 12px; font-weight: 800; background: var(--teamobi-orange); color: #fff; border-color: var(--teamobi-orange);';
+    const inactiveStyle = 'padding: 6px 12px; font-size: 12px; font-weight: 700; background: #ffffff; color: var(--text-main); border: 1px solid #cbd5e1;';
+
+    if (btnBody) btnBody.style.cssText = tabName === 'body' ? activeStyle : inactiveStyle;
+    if (btnBag) btnBag.style.cssText = tabName === 'bag' ? activeStyle : inactiveStyle;
+    if (btnBox) btnBox.style.cssText = tabName === 'box' ? activeStyle : inactiveStyle;
+
+    renderInvItemsGrid();
+}
+
+function renderInvItemsGrid() {
+    const container = document.getElementById('inv-items-container');
+    if (!container || !currentInventoryData) return;
+
+    let items = [];
+    if (currentInvSubTab === 'body') items = currentInventoryData.itemsBody || [];
+    else if (currentInvSubTab === 'bag') items = currentInventoryData.itemsBag || [];
+    else if (currentInvSubTab === 'box') items = currentInventoryData.itemsBox || [];
+
+    if (items.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1; padding: 40px; border: 1px dashed #ffe0b2; border-radius: 10px;"><i class="fa-solid fa-box-open" style="font-size: 28px; margin-bottom: 8px; display: block; color: var(--gold);"></i>Không có vật phẩm nào trong mục này</p>';
+        return;
+    }
+
+    container.innerHTML = '';
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: #ffffff; border: 1px solid #ffe0b2; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border-top: 3px solid var(--teamobi-orange);';
+
+        const iconId = item.iconID || item.id;
+        let optionsHtml = '';
+        if (item.options && item.options.length > 0) {
+            optionsHtml = `
+                <div style="margin-top: 8px; border-top: 1px dashed #ffe0b2; padding-top: 6px; font-size: 11px;">
+                    ${item.options.map(o => `
+                        <div style="color: #0284c7; font-weight: 600; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                            <span>🔹 ${escapeHtml(o.name)}</span>
+                            <strong style="color: #0369a1;">+${o.param}</strong>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        const slotBadge = item.slotName ? `<span style="background: #fff3e0; color: #e65100; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; border: 1px solid #ffb74d;">${escapeHtml(item.slotName)}</span>` : '';
+
+        card.innerHTML = `
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <img src="/icons/${iconId}.png" onerror="this.src='/icons/${item.id}.png'; this.onerror=function(){this.src='/icons/521.png';};" style="width: 36px; height: 36px; object-fit: contain; background: #fff8f3; border-radius: 8px; padding: 2px; border: 1px solid #ffe0b2;" />
+                    <div style="flex: 1; overflow: hidden;">
+                        <h4 style="font-size: 13px; font-weight: 800; color: var(--text-main); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(item.name)}</h4>
+                        <div style="display: flex; gap: 6px; align-items: center; margin-top: 2px;">
+                            <span style="font-size: 11px; color: var(--gold); font-weight: 700;">#${item.id}</span>
+                            ${slotBadge}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted);">
+                    <span>Số lượng: <strong style="color: var(--teamobi-orange-dark); font-size: 12px;">x${item.quantity || 1}</strong></span>
+                </div>
+                ${optionsHtml}
+            </div>
+        `;
+        container.appendChild(card);
+    });
 }
