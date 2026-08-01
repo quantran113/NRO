@@ -2248,13 +2248,33 @@ public class AdminHttpServer {
                     }
                     res.put("itemsBox", boxArr);
 
+                    if (player.pet != null && player.pet.inventory != null) {
+                        res.put("hasPet", true);
+                        res.put("petName", player.pet.name != null ? player.pet.name : "Đệ tử");
+                        res.put("petGender", player.pet.gender);
+                        res.put("petPower", player.pet.nPoint != null ? player.pet.nPoint.power : 0);
+
+                        JSONArray petBodyArr = new JSONArray();
+                        if (player.pet.inventory.itemsBody != null) {
+                            for (int i = 0; i < player.pet.inventory.itemsBody.size(); i++) {
+                                Item item = player.pet.inventory.itemsBody.get(i);
+                                JSONObject itemObj = parseItemToJson(item, i);
+                                if (itemObj != null) petBodyArr.add(itemObj);
+                            }
+                        }
+                        res.put("itemsPetBody", petBodyArr);
+                    } else {
+                        res.put("hasPet", false);
+                        res.put("itemsPetBody", new JSONArray());
+                    }
+
                     sendJsonResponse(exchange, 200, res.toJSONString());
                     return;
                 }
 
                 // OFFLINE PLAYER FROM DATABASE
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender, items_body, items_bag, items_box, data_inventory FROM player WHERE name = ?")) {
+                     PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender, items_body, items_bag, items_box, data_inventory, pet FROM player WHERE name = ?")) {
                     ps.setString(1, playerName);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
@@ -2264,6 +2284,7 @@ public class AdminHttpServer {
                             String itemsBagStr = rs.getString("items_bag");
                             String itemsBoxStr = rs.getString("items_box");
                             String inventoryStr = rs.getString("data_inventory");
+                            String petStr = rs.getString("pet");
 
                             res.put("isOnline", false);
                             res.put("playerId", pid);
@@ -2319,6 +2340,57 @@ public class AdminHttpServer {
                                 }
                             }
                             res.put("itemsBox", boxArr);
+
+                            if (petStr != null && !petStr.isEmpty() && !"null".equalsIgnoreCase(petStr)) {
+                                try {
+                                    JSONArray petDataArr = (JSONArray) JSONValue.parse(petStr);
+                                    if (petDataArr != null && petDataArr.size() >= 3) {
+                                        String petInfoStr = String.valueOf(petDataArr.get(0));
+                                        String petPointStr = String.valueOf(petDataArr.get(1));
+                                        String petBodyStr = String.valueOf(petDataArr.get(2));
+
+                                        res.put("hasPet", true);
+
+                                        String petName = "Đệ Tử";
+                                        int petGender = 0;
+                                        if (petInfoStr != null && !petInfoStr.isEmpty()) {
+                                            JSONArray infoArr = (JSONArray) JSONValue.parse(petInfoStr);
+                                            if (infoArr != null && infoArr.size() > 0) petName = String.valueOf(infoArr.get(0));
+                                            if (infoArr != null && infoArr.size() > 1) petGender = Integer.parseInt(String.valueOf(infoArr.get(1)));
+                                        }
+                                        res.put("petName", petName);
+                                        res.put("petGender", petGender);
+
+                                        long petPower = 0;
+                                        if (petPointStr != null && !petPointStr.isEmpty()) {
+                                            JSONArray pointArr = (JSONArray) JSONValue.parse(petPointStr);
+                                            if (pointArr != null && pointArr.size() > 1) petPower = Long.parseLong(String.valueOf(pointArr.get(1)));
+                                        }
+                                        res.put("petPower", petPower);
+
+                                        JSONArray petBodyArr = new JSONArray();
+                                        if (petBodyStr != null && !petBodyStr.isEmpty()) {
+                                            JSONArray rawArr = (JSONArray) JSONValue.parse(petBodyStr);
+                                            if (rawArr != null) {
+                                                for (int i = 0; i < rawArr.size(); i++) {
+                                                    JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
+                                                    if (itemObj != null) petBodyArr.add(itemObj);
+                                                }
+                                            }
+                                        }
+                                        res.put("itemsPetBody", petBodyArr);
+                                    } else {
+                                        res.put("hasPet", false);
+                                        res.put("itemsPetBody", new JSONArray());
+                                    }
+                                } catch (Exception ex) {
+                                    res.put("hasPet", false);
+                                    res.put("itemsPetBody", new JSONArray());
+                                }
+                            } else {
+                                res.put("hasPet", false);
+                                res.put("itemsPetBody", new JSONArray());
+                            }
 
                             sendJsonResponse(exchange, 200, res.toJSONString());
                             return;

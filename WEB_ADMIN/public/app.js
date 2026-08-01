@@ -3187,6 +3187,10 @@ async function openPlayerInventoryModal(playerName) {
         document.getElementById('inv-count-body').innerText = (data.itemsBody || []).length;
         document.getElementById('inv-count-bag').innerText = (data.itemsBag || []).length;
         document.getElementById('inv-count-box').innerText = (data.itemsBox || []).length;
+        const petCountEl = document.getElementById('inv-count-pet');
+        if (petCountEl) {
+            petCountEl.innerText = data.hasPet ? (data.itemsPetBody || []).length : 'Chưa có';
+        }
 
         switchInvSubTab('body');
 
@@ -3200,6 +3204,7 @@ function switchInvSubTab(tabName) {
     const btnBody = document.getElementById('inv-tab-btn-body');
     const btnBag = document.getElementById('inv-tab-btn-bag');
     const btnBox = document.getElementById('inv-tab-btn-box');
+    const btnPet = document.getElementById('inv-tab-btn-pet');
 
     const activeStyle = 'padding: 6px 12px; font-size: 12px; font-weight: 800; background: var(--teamobi-orange); color: #fff; border-color: var(--teamobi-orange);';
     const inactiveStyle = 'padding: 6px 12px; font-size: 12px; font-weight: 700; background: #ffffff; color: var(--text-main); border: 1px solid #cbd5e1;';
@@ -3207,6 +3212,7 @@ function switchInvSubTab(tabName) {
     if (btnBody) btnBody.style.cssText = tabName === 'body' ? activeStyle : inactiveStyle;
     if (btnBag) btnBag.style.cssText = tabName === 'bag' ? activeStyle : inactiveStyle;
     if (btnBox) btnBox.style.cssText = tabName === 'box' ? activeStyle : inactiveStyle;
+    if (btnPet) btnPet.style.cssText = tabName === 'pet' ? activeStyle : inactiveStyle;
 
     renderInvItemsGrid();
 }
@@ -3219,6 +3225,12 @@ function renderInvItemsGrid() {
     if (currentInvSubTab === 'body') items = currentInventoryData.itemsBody || [];
     else if (currentInvSubTab === 'bag') items = currentInventoryData.itemsBag || [];
     else if (currentInvSubTab === 'box') items = currentInventoryData.itemsBox || [];
+    else if (currentInvSubTab === 'pet') items = currentInventoryData.itemsPetBody || [];
+
+    if (currentInvSubTab === 'pet' && !currentInventoryData.hasPet) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1; padding: 40px; border: 1px dashed #ffe0b2; border-radius: 10px;"><i class="fa-solid fa-user-slash" style="font-size: 28px; margin-bottom: 8px; display: block; color: var(--gold);"></i>Nhân vật này chưa có đệ tử</p>';
+        return;
+    }
 
     if (items.length === 0) {
         container.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1; padding: 40px; border: 1px dashed #ffe0b2; border-radius: 10px;"><i class="fa-solid fa-box-open" style="font-size: 28px; margin-bottom: 8px; display: block; color: var(--gold);"></i>Không có vật phẩm nào trong mục này</p>';
