@@ -160,7 +160,9 @@ public class Bot extends Player {
                 this.mo1.update();
                 break;
             case 1:
-                this.shop.update();
+                if (this.shop != null) {
+                    this.shop.update();
+                }
                 break;
             case 2:
                 this.boss.update();

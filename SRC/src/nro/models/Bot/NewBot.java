@@ -74,6 +74,11 @@ public class NewBot {
             BotGiaoDich shopBotCopy = null;
             if (shop != null) {
                 shopBotCopy = new BotGiaoDich(shop);
+            } else if (type == 1) {
+                short[] popularItems = {457, 568, 555, 557, 559, 14, 15, 16};
+                short itemSell = popularItems[new Random().nextInt(popularItems.length)];
+                short itemBuy = popularItems[new Random().nextInt(popularItems.length)];
+                shopBotCopy = new BotGiaoDich(itemSell, itemBuy, new Random().nextInt(5) + 1);
             }
 
             int flag = Manager.gI().FLAGS_BAGS.get(new Random().nextInt(Manager.gI().FLAGS_BAGS.size())).id;
