@@ -2254,7 +2254,7 @@ public class AdminHttpServer {
 
                 // OFFLINE PLAYER FROM DATABASE
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender, items_body, items_bag, items_box, inventory FROM player WHERE name = ?")) {
+                     PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender, items_body, items_bag, items_box, data_inventory FROM player WHERE name = ?")) {
                     ps.setString(1, playerName);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
@@ -2263,7 +2263,7 @@ public class AdminHttpServer {
                             String itemsBodyStr = rs.getString("items_body");
                             String itemsBagStr = rs.getString("items_bag");
                             String itemsBoxStr = rs.getString("items_box");
-                            String inventoryStr = rs.getString("inventory");
+                            String inventoryStr = rs.getString("data_inventory");
 
                             res.put("isOnline", false);
                             res.put("playerId", pid);
