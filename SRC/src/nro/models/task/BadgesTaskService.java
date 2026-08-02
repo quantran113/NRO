@@ -114,14 +114,6 @@ public class BadgesTaskService {
             }
         }
 
-        // Auto unlock THANH_DAP_DO_7 if player currently possesses any +7 item in body or bag
-        if (idBadgesReward == ConstTaskBadges.THANH_DAP_DO_7) {
-            if (hasPlus7Item(player)) {
-                updateCountBagesTask(player, ConstTaskBadges.THANH_DAP_DO_7, 1);
-                return 100;
-            }
-        }
-
         if (player.dataTaskBadges != null) {
             for (BadgesTask data : player.dataTaskBadges) {
                 if (data != null && data.idBadgesReward == idBadgesReward) {
