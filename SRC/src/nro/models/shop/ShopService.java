@@ -937,8 +937,8 @@ public class ShopService {
         int idEffect = BagesTemplate.fineIdEffectbyIdItem(is.temp.id);
         int percent = BadgesTaskService.sendPercenBadgesTask(pl, idEffect);
 
-        if (percent < 100) {
-            Service.gI().sendThongBao(pl, "Bạn chưa mở khóa danh hiệu này");
+        if (percent < 100 && !pl.isAdmin()) {
+            Service.gI().sendThongBao(pl, "Bạn chưa mở khóa danh hiệu này (tiến độ: " + percent + "%). Hãy hoàn thành nhiệm vụ để mở khóa!");
             return;
         }
 

@@ -19,15 +19,6 @@ import nro.models.utils.Util;
  */
 public class NangCapVatPham {
 
-    private static boolean isDaNangCap(Item item) {
-        if (item == null || !item.isNotNullItem() || item.template == null) {
-            return false;
-        }
-        return item.template.type == 14 || item.isDaNangCap() || item.isDaNangCap1()
-                || (item.template.id >= 220 && item.template.id <= 224)
-                || (item.template.id >= 1074 && item.template.id <= 1078);
-    }
-
     public static void showInfoCombine(Player player) {
         if (player.combineNew.itemsCombine.size() >= 2 && player.combineNew.itemsCombine.size() < 4) {
             if (player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && item.template.type < 5)
@@ -35,30 +26,30 @@ public class NangCapVatPham {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đồ nâng cấp", "Đóng");
                 return;
             }
-            if (player.combineNew.itemsCombine.stream().filter(item -> isDaNangCap(item))
+            if (player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && item.template.type == 14)
                     .count() < 1) {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đá nâng cấp", "Đóng");
                 return;
             }
             if (player.combineNew.itemsCombine.size() == 3 && player.combineNew.itemsCombine.stream()
                     .filter(item -> item.isNotNullItem() && item.template.id == 987).count() < 1) {
-                CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Món thứ 3 phải là Đá Bảo Vệ (ID 987)", "Đóng");
+                CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đồ nâng cấp", "Đóng");
                 return;
             }
             Item itemDo = null;
             Item itemDNC = null;
             Item itemDBV = null;
             for (int j = 0; j < player.combineNew.itemsCombine.size(); j++) {
-                Item item = player.combineNew.itemsCombine.get(j);
-                if (item != null && item.isNotNullItem()) {
-                    if (player.combineNew.itemsCombine.size() == 3 && item.template.id == 987) {
-                        itemDBV = item;
+                if (player.combineNew.itemsCombine.get(j).isNotNullItem()) {
+                    if (player.combineNew.itemsCombine.size() == 3
+                            && player.combineNew.itemsCombine.get(j).template.id == 987) {
+                        itemDBV = player.combineNew.itemsCombine.get(j);
                         continue;
                     }
-                    if (item.template.type < 5) {
-                        itemDo = item;
-                    } else if (isDaNangCap(item)) {
-                        itemDNC = item;
+                    if (player.combineNew.itemsCombine.get(j).template.type < 5) {
+                        itemDo = player.combineNew.itemsCombine.get(j);
+                    } else {
+                        itemDNC = player.combineNew.itemsCombine.get(j);
                     }
                 }
             }
@@ -157,7 +148,7 @@ public class NangCapVatPham {
                     .count() != 1) {
                 return;
             }
-            if (player.combineNew.itemsCombine.stream().filter(item -> isDaNangCap(item))
+            if (player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && item.template.type == 14)
                     .count() != 1) {
                 return;
             }
@@ -169,16 +160,16 @@ public class NangCapVatPham {
             Item itemDNC = null;
             Item itemDBV = null;
             for (int j = 0; j < player.combineNew.itemsCombine.size(); j++) {
-                Item item = player.combineNew.itemsCombine.get(j);
-                if (item != null && item.isNotNullItem()) {
-                    if (player.combineNew.itemsCombine.size() == 3 && item.template.id == 987) {
-                        itemDBV = item;
+                if (player.combineNew.itemsCombine.get(j).isNotNullItem()) {
+                    if (player.combineNew.itemsCombine.size() == 3
+                            && player.combineNew.itemsCombine.get(j).template.id == 987) {
+                        itemDBV = player.combineNew.itemsCombine.get(j);
                         continue;
                     }
-                    if (item.template.type < 5) {
-                        itemDo = item;
-                    } else if (isDaNangCap(item)) {
-                        itemDNC = item;
+                    if (player.combineNew.itemsCombine.get(j).template.type < 5) {
+                        itemDo = player.combineNew.itemsCombine.get(j);
+                    } else {
+                        itemDNC = player.combineNew.itemsCombine.get(j);
                     }
                 }
             }
