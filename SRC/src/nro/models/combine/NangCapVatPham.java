@@ -30,7 +30,7 @@ public class NangCapVatPham {
                 return;
             }
             if (player.combineNew.itemsCombine.size() == 3 && player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && item.template.id == 987).count() < 1) {
-                CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đồ nâng cấp", "Đóng");
+                CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Món thứ 3 phải là Đá Bảo Vệ (ID 987)", "Đóng");
                 return;
             }
             Item itemDo = null;
