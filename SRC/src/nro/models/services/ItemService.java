@@ -163,25 +163,65 @@ public class ItemService {
         item.template = getTemplate(tempId);
         item.quantity = quantity;
         item.createTime = System.currentTimeMillis();
-        if (item.template.type == 0) {
-            item.itemOptions.add(new ItemOption(21, 80));
-            item.itemOptions.add(new ItemOption(47, Util.nextInt(2000, 2500)));
-        }
-        if (item.template.type == 1) {
-            item.itemOptions.add(new ItemOption(21, 80));
-            item.itemOptions.add(new ItemOption(22, Util.nextInt(150, 200)));
-        }
-        if (item.template.type == 2) {
-            item.itemOptions.add(new ItemOption(21, 80));
-            item.itemOptions.add(new ItemOption(0, Util.nextInt(18000, 20000)));
-        }
-        if (item.template.type == 3) {
-            item.itemOptions.add(new ItemOption(21, 80));
-            item.itemOptions.add(new ItemOption(23, Util.nextInt(150, 200)));
-        }
-        if (item.template.type == 4) {
-            item.itemOptions.add(new ItemOption(21, 80));
-            item.itemOptions.add(new ItemOption(14, Util.nextInt(20, 25)));
+
+        if (tempId >= 555 && tempId <= 567) {
+            // Đồ Thần Linh chuẩn NRO
+            if (item.template.type == 0) { // Áo Thần Linh -> 700-800 Giáp
+                item.itemOptions.add(new ItemOption(21, 15));
+                item.itemOptions.add(new ItemOption(47, Util.nextInt(700, 800)));
+            } else if (item.template.type == 1) { // Quần Thần Linh -> 46k-50k HP
+                item.itemOptions.add(new ItemOption(21, 15));
+                item.itemOptions.add(new ItemOption(22, Util.nextInt(46, 50)));
+            } else if (item.template.type == 2) { // Găng Thần Linh -> 4300-4500 SD
+                item.itemOptions.add(new ItemOption(21, 15));
+                item.itemOptions.add(new ItemOption(0, Util.nextInt(4300, 4500)));
+            } else if (item.template.type == 3) { // Giày Thần Linh -> 46k-50k KI
+                item.itemOptions.add(new ItemOption(21, 15));
+                item.itemOptions.add(new ItemOption(23, Util.nextInt(46, 50)));
+            } else if (item.template.type == 4) { // Nhẫn Thần Linh -> 14-15% Chí mạng
+                item.itemOptions.add(new ItemOption(21, 15));
+                item.itemOptions.add(new ItemOption(14, Util.nextInt(14, 15)));
+            }
+        } else if (tempId >= 650 && tempId <= 662) {
+            // Đồ Hủy Diệt chuẩn NRO
+            if (item.template.type == 0) { // Áo Hủy Diệt -> 1000-1200 Giáp
+                item.itemOptions.add(new ItemOption(21, 5));
+                item.itemOptions.add(new ItemOption(30, 1));
+                item.itemOptions.add(new ItemOption(47, Util.nextInt(1000, 1200)));
+            } else if (item.template.type == 1) { // Quần Hủy Diệt -> 70k-80k HP
+                item.itemOptions.add(new ItemOption(21, 5));
+                item.itemOptions.add(new ItemOption(30, 1));
+                item.itemOptions.add(new ItemOption(22, Util.nextInt(70, 80)));
+            } else if (item.template.type == 2) { // Găng Hủy Diệt -> 7500-8500 SD
+                item.itemOptions.add(new ItemOption(21, 5));
+                item.itemOptions.add(new ItemOption(30, 1));
+                item.itemOptions.add(new ItemOption(0, Util.nextInt(7500, 8500)));
+            } else if (item.template.type == 3) { // Giày Hủy Diệt -> 70k-80k KI
+                item.itemOptions.add(new ItemOption(21, 5));
+                item.itemOptions.add(new ItemOption(30, 1));
+                item.itemOptions.add(new ItemOption(23, Util.nextInt(70, 80)));
+            } else if (item.template.type == 4) { // Nhẫn Hủy Diệt -> 16-18% Chí mạng
+                item.itemOptions.add(new ItemOption(21, 5));
+                item.itemOptions.add(new ItemOption(30, 1));
+                item.itemOptions.add(new ItemOption(14, Util.nextInt(16, 18)));
+            }
+        } else {
+            if (item.template.type == 0) {
+                item.itemOptions.add(new ItemOption(21, 80));
+                item.itemOptions.add(new ItemOption(47, Util.nextInt(2000, 2500)));
+            } else if (item.template.type == 1) {
+                item.itemOptions.add(new ItemOption(21, 80));
+                item.itemOptions.add(new ItemOption(22, Util.nextInt(150, 200)));
+            } else if (item.template.type == 2) {
+                item.itemOptions.add(new ItemOption(21, 80));
+                item.itemOptions.add(new ItemOption(0, Util.nextInt(4000, 5000)));
+            } else if (item.template.type == 3) {
+                item.itemOptions.add(new ItemOption(21, 80));
+                item.itemOptions.add(new ItemOption(23, Util.nextInt(150, 200)));
+            } else if (item.template.type == 4) {
+                item.itemOptions.add(new ItemOption(21, 80));
+                item.itemOptions.add(new ItemOption(14, Util.nextInt(20, 25)));
+            }
         }
         item.content = item.getContent();
         item.info = item.getInfo();
