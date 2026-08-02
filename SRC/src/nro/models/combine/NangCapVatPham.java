@@ -237,8 +237,8 @@ public class NangCapVatPham {
                             // optionLevel.param);
                         }
                         CombineService.gI().sendEffectSuccessCombine(player);
-                        CombineService.gI().baHatMit.npcChat(player, "Chúc mừng con nhé");
-                        if (level == 7) {
+                        int currentLvl = (optionLevel != null) ? optionLevel.param : 1;
+                        if (currentLvl >= 7) {
                             BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.THANH_DAP_DO_7, 1);
                         }
                     } else {
