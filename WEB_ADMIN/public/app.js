@@ -1184,6 +1184,29 @@ function addItemToCart(itemId) {
 
     const iconId = (item.iconID !== undefined && item.iconID !== null) ? item.iconID : item.icon_id || item.id;
 
+    const initialOptions = [];
+    if (item.defaultOptions && Array.isArray(item.defaultOptions) && item.defaultOptions.length > 0) {
+        item.defaultOptions.forEach(opt => {
+            initialOptions.push({ id: opt.id, param: opt.param });
+        });
+    } else {
+        // Fallback for equipment types if default options list is empty
+        const type = item.type;
+        if (type === 0) { // Áo -> Giáp
+            initialOptions.push({ id: 47, param: 500 });
+        } else if (type === 1) { // Quần -> HP
+            initialOptions.push({ id: 22, param: 10000 });
+        } else if (type === 2) { // Găng -> Sức đánh
+            initialOptions.push({ id: 0, param: 5000 });
+        } else if (type === 3) { // Giày -> KI
+            initialOptions.push({ id: 23, param: 10000 });
+        } else if (type === 4) { // Radar -> Chí mạng
+            initialOptions.push({ id: 14, param: 5 });
+        } else if (type === 5) { // Cải trang -> +10% SD
+            initialOptions.push({ id: 50, param: 10 });
+        }
+    }
+
     const newItem = {
         id: item.id,
         name: item.name,
@@ -1191,24 +1214,8 @@ function addItemToCart(itemId) {
         iconID: iconId,
         quantity: 1,
         stars: 0,
-        options: []
+        options: initialOptions
     };
-
-    // Auto-add appropriate base option according to equipment type
-    const type = item.type;
-    if (type === 0) { // Áo -> Giáp
-        newItem.options.push({ id: 47, param: 500 });
-    } else if (type === 1) { // Quần -> HP
-        newItem.options.push({ id: 22, param: 10000 });
-    } else if (type === 2) { // Găng -> Sức đánh
-        newItem.options.push({ id: 0, param: 5000 });
-    } else if (type === 3) { // Giày -> KI
-        newItem.options.push({ id: 23, param: 10000 });
-    } else if (type === 4) { // Radar -> Chí mạng
-        newItem.options.push({ id: 14, param: 5 });
-    } else if (type === 5) { // Cải trang -> +10% SD
-        newItem.options.push({ id: 50, param: 10 });
-    }
 
     cartItems.push(newItem);
 

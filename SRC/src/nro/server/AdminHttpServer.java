@@ -179,6 +179,19 @@ public class AdminHttpServer {
                         obj.put("gender", temp.gender);
                         obj.put("description", temp.description != null ? temp.description : "");
                         obj.put("iconID", temp.iconID);
+
+                        Item tempItem = ItemService.gI().createNewItem(temp.id, 1);
+                        JSONArray defaultOptsArr = new JSONArray();
+                        if (tempItem != null && tempItem.itemOptions != null) {
+                            for (Item.ItemOption io : tempItem.itemOptions) {
+                                JSONObject optObj = new JSONObject();
+                                optObj.put("id", io.optionTemplate.id);
+                                optObj.put("param", io.param);
+                                defaultOptsArr.add(optObj);
+                            }
+                        }
+                        obj.put("defaultOptions", defaultOptsArr);
+
                         arr.add(obj);
                     }
                 }
@@ -267,8 +280,8 @@ public class AdminHttpServer {
 
                     // Custom options -> clear defaults (đồ trắng) and use only custom
                     // No custom options -> keep defaults from createNewItem (đồ gốc game)
-                    if (optionsReq != null && !optionsReq.isEmpty()) {
-                        item.itemOptions.clear(); // Đồ trắng
+                    if (optionsReq != null) {
+                        item.itemOptions.clear();
                         for (Object o : optionsReq) {
                             JSONObject optObj = (JSONObject) o;
                             int optId = ((Number) optObj.get("id")).intValue();
@@ -531,7 +544,7 @@ public class AdminHttpServer {
                                     starOpt.add(starCount);
                                     optionsArr.add(starOpt.toJSONString());
                                 }
-                                if (optionsReq != null && !optionsReq.isEmpty()) {
+                                if (optionsReq != null) {
                                     for (Object o : optionsReq) {
                                         JSONObject optObj = (JSONObject) o;
                                         int optId = ((Number) optObj.get("id")).intValue();
