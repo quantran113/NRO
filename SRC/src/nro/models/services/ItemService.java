@@ -137,7 +137,22 @@ public class ItemService {
             return;
         }
 
-        // 3. Special single option fallbacks if not found in NPC shop
+        // 3. Special item generators for Angel Equipment & Thần Linh Equipment
+        if (tempId >= 1048 && tempId <= 1062) {
+            Item ts = DoThienSu(tempId, item.template.gender);
+            if (ts != null && ts.itemOptions != null) {
+                item.itemOptions.addAll(ts.itemOptions);
+                return;
+            }
+        } else if ((tempId >= 555 && tempId <= 567) || (tempId >= 650 && tempId <= 662)) {
+            Item tl = otpts((short) tempId, 1);
+            if (tl != null && tl.itemOptions != null) {
+                item.itemOptions.addAll(tl.itemOptions);
+                return;
+            }
+        }
+
+        // 4. Fallback for Cải trang if not found in shop
         if (item.template.type == 5) { // Cải trang
             item.itemOptions.add(new ItemOption(50, 10)); // +10% SD
         }
