@@ -4,6 +4,7 @@ import nro.models.consts.ConstMob;
 import nro.models.consts.ConstNpc;
 import nro.models.consts.ConstPlayer;
 import nro.models.player.Player;
+import nro.models.player.Pet;
 import nro.models.consts.ConstTask;
 import nro.models.boss.Boss;
 import nro.models.boss.BossID;
@@ -392,11 +393,15 @@ public class TaskService {
     }
 
     public void checkDoneTaskKillBoss(Player player, Boss boss) {
-        if (player != null && !player.isBot && !player.isBoss && !player.isPet) {
-            AchievementService.gI().checkDoneTask(player, ConstAchievement.TRUM_KET_LIEU_BOSS);
-            switch ((int) boss.id) {
-                case BossID.KUKU ->
-                    doneTask(player, ConstTask.TASK_19_0);
+        if (player != null) {
+            if (player.isPet && ((Pet) player).master != null) {
+                player = ((Pet) player).master;
+            }
+            if (!player.isBot && !player.isBoss) {
+                AchievementService.gI().checkDoneTask(player, ConstAchievement.TRUM_KET_LIEU_BOSS);
+                switch ((int) boss.id) {
+                    case BossID.KUKU ->
+                        doneTask(player, ConstTask.TASK_19_0);
                 case BossID.MAP_DAU_DINH ->
                     doneTask(player, ConstTask.TASK_19_1);
                 case BossID.RAMBO ->
@@ -470,6 +475,7 @@ public class TaskService {
                     }
                 }
             }
+        }
         }
     }
 
