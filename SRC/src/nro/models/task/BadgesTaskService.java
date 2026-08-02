@@ -27,37 +27,23 @@ public class BadgesTaskService {
     }
 
     public static void updateDoneTask(Player player) {
-        if (player == null || player.dataTaskBadges == null) {
-            return;
-        }
         for (BadgesTask data : player.dataTaskBadges) {
-            if (data != null && data.isDone()) {
-                boolean alreadyHave = false;
-                if (player.dataBadges != null) {
-                    for (BadgesData bg : player.dataBadges) {
-                        if (bg != null && bg.idBadGes == data.idBadgesReward) {
-                            alreadyHave = true;
-                            break;
-                        }
+            if (data.isDone()) {
+                for (BadgesData bg : player.dataBadges) {
+                    if (bg.idBadGes == data.idBadgesReward) {
+                        return;
                     }
                 }
-                if (!alreadyHave) {
-                    BadgesData danhHieu = new BadgesData(player, data.idBadgesReward, 30);
-                    if (player.dataBadges == null) {
-                        player.dataBadges = new java.util.ArrayList<>();
-                    }
-                    player.dataBadges.add(danhHieu);
-                }
+                BadgesData danhHieu = new BadgesData(player, data.idBadgesReward, 30);
+                player.dataBadges.add(danhHieu);
+                data.count = 0;
             }
         }
     }
 
     public static void updateCountBagesTask(Player player, int id, int amount) {
-        if (player == null || player.dataTaskBadges == null) {
-            return;
-        }
         for (BadgesTask data : player.dataTaskBadges) {
-            if (data != null && data.id == id) {
+            if (data.id == id) {
                 data.count += amount;
                 if (data.count > data.countMax) {
                     data.count = data.countMax;
@@ -65,24 +51,15 @@ public class BadgesTaskService {
                 break;
             }
         }
-        updateDoneTask(player);
     }
 
     public static int sendPercenBadgesTask(Player player, int idBadgesReward) {
-        if (player == null) {
-            return 0;
-        }
-        if (player.dataBadges != null) {
-            for (BadgesData bg : player.dataBadges) {
-                if (bg != null && bg.idBadGes == idBadgesReward) {
-                    return 100;
-                }
-            }
-        }
-        if (player.dataTaskBadges != null) {
-            for (BadgesTask data : player.dataTaskBadges) {
-                if (data != null && data.idBadgesReward == idBadgesReward) {
+        for (BadgesTask data : player.dataTaskBadges) {
+            if (data.idBadgesReward == idBadgesReward) {
+                if (data.getPercentProcess() > 0) {
                     return data.getPercentProcess();
+                } else {
+                    return 0;
                 }
             }
         }
