@@ -309,11 +309,24 @@ public class CombineService {
             msg.writer().writeShort(npcId);
             player.sendMessage(msg);
             msg.cleanup();
+
+            java.util.List<Integer> validIndices = new java.util.ArrayList<>();
+            if (items != null) {
+                for (Item item : items) {
+                    if (item != null) {
+                        int idx = InventoryService.gI().getIndexItemBag(player, item);
+                        if (idx >= 0) {
+                            validIndices.add(idx);
+                        }
+                    }
+                }
+            }
+
             msg = new Message(-81);
             msg.writer().writeByte(1);
-            msg.writer().writeByte(items.length);
-            for (Item item : items) {
-                msg.writer().writeByte(InventoryService.gI().getIndexItemBag(player, item));
+            msg.writer().writeByte(validIndices.size());
+            for (int idx : validIndices) {
+                msg.writer().writeByte(idx);
             }
             player.sendMessage(msg);
             msg.cleanup();
@@ -562,15 +575,25 @@ public class CombineService {
     public void reOpenItemCombine(Player player) {
         Message msg = null;
         try {
-            msg = new Message(-81);
-            msg.writer().writeByte(REOPEN_TAB_COMBINE);
-            msg.writer().writeByte(player.combineNew.itemsCombine.size());
-            for (Item it : player.combineNew.itemsCombine) {
-                for (int j = 0; j < player.inventory.itemsBag.size(); j++) {
-                    if (it == player.inventory.itemsBag.get(j)) {
-                        msg.writer().writeByte(j);
+            java.util.List<Integer> validIndices = new java.util.ArrayList<>();
+            if (player.combineNew != null && player.combineNew.itemsCombine != null) {
+                for (Item it : player.combineNew.itemsCombine) {
+                    if (it != null && it.isNotNullItem()) {
+                        for (int j = 0; j < player.inventory.itemsBag.size(); j++) {
+                            if (it == player.inventory.itemsBag.get(j)) {
+                                validIndices.add(j);
+                                break;
+                            }
+                        }
                     }
                 }
+            }
+
+            msg = new Message(-81);
+            msg.writer().writeByte(REOPEN_TAB_COMBINE);
+            msg.writer().writeByte(validIndices.size());
+            for (int index : validIndices) {
+                msg.writer().writeByte(index);
             }
             player.sendMessage(msg);
         } catch (Exception e) {
