@@ -1868,7 +1868,14 @@ public class UseItem {
         }
         if (pea != null) {
             int hpKiHoiPhuc = 0;
-            int lvPea = Integer.parseInt(pea.template.name.substring(13));
+            int lvPea = 1;
+            try {
+                String nameNum = pea.template.name.replaceAll("[^0-9]", "");
+                if (!nameNum.isEmpty()) {
+                    lvPea = Integer.parseInt(nameNum);
+                }
+            } catch (Exception ex) {}
+
             for (Item.ItemOption io : pea.itemOptions) {
                 if (io.optionTemplate.id == 2) {
                     hpKiHoiPhuc = io.param * 1000;
@@ -1879,11 +1886,16 @@ public class UseItem {
                     break;
                 }
             }
+            if (hpKiHoiPhuc <= 0) {
+                hpKiHoiPhuc = 5000 * lvPea;
+            }
+
             player.nPoint.setHp(player.nPoint.hp + hpKiHoiPhuc);
             player.nPoint.setMp(player.nPoint.mp + hpKiHoiPhuc);
             PlayerService.gI().sendInfoHpMp(player);
             Service.gI().sendInfoPlayerEatPea(player);
-            if (player.pet != null && player.zone.equals(player.pet.zone) && !player.pet.isDie()) {
+
+            if (player.pet != null && !player.pet.isDie()) {
                 int statima = 100 * lvPea;
                 player.pet.nPoint.stamina += statima;
                 if (player.pet.nPoint.stamina > player.pet.nPoint.maxStamina) {
@@ -1891,6 +1903,7 @@ public class UseItem {
                 }
                 player.pet.nPoint.setHp(player.pet.nPoint.hp + hpKiHoiPhuc);
                 player.pet.nPoint.setMp(player.pet.nPoint.mp + hpKiHoiPhuc);
+                PlayerService.gI().sendInfoHpMp(player.pet);
                 Service.gI().sendInfoPlayerEatPea(player.pet);
                 Service.gI().chatJustForMe(player, player.pet, "Cám ơn sư phụ");
             }
