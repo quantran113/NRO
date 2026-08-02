@@ -1184,7 +1184,7 @@ function addItemToCart(itemId) {
 
     const iconId = (item.iconID !== undefined && item.iconID !== null) ? item.iconID : item.icon_id || item.id;
 
-    cartItems.push({
+    const newItem = {
         id: item.id,
         name: item.name,
         description: item.description,
@@ -1192,7 +1192,25 @@ function addItemToCart(itemId) {
         quantity: 1,
         stars: 0,
         options: []
-    });
+    };
+
+    // Auto-add appropriate base option according to equipment type
+    const type = item.type;
+    if (type === 0) { // Áo -> Giáp
+        newItem.options.push({ id: 47, param: 500 });
+    } else if (type === 1) { // Quần -> HP
+        newItem.options.push({ id: 22, param: 10000 });
+    } else if (type === 2) { // Găng -> Sức đánh
+        newItem.options.push({ id: 0, param: 5000 });
+    } else if (type === 3) { // Giày -> KI
+        newItem.options.push({ id: 23, param: 10000 });
+    } else if (type === 4) { // Radar -> Chí mạng
+        newItem.options.push({ id: 14, param: 5 });
+    } else if (type === 5) { // Cải trang -> +10% SD
+        newItem.options.push({ id: 50, param: 10 });
+    }
+
+    cartItems.push(newItem);
 
     renderCartList();
     showToast(`⚡ Đã thêm [${item.name}] vào danh sách cấp!`, 'success');
@@ -1217,7 +1235,7 @@ function setCartStar(cartIndex, starCount) {
 
 function addCartOptionRow(cartIndex) {
     if (cartItems[cartIndex]) {
-        cartItems[cartIndex].options.unshift({ id: 0, param: 10 });
+        cartItems[cartIndex].options.unshift({ id: 0, param: 1000 });
         renderCartList();
     }
 }
@@ -1275,7 +1293,7 @@ function addQuickOptionToCart(cartIndex, optId, paramVal) {
     if (cartItems[cartIndex]) {
         cartItems[cartIndex].options.unshift({ id: optId, param: paramVal });
         renderCartList();
-        showToast('Đã thêm option mới vào đầu danh sách!', 'success');
+        showToast('Đã thêm option mới vào danh sách!', 'success');
     }
 }
 
@@ -1308,15 +1326,19 @@ function renderCartList() {
         // Custom options HTML with Quick Option Pills
         let optionsHtml = `
             <div style="margin-bottom: 8px;">
-                <label style="font-size: 11px; color: var(--gold); display: block; margin-bottom: 4px;"><i class="fa-solid fa-bolt"></i> CHỌN NHANH OPTION PHỔ BIẾN:</label>
+                <label style="font-size: 11px; color: var(--gold); display: block; margin-bottom: 4px;"><i class="fa-solid fa-bolt"></i> CHỌN NHANH OPTION CHỈ SỐ PHỔ BIẾN:</label>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 0, 5000)">🥊 Sức đánh +5000</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 47, 500)">🛡️ Giáp +500</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 22, 10000)">❤️ HP +10.000</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 23, 10000)">⚡ KI +10.000</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 14, 5)">💥 Chí mạng +5%</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 50, 10)">💪 Sức đánh +10%</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 77, 10)">❤️ HP +10%</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 103, 10)">⚡ KI +10%</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 94, 10)">🛡️ Giáp +10%</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 72, 7)">⭐ Đồ Cấp +7</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 100, 20)">💰 Vàng +20%</span>
-                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 14, 0)">🌟 Kiệt sức 0s</span>
-                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 108, 0)">👑 Không bị bem</span>
                 </div>
             </div>
         `;
