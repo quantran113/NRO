@@ -6,6 +6,8 @@ import java.util.Objects;
 import static nro.models.combine.CombineService.MAX_LEVEL_ITEM;
 import nro.models.consts.ConstTaskBadges;
 import nro.models.player.Player;
+import nro.models.server.ServerNotify;
+import nro.models.services.ChatGlobalService;
 import nro.models.services.InventoryService;
 import nro.models.services.Service;
 import nro.models.task.BadgesTaskService;
@@ -17,65 +19,49 @@ import nro.models.utils.Util;
  */
 public class NangCapVatPham {
 
+    private static boolean isDaNangCap(Item item) {
+        if (item == null || !item.isNotNullItem() || item.template == null) {
+            return false;
+        }
+        return item.template.type == 14 || item.isDaNangCap() || item.isDaNangCap1()
+                || (item.template.id >= 220 && item.template.id <= 224)
+                || (item.template.id >= 1074 && item.template.id <= 1078);
+    }
+
     public static void showInfoCombine(Player player) {
-        if (player.combineNew == null || player.combineNew.itemsCombine == null || player.combineNew.itemsCombine.isEmpty()) {
-            return;
-        }
-
-        Item itemDo = null;
-        Item itemDNC = null;
-        Item itemDBV = null;
-
-        for (int j = 0; j < player.combineNew.itemsCombine.size(); j++) {
-            Item item = player.combineNew.itemsCombine.get(j);
-            if (item != null && item.isNotNullItem()) {
-                if (player.combineNew.itemsCombine.size() == 3 && item.template.id == 987) {
-                    itemDBV = item;
-                    continue;
-                }
-                if (item.template.type < 5) {
-                    itemDo = item;
-                } else if (item.template.type == 14) {
-                    itemDNC = item;
-                }
-            }
-        }
-
-        // 1. Single item in combine box (e.g. equipment only) -> Show current item stats
-        if (itemDo != null && itemDNC == null) {
-            int level = 0;
-            for (Item.ItemOption io : itemDo.itemOptions) {
-                if (io.optionTemplate.id == 72) {
-                    level = io.param;
-                    break;
-                }
-            }
-            String npcSay = "|2|Hiện tại " + itemDo.template.name + " (+" + level + ")\n|0|";
-            for (Item.ItemOption io : itemDo.itemOptions) {
-                if (io != null && io.optionTemplate != null && io.optionTemplate.id != 72) {
-                    npcSay += io.getOptionString() + "\n";
-                }
-            }
-            npcSay += "|7|Hãy bỏ thêm Đá Nâng Cấp vào nữa!";
-            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, npcSay, "Đóng");
-            return;
-        }
-
-        // 2. Equipment + Upgrade Stone (2 to 3 items)
-        if (player.combineNew.itemsCombine.size() >= 2 && player.combineNew.itemsCombine.size() <= 3) {
-            if (itemDo == null) {
+        if (player.combineNew.itemsCombine.size() >= 2 && player.combineNew.itemsCombine.size() < 4) {
+            if (player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && item.template.type < 5)
+                    .count() < 1) {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đồ nâng cấp", "Đóng");
                 return;
             }
-            if (itemDNC == null) {
+            if (player.combineNew.itemsCombine.stream().filter(item -> isDaNangCap(item))
+                    .count() < 1) {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đá nâng cấp", "Đóng");
                 return;
             }
-            if (player.combineNew.itemsCombine.size() == 3 && itemDBV == null) {
+            if (player.combineNew.itemsCombine.size() == 3 && player.combineNew.itemsCombine.stream()
+                    .filter(item -> item.isNotNullItem() && item.template.id == 987).count() < 1) {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Món thứ 3 phải là Đá Bảo Vệ (ID 987)", "Đóng");
                 return;
             }
-
+            Item itemDo = null;
+            Item itemDNC = null;
+            Item itemDBV = null;
+            for (int j = 0; j < player.combineNew.itemsCombine.size(); j++) {
+                Item item = player.combineNew.itemsCombine.get(j);
+                if (item != null && item.isNotNullItem()) {
+                    if (player.combineNew.itemsCombine.size() == 3 && item.template.id == 987) {
+                        itemDBV = item;
+                        continue;
+                    }
+                    if (item.template.type < 5) {
+                        itemDo = item;
+                    } else if (isDaNangCap(item)) {
+                        itemDNC = item;
+                    }
+                }
+            }
             if (CombineSystem.isCoupleItemNangCapCheck(itemDo, itemDNC)) {
                 int level = 0;
                 for (Item.ItemOption io : itemDo.itemOptions) {
@@ -89,61 +75,29 @@ public class NangCapVatPham {
                     player.combineNew.ratioCombine = (float) CombineSystem.getTileNangCapDo(level);
                     player.combineNew.countDaNangCap = CombineSystem.getCountDaNangCapDo(level);
                     player.combineNew.countDaBaoVe = (short) CombineSystem.getCountDaBaoVe(level);
-                    
                     String npcSay = "|2|Hiện tại " + itemDo.template.name + " (+" + level + ")\n|0|";
                     for (Item.ItemOption io : itemDo.itemOptions) {
-                        if (io != null && io.optionTemplate != null && io.optionTemplate.id != 72) {
+                        if (io.optionTemplate.id != 72) {
                             npcSay += io.getOptionString() + "\n";
                         }
                     }
-
-                    String optionName = "";
+                    String option = null;
                     int param = 0;
-                    if (itemDo.itemOptions != null) {
-                        for (Item.ItemOption io : itemDo.itemOptions) {
-                            if (io != null && io.optionTemplate != null && io.optionTemplate.name != null) {
-                                if (io.optionTemplate.id == 47
-                                        || io.optionTemplate.id == 6
-                                        || io.optionTemplate.id == 0
-                                        || io.optionTemplate.id == 7
-                                        || io.optionTemplate.id == 14
-                                        || io.optionTemplate.id == 22
-                                        || io.optionTemplate.id == 23
-                                        || io.optionTemplate.id == 50
-                                        || io.optionTemplate.id == 77
-                                        || io.optionTemplate.id == 103
-                                        || io.optionTemplate.id == 94) {
-                                    optionName = io.optionTemplate.name;
-                                    int add = (io.param * 10 / 100) < 1 ? 1 : (io.param * 10 / 100);
-                                    param = io.param + add;
-                                    break;
-                                }
-                            }
+                    for (Item.ItemOption io : itemDo.itemOptions) {
+                        if (io.optionTemplate.id == 47
+                                || io.optionTemplate.id == 6
+                                || io.optionTemplate.id == 0
+                                || io.optionTemplate.id == 7
+                                || io.optionTemplate.id == 14
+                                || io.optionTemplate.id == 22
+                                || io.optionTemplate.id == 23) {
+                            option = io.optionTemplate.name;
+                            param = io.param + (io.param * 10 / 100);
+                            break;
                         }
                     }
-
-                    if (optionName == null || optionName.isEmpty()) {
-                        if (itemDo.itemOptions != null) {
-                            for (Item.ItemOption io : itemDo.itemOptions) {
-                                if (io != null && io.optionTemplate != null && io.optionTemplate.name != null && io.optionTemplate.id != 72) {
-                                    optionName = io.optionTemplate.name;
-                                    int add = (io.param * 10 / 100) < 1 ? 1 : (io.param * 10 / 100);
-                                    param = io.param + add;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    String nextOptionStr = "";
-                    if (optionName != null && !optionName.isEmpty()) {
-                        nextOptionStr = optionName.replaceAll("#", String.valueOf(param));
-                    } else {
-                        nextOptionStr = "Tăng chỉ số trang bị";
-                    }
-
                     npcSay += "|2|Sau khi nâng cấp (+" + (level + 1) + ")\n|7|"
-                            + nextOptionStr
+                            + option.replaceAll("#", String.valueOf(param))
                             + "\n|7|Tỉ lệ thành công: " + player.combineNew.ratioCombine + "%\n"
                             + (player.combineNew.countDaNangCap > itemDNC.quantity ? "|7|" : "|1|")
                             + "Cần " + player.combineNew.countDaNangCap + " " + itemDNC.template.name
@@ -203,7 +157,7 @@ public class NangCapVatPham {
                     .count() != 1) {
                 return;
             }
-            if (player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && item.template.type == 14)
+            if (player.combineNew.itemsCombine.stream().filter(item -> isDaNangCap(item))
                     .count() != 1) {
                 return;
             }
@@ -215,35 +169,40 @@ public class NangCapVatPham {
             Item itemDNC = null;
             Item itemDBV = null;
             for (int j = 0; j < player.combineNew.itemsCombine.size(); j++) {
-                if (player.combineNew.itemsCombine.get(j).isNotNullItem()) {
-                    if (player.combineNew.itemsCombine.size() == 3
-                            && player.combineNew.itemsCombine.get(j).template.id == 987) {
-                        itemDBV = player.combineNew.itemsCombine.get(j);
+                Item item = player.combineNew.itemsCombine.get(j);
+                if (item != null && item.isNotNullItem()) {
+                    if (player.combineNew.itemsCombine.size() == 3 && item.template.id == 987) {
+                        itemDBV = item;
                         continue;
                     }
-                    if (player.combineNew.itemsCombine.get(j).template.type < 5) {
-                        itemDo = player.combineNew.itemsCombine.get(j);
-                    } else {
-                        itemDNC = player.combineNew.itemsCombine.get(j);
+                    if (item.template.type < 5) {
+                        itemDo = item;
+                    } else if (isDaNangCap(item)) {
+                        itemDNC = item;
                     }
                 }
             }
             if (CombineSystem.isCoupleItemNangCapCheck(itemDo, itemDNC)) {
-                int countDaBaoVe = (short) CombineSystem.getCountDaBaoVe(player.combineNew.countDaBaoVe);
+                int countDaNangCap = player.combineNew.countDaNangCap;
                 int gold = player.combineNew.goldCombine;
+                short countDaBaoVe = player.combineNew.countDaBaoVe;
                 if (player.inventory.gold < gold) {
                     Service.gI().sendThongBao(player, "Không đủ vàng để thực hiện");
                     return;
                 }
-                if (itemDNC.quantity < player.combineNew.countDaNangCap) {
-                    Service.gI().sendThongBao(player, "Không đủ đá nâng cấp");
+
+                if (itemDNC.quantity < countDaNangCap) {
                     return;
                 }
-                if (player.combineNew.itemsCombine.size() == 3 && Objects.nonNull(itemDBV)
-                        && itemDBV.quantity < countDaBaoVe) {
-                    Service.gI().sendThongBao(player, "Không đủ đá bảo vệ");
-                    return;
+                if (player.combineNew.itemsCombine.size() == 3) {
+                    if (Objects.isNull(itemDBV)) {
+                        return;
+                    }
+                    if (itemDBV.quantity < countDaBaoVe) {
+                        return;
+                    }
                 }
+
                 int level = 0;
                 Item.ItemOption optionLevel = null;
                 for (Item.ItemOption io : itemDo.itemOptions) {
@@ -264,31 +223,15 @@ public class NangCapVatPham {
                                 || io.optionTemplate.id == 7
                                 || io.optionTemplate.id == 14
                                 || io.optionTemplate.id == 22
-                                || io.optionTemplate.id == 23
-                                || io.optionTemplate.id == 50
-                                || io.optionTemplate.id == 77
-                                || io.optionTemplate.id == 103
-                                || io.optionTemplate.id == 94) {
+                                || io.optionTemplate.id == 23) {
                             option = io;
-                            break;
                         } else if (io.optionTemplate.id == 27
                                 || io.optionTemplate.id == 28) {
                             option2 = io;
                         }
                     }
-                    if (option == null && itemDo.itemOptions != null) {
-                        for (Item.ItemOption io : itemDo.itemOptions) {
-                            if (io.optionTemplate.id != 72 && io.optionTemplate.id != 107 && io.optionTemplate.id != 30 && io.optionTemplate.id != 21) {
-                                option = io;
-                                break;
-                            }
-                        }
-                    }
-
                     if (Util.isTrue(player.combineNew.ratioCombine, 100)) {
-                        if (option != null) {
-                            option.param += (option.param * 10 / 100) < 1 ? 1 : (option.param * 10 / 100);
-                        }
+                        option.param += (option.param * 10 / 100) < 1 ? 1 : (option.param * 10 / 100);
                         if (option2 != null) {
                             option2.param += (option2.param * 10 / 100) < 1 ? 1 : (option2.param * 10 / 100);
                         }
@@ -297,6 +240,11 @@ public class NangCapVatPham {
                         } else {
                             optionLevel.param++;
                         }
+                        if (optionLevel != null && optionLevel.param >= 5) {
+                            // ChatGlobalService.gI().ThongBaoRoiDo(player, "Chúc mừng " + player.name + "
+                            // vừa nâng cấp " + "thành công " + itemDo.template.name + " lên +" +
+                            // optionLevel.param);
+                        }
                         CombineService.gI().sendEffectSuccessCombine(player);
                         CombineService.gI().baHatMit.npcChat(player, "Chúc mừng con nhé");
                         if (level == 7) {
@@ -304,15 +252,11 @@ public class NangCapVatPham {
                         }
                     } else {
                         if ((level == 2 || level == 4 || level == 6) && (player.combineNew.itemsCombine.size() != 3)) {
-                            if (option != null) {
-                                option.param -= (option.param * 11 / 100) < 1 ? 1 : (option.param * 11 / 100);
-                            }
+                            option.param -= (option.param * 11 / 100) < 1 ? 1 : (option.param * 11 / 100);
                             if (option2 != null) {
                                 option2.param -= (option2.param * 11 / 100) < 1 ? 1 : (option2.param * 11 / 100);
                             }
-                            if (optionLevel != null) {
-                                optionLevel.param--;
-                            }
+                            optionLevel.param--;
 
                             Item.ItemOption downgradeOption = itemDo.itemOptions.stream()
                                     .filter(io -> io.optionTemplate.id == 209)
@@ -332,13 +276,13 @@ public class NangCapVatPham {
                                 "Bình tĩnh, chưa lên thì mai lên!",
                                 "Thất bại là mẹ thành công!",
                                 "Lại xịt, nhân phẩm đang ngủ à?",
-                                "Đập thế me này thì phá sản sớm thôi!",
+                                "Đập thế này thì phá sản sớm thôi!",
                                 "Ai đó gọi thầy độ chưa?"
                         };
                         String msg = failMessages[Util.nextInt(failMessages.length)];
                         CombineService.gI().baHatMit.npcChat(player, msg);
                     }
-                    if (player.combineNew.itemsCombine.size() == 3 && itemDBV != null) {
+                    if (player.combineNew.itemsCombine.size() == 3) {
                         InventoryService.gI().subQuantityItemsBag(player, itemDBV, countDaBaoVe);
                     }
                     InventoryService.gI().subQuantityItemsBag(player, itemDNC, player.combineNew.countDaNangCap);

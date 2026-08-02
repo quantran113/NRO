@@ -226,17 +226,21 @@ public class CombineSystem {
 
     public static boolean isCoupleItemNangCapCheck(Item trangBi, Item daNangCap) {
         if (trangBi != null && daNangCap != null) {
-            if (trangBi.template.type == 0 && daNangCap.template.id == 223) {
+            if (daNangCap.isDaNangCap() || daNangCap.isDaNangCap1() || daNangCap.template.type == 14) {
                 return true;
-            } else if (trangBi.template.type == 1 && daNangCap.template.id == 222) {
-                return true;
-            } else if (trangBi.template.type == 2 && daNangCap.template.id == 224) {
-                return true;
-            } else if (trangBi.template.type == 3 && daNangCap.template.id == 221) {
-                return true;
-            } else {
-                return trangBi.template.type == 4 && daNangCap.template.id == 220;
             }
+            if (trangBi.template.type == 0 && (daNangCap.template.id == 223 || daNangCap.template.id == 1074)) {
+                return true;
+            } else if (trangBi.template.type == 1 && (daNangCap.template.id == 222 || daNangCap.template.id == 1075)) {
+                return true;
+            } else if (trangBi.template.type == 2 && (daNangCap.template.id == 224 || daNangCap.template.id == 1076)) {
+                return true;
+            } else if (trangBi.template.type == 3 && (daNangCap.template.id == 221 || daNangCap.template.id == 1077)) {
+                return true;
+            } else if (trangBi.template.type == 4 && (daNangCap.template.id == 220 || daNangCap.template.id == 1078)) {
+                return true;
+            }
+            return false;
         } else {
             return false;
         }
