@@ -1325,19 +1325,28 @@ function renderCartList() {
 
         // Custom options HTML with Quick Option Pills
         let optionsHtml = `
-            <div style="margin-bottom: 8px;">
-                <label style="font-size: 11px; color: var(--gold); display: block; margin-bottom: 4px;"><i class="fa-solid fa-bolt"></i> CHỌN NHANH OPTION CHỈ SỐ PHỔ BIẾN:</label>
+            <div style="margin-bottom: 12px; background: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <label style="font-size: 11px; font-weight: 700; color: var(--teamobi-orange); display: block; margin-bottom: 6px;"><i class="fa-solid fa-star"></i> CHỌN NHANH CẤP ĐỘ TRANG BỊ (OPTION 72):</label>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <span class="quick-opt-pill" style="background: #fff7ed; color: #c2410c; border-color: #ffedd5;" onclick="addQuickOptionToCart(${idx}, 72, 1)">⭐ Đồ +1</span>
+                    <span class="quick-opt-pill" style="background: #fff7ed; color: #c2410c; border-color: #ffedd5;" onclick="addQuickOptionToCart(${idx}, 72, 2)">⭐ Đồ +2</span>
+                    <span class="quick-opt-pill" style="background: #fff7ed; color: #c2410c; border-color: #ffedd5;" onclick="addQuickOptionToCart(${idx}, 72, 3)">⭐ Đồ +3</span>
+                    <span class="quick-opt-pill" style="background: #fff7ed; color: #c2410c; border-color: #ffedd5;" onclick="addQuickOptionToCart(${idx}, 72, 4)">⭐ Đồ +4</span>
+                    <span class="quick-opt-pill" style="background: #fff7ed; color: #c2410c; border-color: #ffedd5;" onclick="addQuickOptionToCart(${idx}, 72, 5)">⭐ Đồ +5</span>
+                    <span class="quick-opt-pill" style="background: #fff7ed; color: #c2410c; border-color: #ffedd5;" onclick="addQuickOptionToCart(${idx}, 72, 6)">⭐ Đồ +6</span>
+                    <span class="quick-opt-pill" style="background: #ffedd5; color: #9a3412; border-color: #fdba74; font-weight: 800;" onclick="addQuickOptionToCart(${idx}, 72, 7)">🔥 ⭐ Đồ +7</span>
+                </div>
+                <label style="font-size: 11px; font-weight: 700; color: var(--teamobi-orange); display: block; margin-bottom: 6px;"><i class="fa-solid fa-bolt"></i> CHỌN NHANH CHỈ SỐ GỐC & PERCENT:</label>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 0, 5000)">🥊 Sức đánh +5000</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 0, 5000)">🥊 SD +5000</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 47, 500)">🛡️ Giáp +500</span>
-                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 22, 10000)">❤️ HP +10.000</span>
-                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 23, 10000)">⚡ KI +10.000</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 22, 10000)">❤️ HP +10k</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 23, 10000)">⚡ KI +10k</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 14, 5)">💥 Chí mạng +5%</span>
-                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 50, 10)">💪 Sức đánh +10%</span>
+                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 50, 10)">💪 SD +10%</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 77, 10)">❤️ HP +10%</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 103, 10)">⚡ KI +10%</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 94, 10)">🛡️ Giáp +10%</span>
-                    <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 72, 7)">⭐ Đồ Cấp +7</span>
                     <span class="quick-opt-pill" onclick="addQuickOptionToCart(${idx}, 100, 20)">💰 Vàng +20%</span>
                 </div>
             </div>
