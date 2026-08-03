@@ -10,7 +10,6 @@ import nro.models.Bot.BotAttackplayer;
 import nro.models.map.Map;
 import nro.models.map.Zone;
 import nro.models.player.Player;
-import nro.models.item.Item;
 import nro.models.network.Message;
 import nro.models.server.Client;
 import nro.models.services.EffectSkillService;
@@ -136,10 +135,10 @@ public class PlayerService {
             } catch (Exception e) {
                 msg.writer().writeInt((int) player.inventory.gold);
             }
-            msg.writer().writeInt(player.inventory.gem);//luong
-            msg.writer().writeInt(player.nPoint.hp);//chp
-            msg.writer().writeInt(player.nPoint.mp);//cmp
-            msg.writer().writeInt(player.inventory.ruby);//ruby
+            msg.writer().writeInt(player.inventory.gem);// luong
+            msg.writer().writeInt(player.nPoint.hp);// chp
+            msg.writer().writeInt(player.nPoint.mp);// cmp
+            msg.writer().writeInt(player.inventory.ruby);// ruby
             player.sendMessage(msg);
         } catch (Exception e) {
             Logger.logException(PlayerService.class, e);
@@ -169,7 +168,8 @@ public class PlayerService {
                 case 90:
                 case 91:
                     if (!player.isBoss && !player.isPet) {
-                        if (x < 24 || x > player.zone.map.mapWidth - 24 || y < 0 || y > player.zone.map.mapHeight - 24) {
+                        if (x < 24 || x > player.zone.map.mapWidth - 24 || y < 0
+                                || y > player.zone.map.mapHeight - 24) {
                             if (MapService.gI().getWaypointPlayerIn(player) == null) {
                                 ChangeMapService.gI().changeMap(player, 21 + player.gender, 0, 200, 336);
                                 return;
@@ -270,16 +270,22 @@ public class PlayerService {
         if (player.isDie() && player.zone != null && player.zone.map.mapId != 51) {
             if (Util.canDoWithTime(player.lastTimeRevived, 1500)) {
                 boolean canHs = false;
-                if (player.isAdmin()) {
-                    canHs = true;
-                } else {
-                    Item thoiVang = InventoryService.gI().findItemBag(player, 457);
-                    if (thoiVang != null && thoiVang.quantity >= 1) {
-                        InventoryService.gI().subQuantityItemsBag(player, thoiVang, 1);
-                        InventoryService.gI().sendItemBags(player);
+                if (MapService.gI().isMapBlackBallWar(player.zone.map.mapId)) {
+                    if (player.inventory.gold >= COST_GOLD_HOI_SINH_NRSD) {
+                        player.inventory.gold -= COST_GOLD_HOI_SINH_NRSD;
                         canHs = true;
                     } else {
-                        Service.gI().sendThongBao(player, "Bạn cần 1 Thỏi Vàng trong hành trang để hồi sinh!");
+                        Service.gI().sendThongBao(player, "Không đủ vàng để thực hiện, còn thiếu "
+                                + Util.numberToMoney(COST_GOLD_HOI_SINH_NRSD - player.inventory.gold) + " vàng");
+                        return;
+                    }
+                } else {
+                    if (player.inventory.gem >= COST_GEM_HOI_SINH) {
+                        player.inventory.gem -= COST_GEM_HOI_SINH;
+                        canHs = true;
+                    } else {
+                        Service.gI().sendThongBao(player, "Không đủ ngọc để thực hiện, còn thiếu "
+                                + Util.numberToMoney(COST_GEM_HOI_SINH - player.inventory.gem) + " ngọc");
                         return;
                     }
                 }
@@ -295,16 +301,24 @@ public class PlayerService {
     public void hoiSinhMaBu(Player player) {
         if (player.isDie()) {
             boolean canHs = false;
-            if (player.isAdmin()) {
-                canHs = true;
-            } else {
-                Item thoiVang = InventoryService.gI().findItemBag(player, 457);
-                if (thoiVang != null && thoiVang.quantity >= 1) {
-                    InventoryService.gI().subQuantityItemsBag(player, thoiVang, 1);
-                    InventoryService.gI().sendItemBags(player);
+            if (MapService.gI().isMapMaBu(player.zone.map.mapId)) {
+                if (player.inventory.gold >= COST_GOLD_HOI_SINH_NRSD) {
+                    player.inventory.gold -= COST_GOLD_HOI_SINH_NRSD;
                     canHs = true;
                 } else {
-                    Service.gI().sendThongBao(player, "Bạn cần 1 Thỏi Vàng trong hành trang để hồi sinh!");
+                    Service.gI().sendThongBao(player,
+                            "Không đủ vàng để thực hiện, còn thiếu " + Util.numberToMoney(COST_GOLD_HOI_SINH_NRSD
+                                    - player.inventory.gold) + " vàng");
+                    return;
+                }
+            } else {
+                if (player.inventory.gold >= COST_GOLD_HOI_SINH) {
+                    player.inventory.gold -= COST_GOLD_HOI_SINH;
+                    canHs = true;
+                } else {
+                    Service.gI().sendThongBao(player,
+                            "Không đủ vàng để thực hiện, còn thiếu " + Util.numberToMoney(COST_GOLD_HOI_SINH
+                                    - player.inventory.gold) + " vàng");
                     return;
                 }
             }
@@ -328,7 +342,8 @@ public class PlayerService {
             if (currentDate.isAfter(VIP_SEASON_END_DATE_FOR_CURRENT_YEAR)) {
                 if (player.vipPurchaseCount != 0) {
                     player.vipPurchaseCount = 0;
-                 //   System.out.println("DEBUG: VIP của người chơi " + player.name + " đã được reset do mùa VIP kết thúc.");
+                    // System.out.println("DEBUG: VIP của người chơi " + player.name + " đã được
+                    // reset do mùa VIP kết thúc.");
                     player.vip = 0;
                     player.timevip = 0L;
                     player.vipPurchaseCount = 0;
