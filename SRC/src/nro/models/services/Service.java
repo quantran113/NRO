@@ -1152,7 +1152,6 @@ public class Service {
                 msg.writer().writeShort(pl.location.y);
                 pl.sendMessage(msg);
                 msg.cleanup();
-                sendThongBao(pl, "Lưu ý: Nút Hồi Sinh Ngay tại máy chủ này tiêu tốn 1 Thỏi Vàng!");
             } else if (pl.isPet) {
                 ((Pet) pl).lastTimeDie = System.currentTimeMillis();
             }
