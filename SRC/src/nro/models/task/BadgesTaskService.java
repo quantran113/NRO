@@ -2,11 +2,15 @@ package nro.models.task;
 
 import nro.models.task.BadgesTask;
 import nro.models.player.Player;
+import nro.models.player.Pet;
 import nro.models.player_badges.BadgesData;
 import nro.models.server.Manager;
 import nro.models.task.BadgesTaskTemplate;
 import nro.models.consts.ConstTaskBadges;
 import nro.models.item.Item;
+import nro.models.services.Service;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -16,25 +20,62 @@ import nro.models.item.Item;
 
 public class BadgesTaskService {
 
-    public static void createAndResetTask(Player player) {
-        if (player == null || player.dataTaskBadges == null) {
+    public static void checkInitTask(Player player) {
+        if (player == null) {
             return;
         }
-        player.dataTaskBadges.clear();
-        for (BadgesTaskTemplate BTT : Manager.TASKS_BADGES_TEMPLATE) {
-            BadgesTask data = new BadgesTask();
-            data.id = BTT.id;
-            data.count = 0;
-            data.countMax = BTT.count;
-            data.idBadgesReward = BTT.idbadgesReward;
-            player.dataTaskBadges.add(data);
+        if (player.dataTaskBadges == null) {
+            player.dataTaskBadges = new ArrayList<>();
+        }
+        if (Manager.TASKS_BADGES_TEMPLATE != null) {
+            for (BadgesTaskTemplate BTT : Manager.TASKS_BADGES_TEMPLATE) {
+                boolean exists = false;
+                for (BadgesTask data : player.dataTaskBadges) {
+                    if (data != null && data.id == BTT.id) {
+                        exists = true;
+                        data.countMax = BTT.count;
+                        data.idBadgesReward = BTT.idbadgesReward;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    BadgesTask data = new BadgesTask();
+                    data.id = BTT.id;
+                    data.count = 0;
+                    data.countMax = BTT.count;
+                    data.idBadgesReward = BTT.idbadgesReward;
+                    player.dataTaskBadges.add(data);
+                }
+            }
+        }
+    }
+
+    public static void createAndResetTask(Player player) {
+        if (player == null) {
+            return;
+        }
+        if (player.dataTaskBadges == null) {
+            player.dataTaskBadges = new ArrayList<>();
+        } else {
+            player.dataTaskBadges.clear();
+        }
+        if (Manager.TASKS_BADGES_TEMPLATE != null) {
+            for (BadgesTaskTemplate BTT : Manager.TASKS_BADGES_TEMPLATE) {
+                BadgesTask data = new BadgesTask();
+                data.id = BTT.id;
+                data.count = 0;
+                data.countMax = BTT.count;
+                data.idBadgesReward = BTT.idbadgesReward;
+                player.dataTaskBadges.add(data);
+            }
         }
     }
 
     public static void updateDoneTask(Player player) {
-        if (player == null || player.dataTaskBadges == null) {
+        if (player == null) {
             return;
         }
+        checkInitTask(player);
         for (BadgesTask data : player.dataTaskBadges) {
             if (data != null && data.isDone()) {
                 boolean alreadyHave = false;
@@ -49,18 +90,27 @@ public class BadgesTaskService {
                 if (!alreadyHave) {
                     BadgesData danhHieu = new BadgesData(player, data.idBadgesReward, 30);
                     if (player.dataBadges == null) {
-                        player.dataBadges = new java.util.ArrayList<>();
+                        player.dataBadges = new ArrayList<>();
                     }
                     player.dataBadges.add(danhHieu);
+                    Service.gI().sendThongBao(player, "Chúc mừng bạn vừa mở khóa Danh Hiệu mới!");
                 }
             }
         }
     }
 
     public static void updateCountBagesTask(Player player, int id, int amount) {
-        if (player == null || player.dataTaskBadges == null) {
+        if (player == null) {
             return;
         }
+        if (player.isPet) {
+            player = ((Pet) player).master;
+        }
+        if (player == null) {
+            return;
+        }
+        checkInitTask(player);
+
         for (BadgesTask data : player.dataTaskBadges) {
             if (data != null && data.id == id) {
                 data.count += amount;
@@ -114,6 +164,7 @@ public class BadgesTaskService {
             }
         }
 
+        checkInitTask(player);
         if (player.dataTaskBadges != null) {
             for (BadgesTask data : player.dataTaskBadges) {
                 if (data != null && data.idBadgesReward == idBadgesReward) {
