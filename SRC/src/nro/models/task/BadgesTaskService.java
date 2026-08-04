@@ -30,10 +30,11 @@ public class BadgesTaskService {
         if (Manager.TASKS_BADGES_TEMPLATE != null) {
             for (BadgesTaskTemplate BTT : Manager.TASKS_BADGES_TEMPLATE) {
                 boolean exists = false;
+                int maxCount = (BTT.id == ConstTaskBadges.THANH_DAP_DO_7) ? 1 : BTT.count;
                 for (BadgesTask data : player.dataTaskBadges) {
                     if (data != null && data.id == BTT.id) {
                         exists = true;
-                        data.countMax = BTT.count;
+                        data.countMax = maxCount;
                         data.idBadgesReward = BTT.idbadgesReward;
                         break;
                     }
@@ -42,7 +43,7 @@ public class BadgesTaskService {
                     BadgesTask data = new BadgesTask();
                     data.id = BTT.id;
                     data.count = 0;
-                    data.countMax = BTT.count;
+                    data.countMax = maxCount;
                     data.idBadgesReward = BTT.idbadgesReward;
                     player.dataTaskBadges.add(data);
                 }
@@ -64,7 +65,7 @@ public class BadgesTaskService {
                 BadgesTask data = new BadgesTask();
                 data.id = BTT.id;
                 data.count = 0;
-                data.countMax = BTT.count;
+                data.countMax = (BTT.id == ConstTaskBadges.THANH_DAP_DO_7) ? 1 : BTT.count;
                 data.idBadgesReward = BTT.idbadgesReward;
                 player.dataTaskBadges.add(data);
             }
