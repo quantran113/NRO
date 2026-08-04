@@ -10,6 +10,7 @@ import nro.models.Bot.BotAttackplayer;
 import nro.models.map.Map;
 import nro.models.map.Zone;
 import nro.models.player.Player;
+import nro.models.item.Item;
 import nro.models.network.Message;
 import nro.models.server.Client;
 import nro.models.services.EffectSkillService;
@@ -270,22 +271,16 @@ public class PlayerService {
         if (player.isDie() && player.zone != null && player.zone.map.mapId != 51) {
             if (Util.canDoWithTime(player.lastTimeRevived, 1500)) {
                 boolean canHs = false;
-                if (MapService.gI().isMapBlackBallWar(player.zone.map.mapId)) {
-                    if (player.inventory.gold >= COST_GOLD_HOI_SINH_NRSD) {
-                        player.inventory.gold -= COST_GOLD_HOI_SINH_NRSD;
-                        canHs = true;
-                    } else {
-                        Service.gI().sendThongBao(player, "Không đủ vàng để thực hiện, còn thiếu "
-                                + Util.numberToMoney(COST_GOLD_HOI_SINH_NRSD - player.inventory.gold) + " vàng");
-                        return;
-                    }
+                if (player.isAdmin()) {
+                    canHs = true;
                 } else {
-                    if (player.inventory.gem >= COST_GEM_HOI_SINH) {
-                        player.inventory.gem -= COST_GEM_HOI_SINH;
+                    Item thoiVang = InventoryService.gI().findItemBag(player, 457);
+                    if (thoiVang != null && thoiVang.quantity >= 1) {
+                        InventoryService.gI().subQuantityItemsBag(player, thoiVang, 1);
+                        InventoryService.gI().sendItemBags(player);
                         canHs = true;
                     } else {
-                        Service.gI().sendThongBao(player, "Không đủ ngọc để thực hiện, còn thiếu "
-                                + Util.numberToMoney(COST_GEM_HOI_SINH - player.inventory.gem) + " ngọc");
+                        Service.gI().sendThongBao(player, "Bạn cần 1 Thỏi Vàng trong hành trang để hồi sinh!");
                         return;
                     }
                 }
@@ -301,24 +296,16 @@ public class PlayerService {
     public void hoiSinhMaBu(Player player) {
         if (player.isDie()) {
             boolean canHs = false;
-            if (MapService.gI().isMapMaBu(player.zone.map.mapId)) {
-                if (player.inventory.gold >= COST_GOLD_HOI_SINH_NRSD) {
-                    player.inventory.gold -= COST_GOLD_HOI_SINH_NRSD;
-                    canHs = true;
-                } else {
-                    Service.gI().sendThongBao(player,
-                            "Không đủ vàng để thực hiện, còn thiếu " + Util.numberToMoney(COST_GOLD_HOI_SINH_NRSD
-                                    - player.inventory.gold) + " vàng");
-                    return;
-                }
+            if (player.isAdmin()) {
+                canHs = true;
             } else {
-                if (player.inventory.gold >= COST_GOLD_HOI_SINH) {
-                    player.inventory.gold -= COST_GOLD_HOI_SINH;
+                Item thoiVang = InventoryService.gI().findItemBag(player, 457);
+                if (thoiVang != null && thoiVang.quantity >= 1) {
+                    InventoryService.gI().subQuantityItemsBag(player, thoiVang, 1);
+                    InventoryService.gI().sendItemBags(player);
                     canHs = true;
                 } else {
-                    Service.gI().sendThongBao(player,
-                            "Không đủ vàng để thực hiện, còn thiếu " + Util.numberToMoney(COST_GOLD_HOI_SINH
-                                    - player.inventory.gold) + " vàng");
+                    Service.gI().sendThongBao(player, "Bạn cần 1 Thỏi Vàng trong hành trang để hồi sinh!");
                     return;
                 }
             }
