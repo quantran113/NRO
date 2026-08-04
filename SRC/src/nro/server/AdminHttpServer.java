@@ -75,6 +75,7 @@ public class AdminHttpServer {
             server.createContext("/api/player-inventory", new PlayerInventoryHandler());
             server.createContext("/api/badges-tasks", new BadgesTasksHandler());
             server.createContext("/api/complete-badges-task", new CompleteBadgesTaskHandler());
+            server.createContext("/api/grant-set-skh", new GrantSetSkhHandler());
 
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -2708,6 +2709,173 @@ public class AdminHttpServer {
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/grant-set-skh ---
+    private static class GrantSetSkhHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(reader);
+
+                if (body == null) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                    return;
+                }
+
+                String playerName = body.get("playerName") != null ? body.get("playerName").toString().trim() : "";
+                int gender = body.get("gender") != null ? Integer.parseInt(body.get("gender").toString()) : 0;
+                String tier = body.get("tier") != null ? body.get("tier").toString().toLowerCase() : "thien_su";
+                int skhOptionId = body.get("skhOptionId") != null ? Integer.parseInt(body.get("skhOptionId").toString()) : 129;
+                int starCount = body.get("starCount") != null ? Integer.parseInt(body.get("starCount").toString()) : 0;
+                String targetLocation = body.get("targetLocation") != null ? body.get("targetLocation").toString() : "bag";
+
+                if (playerName.isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật\"}");
+                    return;
+                }
+
+                if (gender < 0 || gender > 2) gender = 0;
+
+                int[][] thienSuMap = { { 1048, 1049, 1055, 1056, 1054 }, { 1050, 1051, 1057, 1058, 1054 }, { 1052, 1053, 1059, 1060, 1054 } };
+                int[][] huyDietMap = { { 650, 651, 657, 658, 656 }, { 652, 653, 659, 660, 656 }, { 654, 655, 661, 662, 656 } };
+                int[][] thanLinhMap = { { 555, 556, 562, 563, 561 }, { 557, 558, 564, 565, 561 }, { 559, 560, 566, 567, 561 } };
+                int[][] thuongMap = { { 230, 242, 254, 266, 278 }, { 235, 246, 259, 270, 278 }, { 238, 250, 262, 274, 278 } };
+
+                int[] selectedIds;
+                switch (tier) {
+                    case "huy_diet":
+                        selectedIds = huyDietMap[gender];
+                        break;
+                    case "than_linh":
+                        selectedIds = thanLinhMap[gender];
+                        break;
+                    case "thuong":
+                        selectedIds = thuongMap[gender];
+                        break;
+                    case "thien_su":
+                    default:
+                        selectedIds = thienSuMap[gender];
+                        break;
+                }
+
+                Player targetPlayer = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName)) {
+                        targetPlayer = p;
+                        break;
+                    }
+                }
+
+                if (targetPlayer != null) {
+                    for (int itemId : selectedIds) {
+                        Item item = ItemService.gI().createNewItem((short) itemId, 1);
+                        if (item != null) {
+                            item.itemOptions.add(new Item.ItemOption(skhOptionId, 0));
+                            int[] subOpts = ItemService.gI().getOptionIdsBySKH(skhOptionId);
+                            if (subOpts != null) {
+                                for (int subId : subOpts) {
+                                    item.itemOptions.add(new Item.ItemOption(subId, 0));
+                                }
+                            }
+                            if (starCount > 0) {
+                                item.itemOptions.add(new Item.ItemOption(107, starCount));
+                            }
+
+                            if ("box".equalsIgnoreCase(targetLocation)) {
+                                InventoryService.gI().addItemBox(targetPlayer, item);
+                            } else {
+                                InventoryService.gI().addItemBag(targetPlayer, item);
+                            }
+                        }
+                    }
+                    if ("box".equalsIgnoreCase(targetLocation)) {
+                        InventoryService.gI().sendItemBox(targetPlayer);
+                    } else {
+                        InventoryService.gI().sendItemBags(targetPlayer);
+                    }
+                    Service.gI().sendThongBao(targetPlayer, "Admin vừa cấp cho bạn trọn bộ Set Kích Hoạt 5 Món!");
+                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cấp trọn bộ 5 món Set Kích Hoạt thành công cho nhân vật [" + playerName + "] (Online)!\"}");
+                } else {
+                    // Offline DB update
+                    try (Connection conn = LocalManager.getConnection();
+                         PreparedStatement ps = conn.prepareStatement("SELECT id, items_bag, items_box FROM player WHERE name = ?")) {
+                        ps.setString(1, playerName);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                int pId = rs.getInt("id");
+                                String targetColumn = "box".equalsIgnoreCase(targetLocation) ? "items_box" : "items_bag";
+                                String jsonStr = rs.getString(targetColumn);
+
+                                JSONArray itemsList = (jsonStr != null && !jsonStr.isEmpty()) ? (JSONArray) JSONValue.parse(jsonStr) : new JSONArray();
+
+                                for (int itemId : selectedIds) {
+                                    JSONObject itemObj = new JSONObject();
+                                    itemObj.put("temp_id", itemId);
+                                    itemObj.put("quantity", 1);
+                                    itemObj.put("create_time", System.currentTimeMillis());
+
+                                    JSONArray optionsArr = new JSONArray();
+                                    
+                                    Item tempItem = ItemService.gI().createNewItem((short) itemId, 1);
+                                    if (tempItem != null && tempItem.itemOptions != null) {
+                                        for (Item.ItemOption io : tempItem.itemOptions) {
+                                            JSONArray opt = new JSONArray();
+                                            opt.add(io.optionTemplate.id);
+                                            opt.add(io.param);
+                                            optionsArr.add(opt);
+                                        }
+                                    }
+
+                                    JSONArray opt1 = new JSONArray();
+                                    opt1.add(skhOptionId);
+                                    opt1.add(0);
+                                    optionsArr.add(opt1);
+
+                                    int[] subOpts = ItemService.gI().getOptionIdsBySKH(skhOptionId);
+                                    if (subOpts != null) {
+                                        for (int subId : subOpts) {
+                                            JSONArray subOpt = new JSONArray();
+                                            subOpt.add(subId);
+                                            subOpt.add(0);
+                                            optionsArr.add(subOpt);
+                                        }
+                                    }
+
+                                    if (starCount > 0) {
+                                        JSONArray starOpt = new JSONArray();
+                                        starOpt.add(107);
+                                        starOpt.add(starCount);
+                                        optionsArr.add(starOpt);
+                                    }
+
+                                    itemObj.put("option", optionsArr);
+                                    itemsList.add(itemObj);
+                                }
+
+                                try (PreparedStatement updatePs = conn.prepareStatement("UPDATE player SET " + targetColumn + " = ? WHERE id = ?")) {
+                                    updatePs.setString(1, JSONValue.toJSONString(itemsList));
+                                    updatePs.setInt(2, pId);
+                                    updatePs.executeUpdate();
+                                }
+
+                                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cấp trọn bộ 5 món Set Kích Hoạt thành công cho nhân vật [" + playerName + "] (Offline)!\"}");
+                            } else {
+                                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật\"}");
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
             }
         }
     }

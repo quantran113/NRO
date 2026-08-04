@@ -467,7 +467,19 @@
 
         <!-- TAB 1: CẤP ĐỒ REALTIME STUDIO -->
         <div id="tab-grant" class="tab-content">
-            <div class="grant-grid">
+
+            <!-- SUB-TABS NAV FOR GRANT ITEM -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ffe0b2; padding-bottom: 10px; flex-wrap: wrap;">
+                <button type="button" id="subtab-btn-single-grant" class="btn-secondary" style="padding: 8px 16px; font-size: 13px; font-weight: 800; background: var(--teamobi-orange); color: #fff; border-color: var(--teamobi-orange);" onclick="switchGrantSubTab('single')">
+                    📦 CẤP VẬT PHẨM LẺ / TỰ CHỌN
+                </button>
+                <button type="button" id="subtab-btn-skh-grant" class="btn-secondary" style="padding: 8px 16px; font-size: 13px; font-weight: 800; background: #fff8f3; color: #6b21a8; border: 1px solid #d8b4fe;" onclick="switchGrantSubTab('skh')">
+                    ⚡ CẤP TRỌN BỘ SET KÍCH HOẠT (FULL 5 MÓN)
+                </button>
+            </div>
+
+            <!-- SUB-TAB 1: CẤP VẬT PHẨM LẺ -->
+            <div id="grant-subtab-single" class="grant-grid">
 
                 <!-- LEFT COLUMN: ITEM CATALOG -->
                 <div class="glass" style="display: flex; flex-direction: column;">
@@ -531,6 +543,90 @@
                 </div>
 
             </div>
+
+            <!-- SUB-TAB 2: CẤP SET KÍCH HOẠT FULL -->
+            <div id="grant-subtab-skh" class="glass" style="display: none; padding: 24px; max-width: 850px; margin: 0 auto;">
+                <div class="panel-header" style="border: none; padding-bottom: 16px; border-bottom: 1px solid #e9d5ff;">
+                    <h2 style="color: #6b21a8;"><i class="fa-solid fa-bolt-lightning" style="color: #a855f7;"></i> STUDIO CẤP TRỌN BỘ SET KÍCH HOẠT 5 MÓN</h2>
+                    <span class="badge-online" style="background: #f3e8ff; color: #7c3aed; border-color: #c084fc;">Tự động tạo trọn bộ Áo - Quần - Găng - Giày - Rada SKH</span>
+                </div>
+                <form id="form-grant-set-skh" onsubmit="executeGrantSetSkh(event)" style="margin-top: 20px;">
+                    <!-- Player input -->
+                    <div class="form-group" style="position: relative;">
+                        <label style="font-weight: 800; color: #6b21a8;"><i class="fa-solid fa-user-tag"></i> Tên Nhân Vật Nhận Set Kích Hoạt</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="target-player-skh" class="input-field" placeholder="🔍 Nhập tên nhân vật (ví dụ: admin)..." required style="border-color: #c084fc; font-weight: 800;">
+                            <button type="button" class="btn-secondary" style="white-space: nowrap; font-weight: 700;" onclick="fillTargetPlayerSkhFromSearch()">Dùng tên từ ô tìm kiếm</button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px;">
+                        <!-- Hành tinh -->
+                        <div class="form-group">
+                            <label style="font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-globe"></i> Chọn Hành Tinh</label>
+                            <select id="skh-gender-select" class="select-field" style="font-weight: 700;" onchange="updateSkhOptionsDropdown()">
+                                <option value="0">🌏 Trái Đất (Songoku, TNSH, Kirin, Kaio, Kaioken)</option>
+                                <option value="1">🟢 Namếc (Ốc Tiêu, Pikkoro, Picolo, Nail, Liên Hoàn)</option>
+                                <option value="2">💥 Xayda (Kakarot, Cadic, Nappa, Cadic M, Giảm ST)</option>
+                            </select>
+                        </div>
+
+                        <!-- Bộ SKH -->
+                        <div class="form-group">
+                            <label style="font-weight: 800; color: #6b21a8;"><i class="fa-solid fa-shield-halved"></i> Chọn Bộ Set Kích Hoạt</label>
+                            <select id="skh-type-select" class="select-field" style="font-weight: 800; color: #6b21a8; border-color: #c084fc;">
+                                <!-- Dynamically populated by JS based on gender -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px;">
+                        <!-- Phẩm chất / Loại đồ -->
+                        <div class="form-group">
+                            <label style="font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-gem"></i> Phẩm Chất Trang Bị (Loại Đồ)</label>
+                            <select id="skh-tier-select" class="select-field" style="font-weight: 800;">
+                                <option value="thien_su">🕊️ Đồ Thiên Sứ (Mạnh nhất - Cấp VIP)</option>
+                                <option value="huy_diet">💥 Đồ Hủy Diệt (Cực mạnh - Cấp Cao)</option>
+                                <option value="than_linh">👑 Đồ Thần Linh (Cấp Thần)</option>
+                                <option value="thuong">🥋 Đồ Thường / Kaio (Cơ bản)</option>
+                            </select>
+                        </div>
+
+                        <!-- Cấp đập đồ / Số sao -->
+                        <div class="form-group">
+                            <label style="font-weight: 800; color: var(--gold);"><i class="fa-solid fa-star"></i> Cấp Đập Đồ / Số Sao</label>
+                            <select id="skh-star-select" class="select-field" style="font-weight: 800; color: var(--gold);">
+                                <option value="0">+0 Sao (Đồ Gốc)</option>
+                                <option value="1">⭐ +1 Sao</option>
+                                <option value="2">⭐ +2 Sao</option>
+                                <option value="3">⭐ +3 Sao</option>
+                                <option value="4">⭐ +4 Sao</option>
+                                <option value="5">⭐ +5 Sao</option>
+                                <option value="6">⭐ +6 Sao</option>
+                                <option value="7" selected>⭐ +7 Sao (VIP)</option>
+                                <option value="8">⭐ +8 Sao (MAX)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Nơi cất đồ -->
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label style="font-weight: 800;"><i class="fa-solid fa-briefcase"></i> Vị Trí Cấp Vật Phẩm</label>
+                        <select id="skh-target-location" class="select-field">
+                            <option value="bag">🎒 Túi Hành Trang</option>
+                            <option value="box">📦 Rương Đồ Gửi</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="margin-top: 24px;">
+                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; font-size: 15px; font-weight: 800; padding: 14px 20px;">
+                            <i class="fa-solid fa-bolt-lightning"></i> CẤP TRỌN BỘ 5 MÓN SET KÍCH HOẠT LẬP TỨC
+                        </button>
+                    </div>
+                </form>
+            </div>
+
         </div>
 
         <!-- TAB 2: CẤP ĐỆ TỬ STUDIO -->

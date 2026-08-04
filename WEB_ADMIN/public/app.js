@@ -3430,3 +3430,131 @@ function promptBadgesTaskModal() {
         openBadgesTaskModal(name.trim());
     }
 }
+
+// --- GRANT SET KÍCH HOẠT FUNCTIONS ---
+function switchGrantSubTab(tab) {
+    const singleTab = document.getElementById('grant-subtab-single');
+    const skhTab = document.getElementById('grant-subtab-skh');
+    const btnSingle = document.getElementById('subtab-btn-single-grant');
+    const btnSkh = document.getElementById('subtab-btn-skh-grant');
+
+    if (tab === 'skh') {
+        if (singleTab) singleTab.style.display = 'none';
+        if (skhTab) skhTab.style.display = 'block';
+        if (btnSingle) {
+            btnSingle.style.background = '#fff8f3';
+            btnSingle.style.color = '#e65100';
+            btnSingle.style.border = '1px solid #ffe0b2';
+        }
+        if (btnSkh) {
+            btnSkh.style.background = 'linear-gradient(135deg, #a855f7, #7c3aed)';
+            btnSkh.style.color = '#fff';
+            btnSkh.style.border = 'none';
+        }
+        updateSkhOptionsDropdown();
+    } else {
+        if (singleTab) singleTab.style.display = 'grid';
+        if (skhTab) skhTab.style.display = 'none';
+        if (btnSingle) {
+            btnSingle.style.background = 'var(--teamobi-orange)';
+            btnSingle.style.color = '#fff';
+            btnSingle.style.border = '1px solid var(--teamobi-orange)';
+        }
+        if (btnSkh) {
+            btnSkh.style.background = '#fff8f3';
+            btnSkh.style.color = '#6b21a8';
+            btnSkh.style.border = '1px solid #d8b4fe';
+        }
+    }
+}
+
+function updateSkhOptionsDropdown() {
+    const genderSelect = document.getElementById('skh-gender-select');
+    const typeSelect = document.getElementById('skh-type-select');
+    if (!genderSelect || !typeSelect) return;
+
+    const gender = parseInt(genderSelect.value) || 0;
+    typeSelect.innerHTML = '';
+
+    const skhData = [
+        // 0: Trái Đất
+        [
+            { id: 129, name: '⚡ Set Songoku (Tăng Sát Thương Kamejoko)' },
+            { id: 127, name: '☀️ Set Thiên Xin Hăng (Tăng Thái Dương Hạ Sơn)' },
+            { id: 128, name: '🔮 Set Kirin (Tăng Quả Cầu Kênh Khi)' },
+            { id: 245, name: '👑 Set Thần Vũ Trụ Kaio (Tăng Chỉ Số Gốc)' },
+            { id: 253, name: '🔥 Set Kaioken (Tăng Sức Đánh Kaioken)' }
+        ],
+        // 1: Namếc
+        [
+            { id: 131, name: '🎯 Set Ốc Tiêu (Tăng Ma Kankosappo Xuyên Giáp)' },
+            { id: 132, name: '😈 Set Pikkoro Daimao (Tăng Ma Phong Ba)' },
+            { id: 130, name: '💚 Set Picolo (Tăng Tái Tạo & Trị Thương)' },
+            { id: 237, name: '🗡️ Set Nail (Tăng Phản Sát Thương & Sức Đánh)' },
+            { id: 250, name: '⚡ Set Liên Hoàn (Tăng Sát Thương Dấu Ấn)' }
+        ],
+        // 2: Xayda
+        [
+            { id: 133, name: '🦍 Set Kakarot (Tăng Sát Thương Biến Khỉ)' },
+            { id: 134, name: '💥 Set Cadic (Tăng Sát Thương Tự Sát)' },
+            { id: 135, name: '🛡️ Set Nappa (Tăng HP Gốc & Độc Chiêu)' },
+            { id: 241, name: '⚡ Set Cadic M (Majin Cadic - Max Chí Mạng & Bạo Kích)' },
+            { id: 252, name: '🛡️ Set Giảm Sát Thương (Chuyên Tank / Solo PK)' }
+        ]
+    ];
+
+    const currentList = skhData[gender] || skhData[0];
+    currentList.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.name;
+        typeSelect.appendChild(opt);
+    });
+}
+
+function fillTargetPlayerSkhFromSearch() {
+    const inputMain = document.getElementById('target-player');
+    const inputSkh = document.getElementById('target-player-skh');
+    if (inputMain && inputSkh && inputMain.value) {
+        inputSkh.value = inputMain.value.trim();
+    }
+}
+
+async function executeGrantSetSkh(e) {
+    e.preventDefault();
+    const playerName = (document.getElementById('target-player-skh').value || '').trim();
+    const gender = parseInt(document.getElementById('skh-gender-select').value) || 0;
+    const tier = document.getElementById('skh-tier-select').value || 'thien_su';
+    const skhOptionId = parseInt(document.getElementById('skh-type-select').value) || 129;
+    const starCount = parseInt(document.getElementById('skh-star-select').value) || 0;
+    const targetLocation = document.getElementById('skh-target-location').value || 'bag';
+
+    if (!playerName) {
+        showToast('Vui lòng nhập tên nhân vật nhận Set Kích Hoạt!', 'error');
+        return;
+    }
+
+    try {
+        const resp = await fetch('/api/grant-set-skh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                playerName: playerName,
+                gender: gender,
+                tier: tier,
+                skhOptionId: skhOptionId,
+                starCount: starCount,
+                targetLocation: targetLocation
+            })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok || data.status !== 'success') {
+            throw new Error(data.message || 'Không thể cấp Set Kích Hoạt');
+        }
+
+        showToast(data.message || 'Đã cấp trọn bộ 5 món Set Kích Hoạt thành công!', 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}

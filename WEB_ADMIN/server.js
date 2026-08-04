@@ -716,6 +716,39 @@ app.post(['/api/complete-badges-task', '/api/admin/player/complete-badges-task']
     }
 });
 
+// Grant Set SKH Endpoint
+app.post(['/api/grant-set-skh', '/api/admin/grant-set-skh'], async (req, res) => {
+    try {
+        const { playerName, gender, tier, skhOptionId, starCount, targetLocation } = req.body;
+        if (!playerName) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu tên nhân vật' });
+        }
+
+        try {
+            const resp = await fetch(`${JAVA_API_URL}/api/grant-set-skh`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerName: playerName.trim(),
+                    gender: parseInt(gender) || 0,
+                    tier: tier || 'thien_su',
+                    skhOptionId: parseInt(skhOptionId) || 129,
+                    starCount: parseInt(starCount) || 0,
+                    targetLocation: targetLocation || 'bag'
+                })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                return res.json(data);
+            }
+        } catch (err) { }
+
+        res.status(500).json({ status: 'error', message: 'Không thể kết nối đến Java API Server để cấp Set Kích Hoạt.' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Update Player Event Point Endpoint (Admin)
 app.post('/api/admin/player/update-event-point', async (req, res) => {
     try {
