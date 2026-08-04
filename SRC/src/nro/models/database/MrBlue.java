@@ -386,21 +386,26 @@ public class MrBlue {
             // data bag
             dataArray = (JSONArray) JSONValue.parse(rs.getString("items_bag"));
             for (int i = 0; i < dataArray.size(); i++) {
-                Item item;
-                JSONArray dataItem = (JSONArray) JSONValue.parse(dataArray.get(i).toString());
-                short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
-                if (tempId != -1) {
-                    item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
-                    item.itemOptions.clear(); // Clear defaults - will load actual options from DB
-                    JSONArray options = (JSONArray) JSONValue
-                            .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
-                    for (int j = 0; j < options.size(); j++) {
-                        JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
-                        item.itemOptions.add(new Item.ItemOption(Integer.parseInt(String.valueOf(opt.get(0))),
-                                Integer.parseInt(String.valueOf(opt.get(1)))));
-                    }
-                    item.createTime = Long.parseLong(String.valueOf(dataItem.get(3)));
-                    if (ItemService.gI().isOutOfDateTime(item)) {
+                Item item = null;
+                Object rawItem = JSONValue.parse(dataArray.get(i).toString());
+                if (rawItem instanceof JSONArray) {
+                    JSONArray dataItem = (JSONArray) rawItem;
+                    short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
+                    if (tempId != -1) {
+                        item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                        item.itemOptions.clear(); // Clear defaults - will load actual options from DB
+                        JSONArray options = (JSONArray) JSONValue
+                                .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
+                        for (int j = 0; j < options.size(); j++) {
+                            JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
+                            item.itemOptions.add(new Item.ItemOption(Integer.parseInt(String.valueOf(opt.get(0))),
+                                    Integer.parseInt(String.valueOf(opt.get(1)))));
+                        }
+                        item.createTime = Long.parseLong(String.valueOf(dataItem.get(3)));
+                        if (ItemService.gI().isOutOfDateTime(item)) {
+                            item = ItemService.gI().createItemNull();
+                        }
+                    } else {
                         item = ItemService.gI().createItemNull();
                     }
                 } else {
@@ -413,35 +418,40 @@ public class MrBlue {
             // data box
             dataArray = (JSONArray) JSONValue.parse(rs.getString("items_box"));
             for (int i = 0; i < dataArray.size(); i++) {
-                Item item;
-                JSONArray dataItem = (JSONArray) JSONValue.parse(dataArray.get(i).toString());
-                short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
-                if (tempId != -1) {
-                    item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
-                    item.itemOptions.clear(); // Clear defaults - will load actual options from DB
-                    JSONArray options = (JSONArray) JSONValue
-                            .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
-                    for (int j = 0; j < options.size(); j++) {
-                        JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
-                        item.itemOptions.add(new Item.ItemOption(Integer.parseInt(String.valueOf(opt.get(0))),
-                                Integer.parseInt(String.valueOf(opt.get(1)))));
-                    }
-                    item.createTime = Long.parseLong(String.valueOf(dataItem.get(3)));
-                    if (item.template.id == 2132) {
-                        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-                        try {
-                            Date currentDate = new Date(item.createTime);
-                            Date startDate = formatter.parse("15/03/2024");
-                            Date endDate = formatter.parse("28/03/2024");
-                            if (currentDate.compareTo(startDate) >= 0 && currentDate.compareTo(endDate) <= 0) {
-                                System.out.println("Thu hồi cải trang rồng lộn bug.");
-                                item = ItemService.gI().createItemNull();
-                            }
-                        } catch (ParseException e) {
+                Item item = null;
+                Object rawItem = JSONValue.parse(dataArray.get(i).toString());
+                if (rawItem instanceof JSONArray) {
+                    JSONArray dataItem = (JSONArray) rawItem;
+                    short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
+                    if (tempId != -1) {
+                        item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                        item.itemOptions.clear(); // Clear defaults - will load actual options from DB
+                        JSONArray options = (JSONArray) JSONValue
+                                .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
+                        for (int j = 0; j < options.size(); j++) {
+                            JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
+                            item.itemOptions.add(new Item.ItemOption(Integer.parseInt(String.valueOf(opt.get(0))),
+                                    Integer.parseInt(String.valueOf(opt.get(1)))));
                         }
-                    }
-                    if (ItemService.gI().isOutOfDateTime(item)) {
+                        item.createTime = Long.parseLong(String.valueOf(dataItem.get(3)));
+                        if (item.template.id == 2132) {
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+                            try {
+                                Date currentDate = new Date(item.createTime);
+                                Date startDate = formatter.parse("15/03/2024");
+                                Date endDate = formatter.parse("28/03/2024");
+                                if (currentDate.compareTo(startDate) >= 0 && currentDate.compareTo(endDate) <= 0) {
+                                    System.out.println("Thu hồi cải trang rồng lộn bug.");
+                                    item = ItemService.gI().createItemNull();
+                                }
+                            } catch (ParseException e) {
+                            }
+                        }
+                        if (ItemService.gI().isOutOfDateTime(item)) {
+                            item = ItemService.gI().createItemNull();
+                        }
+                    } else {
                         item = ItemService.gI().createItemNull();
                     }
                 } else {
