@@ -2744,7 +2744,7 @@ public class AdminHttpServer {
 
                 if (gender < 0 || gender > 2) gender = 0;
 
-                int[][] thienSuMap = { { 1048, 1051, 1054, 1057, 1060 }, { 1049, 1052, 1055, 1058, 1060 }, { 1050, 1053, 1056, 1059, 1060 } };
+                int[][] thienSuMap = { { 1048, 1051, 1054, 1057, 1060 }, { 1049, 1052, 1055, 1058, 1061 }, { 1050, 1053, 1056, 1059, 1062 } };
                 int[][] huyDietMap = { { 650, 651, 657, 658, 656 }, { 652, 653, 659, 660, 656 }, { 654, 655, 661, 662, 656 } };
                 int[][] thanLinhMap = { { 555, 556, 562, 563, 561 }, { 557, 558, 564, 565, 561 }, { 559, 560, 566, 567, 561 } };
                 int[][] thuongMap = { { 233, 245, 257, 269, 281 }, { 237, 249, 261, 273, 281 }, { 241, 253, 265, 277, 281 } };
@@ -2817,20 +2817,19 @@ public class AdminHttpServer {
                                 JSONArray itemsList = (jsonStr != null && !jsonStr.isEmpty()) ? (JSONArray) JSONValue.parse(jsonStr) : new JSONArray();
 
                                 for (int itemId : selectedIds) {
-                                    JSONObject itemObj = new JSONObject();
-                                    itemObj.put("temp_id", itemId);
-                                    itemObj.put("quantity", 1);
-                                    itemObj.put("create_time", System.currentTimeMillis());
+                                    JSONArray dataItem = new JSONArray();
+                                    dataItem.add(itemId);
+                                    dataItem.add(1);
 
                                     JSONArray optionsArr = new JSONArray();
                                     
                                     Item tempItem = ItemService.gI().createNewItem((short) itemId, 1);
                                     if (tempItem != null && tempItem.itemOptions != null) {
                                         for (Item.ItemOption io : tempItem.itemOptions) {
-                                            JSONArray opt = new JSONArray();
-                                            opt.add(io.optionTemplate.id);
-                                            opt.add(io.param);
-                                            optionsArr.add(opt);
+                                            JSONArray baseOpt = new JSONArray();
+                                            baseOpt.add(io.optionTemplate.id);
+                                            baseOpt.add(io.param);
+                                            optionsArr.add(baseOpt);
                                         }
                                     }
 
@@ -2856,8 +2855,10 @@ public class AdminHttpServer {
                                         optionsArr.add(starOpt);
                                     }
 
-                                    itemObj.put("option", optionsArr);
-                                    itemsList.add(itemObj);
+                                    dataItem.add(optionsArr.toJSONString());
+                                    dataItem.add(System.currentTimeMillis());
+
+                                    itemsList.add(dataItem);
                                 }
 
                                 try (PreparedStatement updatePs = conn.prepareStatement("UPDATE player SET " + targetColumn + " = ? WHERE id = ?")) {
