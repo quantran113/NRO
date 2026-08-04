@@ -2182,28 +2182,28 @@ function renderPlayerTable() {
             <td data-label="Nhiệm Vụ" style="padding: 12px;">${taskBadge}</td>
             <td data-label="Điểm Sự Kiện" style="padding: 12px;">${eventPointBadge}</td>
             <td data-label="Trạng Thái" style="padding: 12px;">${statusBadge}</td>
-            <td data-label="Thao Tác" style="padding: 10px 12px; white-space: nowrap;">
-                <div style="display: flex; gap: 6px; flex-wrap: nowrap; align-items: center;">
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(255, 102, 0, 0.15); color: var(--teamobi-orange-dark); font-weight: 800; border: 1px solid var(--teamobi-orange-border); white-space: nowrap;" onclick="openPlayerInventoryModal('${escapeHtml(p.name)}')">
+            <td data-label="Thao Tác" style="padding: 8px; min-width: 280px;">
+                <div style="display: flex; gap: 4px; flex-wrap: wrap; max-width: 320px; align-items: center;">
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; font-weight: 800; border: none; border-radius: 6px; white-space: nowrap;" onclick="openBadgesTaskModal('${escapeHtml(p.name)}')">
+                        <i class="fa-solid fa-trophy"></i> 🏆 NV Danh Hiệu
+                    </button>
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(255, 102, 0, 0.15); color: var(--teamobi-orange-dark); font-weight: 800; border: 1px solid var(--teamobi-orange-border); white-space: nowrap;" onclick="openPlayerInventoryModal('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-briefcase"></i> 🎒 Hành Trang
                     </button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: #fff3e0; color: #e65100; font-weight: 800; border: 1px solid #ffb74d; white-space: nowrap;" onclick="openAdjustPlayerEventPointModal('${escapeHtml(p.name)}', ${p.eventPoint || 0})">
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: #fff3e0; color: #e65100; font-weight: 800; border: 1px solid #ffb74d; white-space: nowrap;" onclick="openAdjustPlayerEventPointModal('${escapeHtml(p.name)}', ${p.eventPoint || 0})">
                         <i class="fa-solid fa-star"></i> ⭐ Đổi Điểm
                     </button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; border: 1px solid #10b981; white-space: nowrap;" onclick="openAdjustPlayerPowerModal('${escapeHtml(p.name)}')">
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; border: 1px solid #10b981; white-space: nowrap;" onclick="openAdjustPlayerPowerModal('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-bolt"></i> ⚡ SM
                     </button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; white-space: nowrap;" onclick="quickSelectPlayer('${escapeHtml(p.name)}')">
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; white-space: nowrap;" onclick="quickSelectPlayer('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-gift"></i> Cấp Đồ
                     </button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(0, 243, 255, 0.15); color: var(--cyan); white-space: nowrap;" onclick="changePlayerName(${p.id}, '${escapeHtml(p.name)}')">
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(0, 243, 255, 0.15); color: var(--cyan); white-space: nowrap;" onclick="changePlayerName(${p.id}, '${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-pen-to-square"></i> Đổi Tên
                     </button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); font-weight: 700; border: 1px solid var(--teamobi-orange-border); white-space: nowrap;" onclick="nextPlayerTask('${escapeHtml(p.name)}')">
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); font-weight: 700; border: 1px solid var(--teamobi-orange-border); white-space: nowrap;" onclick="nextPlayerTask('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-forward-step"></i> Qua NV
-                    </button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; font-weight: 800; border: 1px solid #a78bfa; white-space: nowrap;" onclick="openBadgesTaskModal('${escapeHtml(p.name)}')">
-                        <i class="fa-solid fa-trophy"></i> 🏆 NV Danh Hiệu
                     </button>
                 </div>
             </td>
@@ -3421,5 +3421,12 @@ async function completeBadgesTask(playerName, taskId) {
         if (typeof loadPlayers === 'function') loadPlayers();
     } catch (err) {
         showToast(err.message, 'error');
+    }
+}
+
+function promptBadgesTaskModal() {
+    const name = prompt('Nhập tên nhân vật cần xem / hoàn thành Nhiệm Vụ Danh Hiệu:');
+    if (name && name.trim()) {
+        openBadgesTaskModal(name.trim());
     }
 }

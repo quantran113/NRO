@@ -1152,8 +1152,13 @@
             <div class="glass" style="padding: 24px;">
                 <div class="panel-header" style="border: none; padding: 0 0 16px 0;">
                     <h2><i class="fa-solid fa-address-book"></i> DANH SÁCH NHÂN VẬT KHÁCH HÀNG</h2>
-                    <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..."
-                        style="max-width: 300px;" oninput="renderPlayerTable()">
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="player-table-search" class="input-field" placeholder="🔍 Tìm nhân vật..."
+                            style="max-width: 250px;" oninput="renderPlayerTable()">
+                        <button type="button" class="btn-primary" style="padding: 8px 12px; font-size: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; font-weight: 800; white-space: nowrap;" onclick="promptBadgesTaskModal()">
+                            <i class="fa-solid fa-trophy"></i> 🏆 Xem NV Danh Hiệu Theo Tên
+                        </button>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="data-table">
