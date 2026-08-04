@@ -11256,7 +11256,7 @@ INSERT INTO `task_badges_template` (`id`, `NAME`, `maxCount`, `idBadgesReward`) 
 (1, 'Nạp Tích luỹ 1 Triệu Trong Ngày', 1000000, 218),
 (2, 'Ước Rồng Thần 1 Sao X100 Lần', 100, 219),
 (3, 'Hạ Gục Cumber, Black Goku, Cooler, Xên ( 300 Lần )', 300, 220),
-(4, 'Đập 1 Trang Bị +7', 1, 221),
+(4, 'Đập 5 Trang Bị +7 Trong Ngày', 5, 221),
 (5, 'Top 1 Đại Hội Võ Đài Siêu Hạng', 1, 222),
 (6, 'Hoàn Thành 10 Nhiệm Vụ Siêu Khó Tại Bò Mộng', 10, 223),
 (7, 'Đánh Bại, Hoặc Cho Xương Sói 20 Lần', 20, 1286),
