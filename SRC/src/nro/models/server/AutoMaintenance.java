@@ -12,9 +12,9 @@ import nro.models.utils.Logger;
 
 public class AutoMaintenance extends Thread {
 
-    public static boolean AutoMaintenance = false;
-    public static final int hours = 4;
-    public static final int mins = 30;
+    public static boolean AutoMaintenance = true;
+    public static final int hours = 12;
+    public static final int mins = 0;
     private static AutoMaintenance instance;
     public static boolean isRunning;
     private long lastAnnouncementTime = 0;
