@@ -2747,7 +2747,21 @@ public class AdminHttpServer {
                 int[][] thienSuMap = { { 1048, 1051, 1054, 1057, 1060 }, { 1049, 1052, 1055, 1058, 1061 }, { 1050, 1053, 1056, 1059, 1062 } };
                 int[][] huyDietMap = { { 650, 651, 657, 658, 656 }, { 652, 653, 659, 660, 656 }, { 654, 655, 661, 662, 656 } };
                 int[][] thanLinhMap = { { 555, 556, 562, 563, 561 }, { 557, 558, 564, 565, 561 }, { 559, 560, 566, 567, 561 } };
-                int[][] thuongMap = { { 233, 245, 257, 269, 281 }, { 237, 249, 261, 273, 281 }, { 241, 253, 265, 277, 281 } };
+
+                int[][] cap12Map = { { 233, 245, 257, 269, 281 }, { 237, 249, 261, 273, 281 }, { 241, 253, 265, 277, 281 } };
+                int[][] cap11Map = { { 232, 244, 256, 268, 280 }, { 236, 248, 260, 272, 280 }, { 240, 252, 264, 276, 280 } };
+                int[][] cap10Map = { { 231, 243, 255, 267, 279 }, { 235, 247, 259, 271, 279 }, { 239, 251, 263, 275, 279 } };
+                int[][] cap9Map  = { { 230, 242, 254, 266, 278 }, { 234, 246, 258, 270, 278 }, { 238, 250, 262, 274, 278 } };
+
+                int[][] cap8Map  = { { 139, 143, 147, 151, 187 }, { 155, 159, 163, 167, 187 }, { 171, 175, 179, 183, 187 } };
+                int[][] cap7Map  = { { 138, 142, 146, 150, 186 }, { 154, 158, 162, 166, 186 }, { 170, 174, 178, 182, 186 } };
+                int[][] cap6Map  = { { 137, 141, 145, 149, 185 }, { 153, 157, 161, 165, 185 }, { 169, 173, 177, 181, 185 } };
+                int[][] cap5Map  = { { 136, 140, 144, 148, 184 }, { 152, 156, 160, 164, 184 }, { 168, 172, 176, 180, 184 } };
+
+                int[][] cap4Map  = { { 34, 36, 38, 40, 59 }, { 42, 44, 46, 48, 59 }, { 50, 52, 54, 56, 59 } };
+                int[][] cap3Map  = { { 33, 35, 37, 39, 58 }, { 41, 43, 45, 47, 58 }, { 49, 51, 53, 55, 58 } };
+                int[][] cap2Map  = { { 3, 9, 24, 30, 57 }, { 4, 10, 25, 31, 57 }, { 5, 11, 26, 32, 57 } };
+                int[][] cap1Map  = { { 0, 6, 21, 27, 12 }, { 1, 7, 22, 28, 12 }, { 2, 8, 23, 29, 12 } };
 
                 int[] selectedIds;
                 switch (tier) {
@@ -2757,9 +2771,43 @@ public class AdminHttpServer {
                     case "than_linh":
                         selectedIds = thanLinhMap[gender];
                         break;
-                    case "thuong":
-                        selectedIds = thuongMap[gender];
+                    case "cap_12":
+                        selectedIds = cap12Map[gender];
                         break;
+                    case "cap_11":
+                        selectedIds = cap11Map[gender];
+                        break;
+                    case "cap_10":
+                        selectedIds = cap10Map[gender];
+                        break;
+                    case "cap_9":
+                        selectedIds = cap9Map[gender];
+                        break;
+                    case "cap_8":
+                        selectedIds = cap8Map[gender];
+                        break;
+                    case "cap_7":
+                        selectedIds = cap7Map[gender];
+                        break;
+                    case "cap_6":
+                        selectedIds = cap6Map[gender];
+                        break;
+                    case "cap_5":
+                        selectedIds = cap5Map[gender];
+                        break;
+                    case "cap_4":
+                        selectedIds = cap4Map[gender];
+                        break;
+                    case "cap_3":
+                        selectedIds = cap3Map[gender];
+                        break;
+                    case "cap_2":
+                        selectedIds = cap2Map[gender];
+                        break;
+                    case "cap_1":
+                        selectedIds = cap1Map[gender];
+                        break;
+                    case "thuong":
                     case "thien_su":
                     default:
                         selectedIds = thienSuMap[gender];
