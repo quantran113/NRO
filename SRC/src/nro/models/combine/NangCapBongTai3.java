@@ -14,18 +14,19 @@ import nro.models.utils.Util;
  * @author MinhDu
  */
 public class NangCapBongTai3 {
-    
+
     private static final int GOLD_BONG_TAI = 200_000_000;
     private static final int GEM_BONG_TAI = 1_000;
-    private static final int RATIO_BONG_TAI = 50;   
-    private static final int ITEM_ID_BONG_TAI_C2 = 921;   
+    private static final int RATIO_BONG_TAI = 30;
+
+    private static final int ITEM_ID_BONG_TAI_C2 = 921;
     private static final int ITEM_ID_BONG_TAI_C3 = 1819;
-    private static final int ITEM_ID_MANH_VO_BT3 = 1820;
+    private static final int ITEM_ID_MANH_VO_BT3 = 933;
+
     private static final int ITEM_OPTION_ID_CAP = 72;
     private static final int ITEM_OPTION_VALUE_CAP_3 = 3;
-    private static final int ITEM_PARAM_INDEX = 31;
-    private static final int REQUIRED_MANH_VO_FULL = 20_000;
-    private static final int REQUIRED_MANH_VO_FAIL = 200;
+    private static final int REQUIRED_MANH_VO_FULL = 19999;
+    private static final int REQUIRED_MANH_VO_FAIL = 199;
 
     public static void showInfoCombine(Player player) {
         if (player.combineNew.itemsCombine.size() == 2) {
@@ -33,10 +34,12 @@ public class NangCapBongTai3 {
             Item manhVo = null;
 
             for (Item item : player.combineNew.itemsCombine) {
-                if (item.template.id == ITEM_ID_BONG_TAI_C2) {
-                    bongTai = item;
-                } else if (item.template.id == ITEM_ID_MANH_VO_BT3) {
-                    manhVo = item;
+                if (item != null && item.isNotNullItem()) {
+                    if (item.template.id == ITEM_ID_BONG_TAI_C2) {
+                        bongTai = item;
+                    } else if (item.template.id == ITEM_ID_MANH_VO_BT3) {
+                        manhVo = item;
+                    }
                 }
             }
 
@@ -48,7 +51,11 @@ public class NangCapBongTai3 {
                 String npcSay = "|2|Bông tai Porata [+3]\n\n";
                 npcSay += "|2|Tỉ lệ thành công: " + RATIO_BONG_TAI + "%\n";
 
-                int currentMvp = InventoryService.gI().getParam(player, ITEM_PARAM_INDEX, ITEM_ID_MANH_VO_BT3);
+                int currentMvp = manhVo.quantity;
+                Item bagMvp = InventoryService.gI().findItemBag(player, ITEM_ID_MANH_VO_BT3);
+                if (bagMvp != null) {
+                    currentMvp = Math.max(currentMvp, bagMvp.quantity);
+                }
 
                 if (currentMvp < REQUIRED_MANH_VO_FULL) {
                     npcSay += "|7|Cần " + REQUIRED_MANH_VO_FULL + " " + manhVo.template.name + "\n";
@@ -110,10 +117,12 @@ public class NangCapBongTai3 {
             Item bongTai = null;
             Item manhVo = null;
             for (Item item : player.combineNew.itemsCombine) {
-                if (item.template.id == ITEM_ID_BONG_TAI_C2) {
-                    bongTai = item;
-                } else if (item.template.id == ITEM_ID_MANH_VO_BT3) {
-                    manhVo = item;
+                if (item != null && item.isNotNullItem()) {
+                    if (item.template.id == ITEM_ID_BONG_TAI_C2) {
+                        bongTai = item;
+                    } else if (item.template.id == ITEM_ID_MANH_VO_BT3) {
+                        manhVo = item;
+                    }
                 }
             }
 
@@ -124,22 +133,18 @@ public class NangCapBongTai3 {
                     return;
                 }
 
-                // Trừ tiền/ngọc trước khi quay
                 player.inventory.gold -= gold;
                 player.inventory.gem -= gem;
 
                 if (Util.isTrue(RATIO_BONG_TAI, 100)) {
-                    // Thành công: nâng template + set option cấp 3
                     bongTai.template = ItemService.gI().getTemplate(ITEM_ID_BONG_TAI_C3);
                     bongTai.itemOptions.clear();
-                    bongTai.itemOptions.add(new Item.ItemOption(ITEM_OPTION_ID_CAP, ITEM_OPTION_VALUE_CAP_3));
+                    bongTai.itemOptions.add(new ItemOption(ITEM_OPTION_ID_CAP, ITEM_OPTION_VALUE_CAP_3));
 
-                    // Trừ đủ mảnh vỡ yêu cầu
-                    InventoryService.gI().subParamItemsBag(player, ITEM_ID_MANH_VO_BT3, ITEM_PARAM_INDEX, REQUIRED_MANH_VO_FULL);
+                    InventoryService.gI().subQuantityItemsBag(player, manhVo, REQUIRED_MANH_VO_FULL);
                     CombineService.gI().sendEffectSuccessCombine(player);
                 } else {
-                    // Thất bại: chỉ trừ mảnh vỡ theo mức fail
-                    InventoryService.gI().subParamItemsBag(player, ITEM_ID_MANH_VO_BT3, ITEM_PARAM_INDEX, REQUIRED_MANH_VO_FAIL);
+                    InventoryService.gI().subQuantityItemsBag(player, manhVo, REQUIRED_MANH_VO_FAIL);
                     CombineService.gI().sendEffectFailCombine(player);
                 }
 

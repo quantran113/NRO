@@ -15,7 +15,6 @@ public class NangChiSoBongTai3 {
     // Chi phí & tỉ lệ
     private static final int GEM_NANG_BT = 1_000;
     private static final int RATIO_NANG_CAP = 30;
-    private static final int ITEM_PARAM_INDEX = 31;
     private static final int BONG_TAI_C3_ID = 1819;
     private static final int HON_BONG_TAI_ID = 934;
     private static final int DA_XANH_LAM_ID = 935;
@@ -41,7 +40,11 @@ public class NangChiSoBongTai3 {
                 player.combineNew.gemCombine = GEM_NANG_BT;
                 player.combineNew.ratioCombine = RATIO_NANG_CAP;
 
-                int currentHon = InventoryService.gI().getParam(player, ITEM_PARAM_INDEX, HON_BONG_TAI_ID);
+                int currentHon = honBongTai.quantity;
+                Item bagHon = InventoryService.gI().findItemBag(player, HON_BONG_TAI_ID);
+                if (bagHon != null) {
+                    currentHon = Math.max(currentHon, bagHon.quantity);
+                }
 
                 String npcSay = "|2|Mở chỉ số Bông tai Porata [+3]\n\n";
                 npcSay += "|2|Tỉ lệ thành công: " + player.combineNew.ratioCombine + "%\n";
@@ -97,10 +100,28 @@ public class NangChiSoBongTai3 {
             );
         }
     }
+
     public static void nangChiSoBongTai(Player player) {
         try {
-            int currentHon = InventoryService.gI().getParam(player, ITEM_PARAM_INDEX, HON_BONG_TAI_ID);
-            Item daXanhLam = InventoryService.gI().findItemBag(player, DA_XANH_LAM_ID);
+            Item honBongTai = player.combineNew.itemsCombine.stream()
+                    .filter(it -> it != null && it.isNotNullItem() && it.template != null && it.template.id == HON_BONG_TAI_ID)
+                    .findFirst()
+                    .orElse(null);
+
+            Item daXanhLam = player.combineNew.itemsCombine.stream()
+                    .filter(it -> it != null && it.isNotNullItem() && it.template != null && it.template.id == DA_XANH_LAM_ID)
+                    .findFirst()
+                    .orElse(null);
+
+            if (daXanhLam == null) {
+                daXanhLam = InventoryService.gI().findItemBag(player, DA_XANH_LAM_ID);
+            }
+
+            int currentHon = honBongTai != null ? honBongTai.quantity : 0;
+            Item bagHon = InventoryService.gI().findItemBag(player, HON_BONG_TAI_ID);
+            if (bagHon != null) {
+                currentHon = Math.max(currentHon, bagHon.quantity);
+            }
 
             if (currentHon < REQUIRED_HON_BONG_TAI || daXanhLam == null || daXanhLam.quantity < 1) {
                 Service.gI().sendThongBao(player, "Không đủ vật phẩm để thực hiện.");
@@ -136,8 +157,15 @@ public class NangChiSoBongTai3 {
             } else {
                 CombineService.gI().sendEffectFailCombine(player);
             }
-            InventoryService.gI().subParamItemsBag(player, HON_BONG_TAI_ID, ITEM_PARAM_INDEX, REQUIRED_HON_BONG_TAI);
-            InventoryService.gI().subQuantityItemsBag(player, daXanhLam, 1);
+
+            if (honBongTai != null) {
+                InventoryService.gI().subQuantityItemsBag(player, honBongTai, REQUIRED_HON_BONG_TAI);
+            } else if (bagHon != null) {
+                InventoryService.gI().subQuantityItemsBag(player, bagHon, REQUIRED_HON_BONG_TAI);
+            }
+            if (daXanhLam != null) {
+                InventoryService.gI().subQuantityItemsBag(player, daXanhLam, 1);
+            }
 
             Service.gI().sendMoney(player);
             InventoryService.gI().sendItemBags(player);

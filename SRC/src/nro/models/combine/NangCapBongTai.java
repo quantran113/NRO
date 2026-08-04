@@ -11,20 +11,20 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Minh Du
+ * @author MinhDu
  */
 public class NangCapBongTai {
 
-    // Constants
     private static final int GOLD_BONG_TAI = 200_000_000;
     private static final int GEM_BONG_TAI = 1_000;
     private static final int RATIO_BONG_TAI = 50;
+
     private static final int ITEM_ID_BONG_TAI_C1 = 454;
     private static final int ITEM_ID_BONG_TAI_C2 = 921;
     private static final int ITEM_ID_MANH_VO_BT = 933;
+
     private static final int ITEM_OPTION_ID_CAP = 72;
     private static final int ITEM_OPTION_VALUE_CAP_2 = 2;
-    private static final int ITEM_PARAM_INDEX = 31;
     private static final int REQUIRED_MANH_VO_FULL = 9999;
     private static final int REQUIRED_MANH_VO_FAIL = 99;
 
@@ -34,10 +34,12 @@ public class NangCapBongTai {
             Item manhVo = null;
 
             for (Item item : player.combineNew.itemsCombine) {
-                if (item.template.id == ITEM_ID_BONG_TAI_C1) {
-                    bongTai = item;
-                } else if (item.template.id == ITEM_ID_MANH_VO_BT) {
-                    manhVo = item;
+                if (item != null && item.isNotNullItem()) {
+                    if (item.template.id == ITEM_ID_BONG_TAI_C1) {
+                        bongTai = item;
+                    } else if (item.template.id == ITEM_ID_MANH_VO_BT) {
+                        manhVo = item;
+                    }
                 }
             }
 
@@ -49,7 +51,11 @@ public class NangCapBongTai {
                 String npcSay = "|2|Bông tai Porata [+2]" + "\n\n";
                 npcSay += "|2|Tỉ lệ thành công: " + RATIO_BONG_TAI + "%\n";
 
-                int currentMvp = InventoryService.gI().getParam(player, ITEM_PARAM_INDEX, ITEM_ID_MANH_VO_BT);
+                int currentMvp = manhVo.quantity;
+                Item bagMvp = InventoryService.gI().findItemBag(player, ITEM_ID_MANH_VO_BT);
+                if (bagMvp != null) {
+                    currentMvp = Math.max(currentMvp, bagMvp.quantity);
+                }
 
                 if (currentMvp < REQUIRED_MANH_VO_FULL) {
                     npcSay += "|7|Cần " + REQUIRED_MANH_VO_FULL + " " + manhVo.template.name + "\n";
@@ -111,10 +117,12 @@ public class NangCapBongTai {
             Item bongTai = null;
             Item manhVo = null;
             for (Item item : player.combineNew.itemsCombine) {
-                if (item.template.id == ITEM_ID_BONG_TAI_C1) {
-                    bongTai = item;
-                } else if (item.template.id == ITEM_ID_MANH_VO_BT) {
-                    manhVo = item;
+                if (item != null && item.isNotNullItem()) {
+                    if (item.template.id == ITEM_ID_BONG_TAI_C1) {
+                        bongTai = item;
+                    } else if (item.template.id == ITEM_ID_MANH_VO_BT) {
+                        manhVo = item;
+                    }
                 }
             }
 
@@ -132,10 +140,10 @@ public class NangCapBongTai {
                     bongTai.template = ItemService.gI().getTemplate(ITEM_ID_BONG_TAI_C2);
                     bongTai.itemOptions.clear();
                     bongTai.itemOptions.add(new ItemOption(ITEM_OPTION_ID_CAP, ITEM_OPTION_VALUE_CAP_2));
-                    InventoryService.gI().subParamItemsBag(player, ITEM_ID_MANH_VO_BT, ITEM_PARAM_INDEX, REQUIRED_MANH_VO_FULL);
+                    InventoryService.gI().subQuantityItemsBag(player, manhVo, REQUIRED_MANH_VO_FULL);
                     CombineService.gI().sendEffectSuccessCombine(player);
                 } else {
-                    InventoryService.gI().subParamItemsBag(player, ITEM_ID_MANH_VO_BT, ITEM_PARAM_INDEX, REQUIRED_MANH_VO_FAIL);
+                    InventoryService.gI().subQuantityItemsBag(player, manhVo, REQUIRED_MANH_VO_FAIL);
                     CombineService.gI().sendEffectFailCombine(player);
                 }
 
