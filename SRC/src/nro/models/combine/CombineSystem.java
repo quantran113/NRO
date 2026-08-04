@@ -227,6 +227,9 @@ public class CombineSystem {
 
     public static boolean isCoupleItemNangCapCheck(Item trangBi, Item daNangCap) {
         if (trangBi != null && daNangCap != null) {
+            if (daNangCap.isDaNangCap1()) {
+                return trangBi.template.type >= 0 && trangBi.template.type <= 4;
+            }
             if (trangBi.template.type == 0 && daNangCap.template.id == 223) {
                 return true;
             } else if (trangBi.template.type == 1 && daNangCap.template.id == 222) {

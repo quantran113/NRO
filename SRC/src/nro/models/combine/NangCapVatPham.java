@@ -26,7 +26,7 @@ public class NangCapVatPham {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đồ nâng cấp", "Đóng");
                 return;
             }
-            if (player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && item.template.type == 14)
+            if (player.combineNew.itemsCombine.stream().filter(item -> item.isNotNullItem() && (item.template.type == 14 || item.isDaNangCap1()))
                     .count() < 1) {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Thiếu đá nâng cấp", "Đóng");
                 return;

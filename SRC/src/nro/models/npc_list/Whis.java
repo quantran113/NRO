@@ -36,8 +36,8 @@ public class Whis extends Npc {
         switch (this.mapId) {
             case 154 ->
                 createOtherMenu(player, ConstNpc.BASE_MENU,
-                        "Thử đánh với ta xem nào.\nNgươi còn 1 lượt nữa cơ mà.",
-                        "Nói chuyện", "Học\ntuyệt kỹ", "Top 100", "[LV:" + (player.traning.getTop() + 1) + "]");
+                        "Ta có thể giúp gì cho ngươi?",
+                        "Chế tạo\nThiên Sứ", "Shop\nThiên Sứ", "Học\ntuyệt kỹ", "Top 100", "[LV:" + (player.traning.getTop() + 1) + "]");
             case 164 ->
                 createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Ta có thể giúp gì cho ngươi?", "Quay về", "Từ chối");
@@ -75,18 +75,21 @@ public class Whis extends Npc {
         switch (select) {
             case 0 -> {
                 if (this.mapId == 154) {
-                    createOtherMenu(player, 5,
-                            "Ta sẽ giúp ngươi chế tạo trang bị thiên sứ",
-                            "Shop thiên sứ", "Chế tạo", "Từ chối");
+                    CombineService.gI().openTabCombine(player, CombineService.CHE_TAO_TRANG_BI_THIEN_SU);
                 } else if (this.mapId == 164) {
                     ChangeMapService.gI().changeMapInYard(player, 154, -1, 758);
                 }
             }
+            case 1 -> {
+                if (this.mapId == 154) {
+                    ShopService.gI().opendShop(player, "THIEN_SU", false);
+                }
+            }
             case 2 ->
-                Service.gI().showListTop(player, Manager.Topwhis);
-            case 1 ->
                 showSkillLearningMenu(player, biKiepTuyetKy);
             case 3 ->
+                Service.gI().showListTop(player, Manager.Topwhis);
+            case 4 ->
                 TrainingService.gI().callBoss(player, BossID.WHIS, false);
         }
     }
@@ -96,12 +99,7 @@ public class Whis extends Npc {
             case 0 ->
                 ShopService.gI().opendShop(player, "THIEN_SU", false);
             case 1 -> {
-                if (!player.setClothes.checkSetDes()) {
-                    createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                            "Ngươi hãy trang bị đủ 5 món trang bị Hủy Diệt rồi ta nói chuyện tiếp.", "OK");
-                } else {
-                    CombineService.gI().openTabCombine(player, CombineService.CHE_TAO_TRANG_BI_THIEN_SU);
-                }
+                CombineService.gI().openTabCombine(player, CombineService.CHE_TAO_TRANG_BI_THIEN_SU);
             }
         }
     }
