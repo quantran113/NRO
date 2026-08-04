@@ -553,11 +553,12 @@
                 <form id="form-grant-set-skh" onsubmit="executeGrantSetSkh(event)" style="margin-top: 20px;">
                     <!-- Player input -->
                     <div class="form-group" style="position: relative;">
-                        <label style="font-weight: 800; color: #6b21a8;"><i class="fa-solid fa-user-tag"></i> Tên Nhân Vật Nhận Set Kích Hoạt</label>
+                        <label style="font-weight: 800; color: #6b21a8;"><i class="fa-solid fa-user-tag"></i> Nhập / Chọn Tên Nhân Vật Nhận Set Kích Hoạt</label>
                         <div style="display: flex; gap: 8px;">
-                            <input type="text" id="target-player-skh" class="input-field" placeholder="🔍 Nhập tên nhân vật (ví dụ: admin)..." required style="border-color: #c084fc; font-weight: 800;">
-                            <button type="button" class="btn-secondary" style="white-space: nowrap; font-weight: 700;" onclick="fillTargetPlayerSkhFromSearch()">Dùng tên từ ô tìm kiếm</button>
+                            <input type="text" id="target-player-skh" class="input-field" placeholder="🔍 Nhập hoặc chọn tên nhân vật (ví dụ: admin)..." required style="border-color: #c084fc; font-weight: 800;" autocomplete="off" oninput="handlePlayerSearchInput('skh')" onfocus="showPlayerSuggestions('skh')">
+                            <span id="player-status-badge-skh" class="badge-offline" style="align-self: center; white-space: nowrap;">Chưa chọn</span>
                         </div>
+                        <div id="player-suggestions-skh" class="suggestions-dropdown" style="display: none;"></div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px;">

@@ -1577,12 +1577,17 @@ async function executeGrantPet(e) {
 }
 
 // --- PLAYER AUTO-SUGGEST & STATUS FOR ITEM GRANT ---
-function handlePlayerSearchInput() {
-    const input = document.getElementById('target-player');
-    const val = input.value.trim().toLowerCase();
-    const dropdown = document.getElementById('player-suggestions');
+function handlePlayerSearchInput(type) {
+    const inputId = type === 'skh' ? 'target-player-skh' : 'target-player';
+    const dropdownId = type === 'skh' ? 'player-suggestions-skh' : 'player-suggestions';
 
-    checkTargetPlayerStatus();
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const val = input.value.trim().toLowerCase();
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+
+    checkTargetPlayerStatus(type);
 
     if (!val) {
         dropdown.style.display = 'none';
@@ -1604,40 +1609,47 @@ function handlePlayerSearchInput() {
             <span><i class="fa-solid fa-user"></i> <strong>${escapeHtml(p.name)}</strong> (ID #${p.id})</span>
             ${badge}
         `;
-        item.onclick = () => selectPlayerSuggestion(p.name);
+        item.onclick = () => selectPlayerSuggestion(p.name, type);
         dropdown.appendChild(item);
     });
 
     dropdown.style.display = 'block';
 }
 
-function showPlayerSuggestions() {
+function showPlayerSuggestions(type) {
     if (playersList.length > 0) {
-        handlePlayerSearchInput();
+        handlePlayerSearchInput(type);
     }
 }
 
-function selectPlayerSuggestion(name) {
-    document.getElementById('target-player').value = name;
-    document.getElementById('player-suggestions').style.display = 'none';
-    checkTargetPlayerStatus();
+function selectPlayerSuggestion(name, type) {
+    const inputId = type === 'skh' ? 'target-player-skh' : 'target-player';
+    const dropdownId = type === 'skh' ? 'player-suggestions-skh' : 'player-suggestions';
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    if (input) input.value = name;
+    if (dropdown) dropdown.style.display = 'none';
+    checkTargetPlayerStatus(type);
 }
 
 function setupOutsideClickListener() {
     document.addEventListener('click', (e) => {
         const dropdown1 = document.getElementById('player-suggestions');
+        const dropdownSkh = document.getElementById('player-suggestions-skh');
         const dropdown2 = document.getElementById('pet-player-suggestions');
         const dropdownMap = document.getElementById('map-suggestions');
         const dropdownItem = document.getElementById('rule-item-suggestions');
         const dropdownShopItem = document.getElementById('shop-item-suggestions');
 
         const input1 = document.getElementById('target-player');
+        const inputSkh = document.getElementById('target-player-skh');
         const input2 = document.getElementById('target-player-pet');
         const inputMap = document.getElementById('rule-map-search');
         const inputItem = document.getElementById('rule-item-search');
         const inputShopItem = document.getElementById('shop-item-search');
 
         if (dropdown1 && !dropdown1.contains(e.target) && e.target !== input1) dropdown1.style.display = 'none';
+        if (dropdownSkh && !dropdownSkh.contains(e.target) && e.target !== inputSkh) dropdownSkh.style.display = 'none';
         if (dropdown2 && !dropdown2.contains(e.target) && e.target !== input2) dropdown2.style.display = 'none';
         if (dropdownMap && !dropdownMap.contains(e.target) && e.target !== inputMap) dropdownMap.style.display = 'none';
         if (dropdownItem && !dropdownItem.contains(e.target) && e.target !== inputItem) dropdownItem.style.display = 'none';
@@ -1645,9 +1657,14 @@ function setupOutsideClickListener() {
     });
 }
 
-function checkTargetPlayerStatus() {
-    const name = document.getElementById('target-player').value.trim();
-    const badge = document.getElementById('player-status-badge');
+function checkTargetPlayerStatus(type) {
+    const inputId = type === 'skh' ? 'target-player-skh' : 'target-player';
+    const badgeId = type === 'skh' ? 'player-status-badge-skh' : 'player-status-badge';
+    const input = document.getElementById(inputId);
+    const badge = document.getElementById(badgeId);
+    if (!input || !badge) return;
+
+    const name = input.value.trim();
 
     if (!name) {
         badge.className = 'badge-offline';
@@ -1671,10 +1688,15 @@ function checkTargetPlayerStatus() {
 }
 
 function quickSelectPlayer(name) {
-    document.getElementById('target-player').value = name;
-    document.getElementById('target-player-pet').value = name;
+    const inputMain = document.getElementById('target-player');
+    const inputPet = document.getElementById('target-player-pet');
+    const inputSkh = document.getElementById('target-player-skh');
+    if (inputMain) inputMain.value = name;
+    if (inputPet) inputPet.value = name;
+    if (inputSkh) inputSkh.value = name;
     switchTab('grant');
     checkTargetPlayerStatus();
+    checkTargetPlayerStatus('skh');
     checkPetPlayerStatus();
 }
 
