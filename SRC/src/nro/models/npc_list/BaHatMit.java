@@ -41,45 +41,28 @@ public class BaHatMit extends Npc {
         if (canOpenNpc(player)) {
             switch (this.mapId) {
                 case 5 -> {
-                    boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player)
-                            || InventoryService.gI().findItem(player, 921);
-                    boolean hasBt3 = InventoryService.gI().findItem(player, 1819);
-
-                    String textBt2 = hasBt2 ? "Mở chỉ số\nBông tai\nPorata cấp 2" : "Nâng cấp\nBông tai\nPorata";
-                    String textBt3 = hasBt3 ? "Mở chỉ số\nBông tai\nPorata cấp 3" : "Nâng cấp\nBông tai\nPorata cấp 3";
-
                     this.createOtherMenu(player, ConstNpc.BASE_MENU,
                             "Ngươi tìm ta có việc gì?",
+                            "Bông tai\nPorata",
+                            "Nâng cấp\nVật phẩm",
                             "Chức năng\npha lê",
                             "Chuyển hóa\nTrang bị",
-                            "Nâng cấp\nVật phẩm",
-                            textBt2,
-                            textBt3,
                             "Võ đài\nSinh tử",
-                            "Phân rã\nTrang bị\nKích hoạt",
-                            "Tái tạo\nCapsule\nKích hoạt");
+                            "Phân rã / Tái tạo\nCapsule");
                 }
                 case 174, 181 ->
                     this.createOtherMenu(player, ConstNpc.BASE_MENU,
                             "Ngươi tìm ta có việc gì?",
                             "Quay về", "Từ chối");
                 default -> {
-                    boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player)
-                            || InventoryService.gI().findItem(player, 921);
-                    boolean hasBt3 = InventoryService.gI().findItem(player, 1819);
-
-                    String textBt2 = hasBt2 ? "Mở chỉ số\nBông tai\nPorata cấp 2" : "Nâng cấp\nBông tai\nPorata";
-                    String textBt3 = hasBt3 ? "Mở chỉ số\nBông tai\nPorata cấp 3" : "Nâng cấp\nBông tai\nPorata cấp 3";
-
                     List<String> menu = new ArrayList<>();
                     if (DailyGiftService.checkDailyGift(player, ConstDailyGift.NHAN_BUA_MIEN_PHI)) {
                         menu.add("Thưởng\nBùa 1h\nngẫu nhiên");
                     }
+                    menu.add("Bông tai\nPorata");
+                    menu.add("Nâng cấp\nVật phẩm");
                     menu.add("Sách\nTuyệt Kỹ");
                     menu.add("Cửa hàng\nBùa");
-                    menu.add("Nâng cấp\nVật phẩm");
-                    menu.add(textBt2);
-                    menu.add(textBt3);
                     menu.add("Làm phép\nNhập đá");
                     menu.add("Nhập\nNgọc Rồng");
 
@@ -97,7 +80,16 @@ public class BaHatMit extends Npc {
                 case 5 -> {
                     if (player.idMark.isBaseMenu()) {
                         switch (select) {
-                            case 0 ->
+                            case 0 -> // Submenu Bông Tai Porata
+                                createOtherMenu(player, ConstNpc.MENU_BONG_TAI_PORATA,
+                                        "Ta có thể giúp gì cho ngươi về Bông Tai Porata?",
+                                        "Nâng cấp\nBông tai Cấp 2",
+                                        "Mở chỉ số\nBông tai Cấp 2",
+                                        "Nâng cấp\nBông tai Cấp 3",
+                                        "Mở chỉ số\nBông tai Cấp 3");
+                            case 1 -> // Nâng cấp Vật phẩm (+1..+8)
+                                CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_VAT_PHAM);
+                            case 2 -> // Chức năng pha lê
                                 createOtherMenu(player, 3,
                                         "Ta có thể giúp gì cho ngươi ?",
                                         "Ép sao\ntrang bị",
@@ -106,41 +98,22 @@ public class BaHatMit extends Npc {
                                         "Đánh bóng\nSao pha lê",
                                         "Cường hóa\nlỗ sao\npha lê",
                                         "Tạo đá\nHematite");
-                            case 1 ->
+                            case 3 -> // Chuyển hóa trang bị
                                 createOtherMenu(player, 4,
                                         "Ta có thể giúp gì cho ngươi ?",
                                         "Chuyển hóa\nVàng",
                                         "Chuyển hóa\nNgọc");
-                            case 2 ->
-                                CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_VAT_PHAM);
-                            case 3 -> {
-                                boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player)
-                                        || InventoryService.gI().findItem(player, 921);
-                                if (hasBt2) {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI);
-                                } else {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI);
-                                }
-                            }
-                            case 4 -> {
-                                boolean hasBt3 = InventoryService.gI().findItem(player, 1819);
-                                boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player)
-                                        || InventoryService.gI().findItem(player, 921);
-                                if (hasBt3) {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI3);
-                                } else if (hasBt2) {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI3);
-                                } else {
-                                    Service.gI().sendThongBao(player, "Cần có Bông tai Porata cấp 2 hoặc 3.");
-                                }
-                            }
-                            case 5 ->
-                                ChangeMapService.gI().changeMapNonSpaceship(player, 112, 200 + Util.nextInt(-100, 100),
-                                        408);
-                            case 6 ->
+                            case 4 -> // Võ đài sinh tử
+                                ChangeMapService.gI().changeMapNonSpaceship(player, 112, 200 + Util.nextInt(-100, 100), 408);
+                            case 5 -> // Phân rã / Tái tạo
                                 CombineService.gI().openTabCombine(player, CombineService.PHAN_RA_TRANG_BI_KH);
-                            case 7 ->
-                                CombineService.gI().openTabCombine(player, CombineService.TAI_TAO_CAPSULE_KH);
+                        }
+                    } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_BONG_TAI_PORATA) {
+                        switch (select) {
+                            case 0 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI);
+                            case 1 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI);
+                            case 2 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI3);
+                            case 3 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI3);
                         }
                     } else if (player.idMark.getIndexMenu() == 3) {
                         switch (select) {
@@ -195,7 +168,18 @@ public class BaHatMit extends Npc {
                                     Service.gI().sendThongBao(player, "Hôm nay bạn đã nhận bùa miễn phí rồi!!!");
                                 }
                             }
-                            case 1 -> {
+                            case 1 -> { // Submenu Bông Tai Porata
+                                createOtherMenu(player, ConstNpc.MENU_BONG_TAI_PORATA,
+                                        "Ta có thể giúp gì cho ngươi về Bông Tai Porata?",
+                                        "Nâng cấp\nBông tai Cấp 2",
+                                        "Mở chỉ số\nBông tai Cấp 2",
+                                        "Nâng cấp\nBông tai Cấp 3",
+                                        "Mở chỉ số\nBông tai Cấp 3");
+                            }
+                            case 2 -> { // Nâng cấp vật phẩm
+                                CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_VAT_PHAM);
+                            }
+                            case 3 -> { // Sách tuyệt kỹ
                                 createOtherMenu(player, ConstNpc.MENU_SACH_TUYET_KY, "Ta có thể giúp gì cho ngươi ?",
                                         "Đóng thành\nSách cũ",
                                         "Đổi Sách\nTuyệt kỹ",
@@ -205,7 +189,7 @@ public class BaHatMit extends Npc {
                                         "Hồi phục\nSách",
                                         "Phân rã\nSách");
                             }
-                            case 2 -> {
+                            case 4 -> { // Cửa hàng bùa
                                 createOtherMenu(player, ConstNpc.MENU_OPTION_SHOP_BUA,
                                         "Bùa của ta rất lợi hại, nhìn ngươi yếu đuối thế này, chắc muốn mua bùa để "
                                                 + "mạnh mẽ à, mua không ta bán cho, xài rồi lại thích cho mà xem.",
@@ -213,36 +197,19 @@ public class BaHatMit extends Npc {
                                         "Bùa\n8 giờ",
                                         "Bùa\n1 tháng", "Đóng");
                             }
-                            case 3 -> {
-                                CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_VAT_PHAM);
-                            }
-                            case 4 -> {
-                                boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player)
-                                        || InventoryService.gI().findItem(player, 921);
-                                if (hasBt2) {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI);
-                                } else {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI);
-                                }
-                            }
-                            case 5 -> {
-                                boolean hasBt3 = InventoryService.gI().findItem(player, 1819);
-                                boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player)
-                                        || InventoryService.gI().findItem(player, 921);
-                                if (hasBt3) {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI3);
-                                } else if (hasBt2) {
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI3);
-                                } else {
-                                    Service.gI().sendThongBao(player, "Cần có Bông tai Porata cấp 2 hoặc 3.");
-                                }
-                            }
-                            case 6 -> {
+                            case 5 -> { // Làm phép Nhập đá
                                 CombineService.gI().openTabCombine(player, CombineService.LAM_PHEP_NHAP_DA);
                             }
-                            case 7 -> {
+                            case 6 -> { // Nhập Ngọc Rồng
                                 CombineService.gI().openTabCombine(player, CombineService.NHAP_NGOC_RONG);
                             }
+                        }
+                    } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_BONG_TAI_PORATA) {
+                        switch (select) {
+                            case 0 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI);
+                            case 1 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI);
+                            case 2 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CAP_BONG_TAI3);
+                            case 3 -> CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI3);
                         }
                     } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_SACH_TUYET_KY) {
                         switch (select) {
