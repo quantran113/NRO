@@ -73,6 +73,8 @@ public class AdminHttpServer {
             server.createContext("/api/bosses/spawn", new SpawnBossHandler());
             server.createContext("/api/bosses/action", new BossActionHandler());
             server.createContext("/api/player-inventory", new PlayerInventoryHandler());
+            server.createContext("/api/badges-tasks", new BadgesTasksHandler());
+            server.createContext("/api/complete-badges-task", new CompleteBadgesTaskHandler());
 
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -2416,6 +2418,296 @@ public class AdminHttpServer {
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- GET / POST /api/badges-tasks ---
+    private static class BadgesTasksHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                String playerName = "";
+                if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    String query = exchange.getRequestURI().getQuery();
+                    if (query != null) {
+                        for (String param : query.split("&")) {
+                            String[] pair = param.split("=");
+                            if (pair.length > 1 && "playerName".equalsIgnoreCase(pair[0])) {
+                                playerName = java.net.URLDecoder.decode(pair[1], StandardCharsets.UTF_8).trim();
+                            }
+                        }
+                    }
+                } else {
+                    InputStream is = exchange.getRequestBody();
+                    String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
+                    if (body != null && body.get("playerName") != null) {
+                        playerName = body.get("playerName").toString().trim();
+                    }
+                }
+
+                if (playerName.isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật\"}");
+                    return;
+                }
+
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName)) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                JSONArray tasksArray = new JSONArray();
+
+                if (player != null) {
+                    nro.models.task.BadgesTaskService.checkInitTask(player);
+                    if (player.dataTaskBadges != null) {
+                        for (nro.models.task.BadgesTask task : player.dataTaskBadges) {
+                            if (task != null) {
+                                JSONObject obj = new JSONObject();
+                                obj.put("id", task.id);
+                                String name = nro.models.consts.ConstTaskBadges.getNameById(task.id);
+                                if (Manager.TASKS_BADGES_TEMPLATE != null) {
+                                    for (nro.models.task.BadgesTaskTemplate btt : Manager.TASKS_BADGES_TEMPLATE) {
+                                        if (btt != null && btt.id == task.id && btt.name != null && !btt.name.isEmpty()) {
+                                            name = btt.name;
+                                            break;
+                                        }
+                                    }
+                                }
+                                obj.put("name", name);
+                                obj.put("count", task.count);
+                                obj.put("countMax", task.countMax);
+                                obj.put("idBadgesReward", task.idBadgesReward);
+                                obj.put("percent", task.getPercentProcess());
+                                obj.put("isDone", task.isDone());
+
+                                boolean hasBadge = false;
+                                if (player.dataBadges != null) {
+                                    for (nro.models.player_badges.BadgesData bg : player.dataBadges) {
+                                        if (bg != null && bg.idBadGes == task.idBadgesReward) {
+                                            hasBadge = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                obj.put("isRewardGiven", hasBadge);
+                                tasksArray.add(obj);
+                            }
+                        }
+                    }
+                } else {
+                    // Offline DB query
+                    try (Connection conn = LocalManager.getConnection();
+                         PreparedStatement ps = conn.prepareStatement("SELECT dataTaskBadges, dataBadges FROM player WHERE name = ?")) {
+                        ps.setString(1, playerName);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                String taskJson = rs.getString("dataTaskBadges");
+                                String badgeJson = rs.getString("dataBadges");
+
+                                JSONArray savedTasks = (taskJson != null && !taskJson.isEmpty()) ? (JSONArray) JSONValue.parse(taskJson) : new JSONArray();
+                                JSONArray savedBadges = (badgeJson != null && !badgeJson.isEmpty()) ? (JSONArray) JSONValue.parse(badgeJson) : new JSONArray();
+
+                                if (Manager.TASKS_BADGES_TEMPLATE != null) {
+                                    for (nro.models.task.BadgesTaskTemplate btt : Manager.TASKS_BADGES_TEMPLATE) {
+                                        if (btt == null) continue;
+                                        JSONObject obj = new JSONObject();
+                                        obj.put("id", btt.id);
+                                        obj.put("name", btt.name != null && !btt.name.isEmpty() ? btt.name : nro.models.consts.ConstTaskBadges.getNameById(btt.id));
+                                        
+                                        int count = 0;
+                                        int countMax = btt.count;
+                                        int idBadgesReward = btt.idbadgesReward;
+
+                                        if (savedTasks != null) {
+                                            for (Object item : savedTasks) {
+                                                JSONObject taskObj = (JSONObject) item;
+                                                if (taskObj != null && taskObj.get("id") != null && Integer.parseInt(taskObj.get("id").toString()) == btt.id) {
+                                                    count = Integer.parseInt(taskObj.get("count").toString());
+                                                    if (taskObj.get("countMax") != null) countMax = Integer.parseInt(taskObj.get("countMax").toString());
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        obj.put("count", count);
+                                        obj.put("countMax", countMax);
+                                        obj.put("idBadgesReward", idBadgesReward);
+                                        int percent = countMax > 0 ? (count >= countMax ? 100 : (int)((long)count * 100 / countMax)) : 0;
+                                        obj.put("percent", percent);
+                                        obj.put("isDone", count >= countMax);
+
+                                        boolean hasBadge = false;
+                                        if (savedBadges != null) {
+                                            for (Object item : savedBadges) {
+                                                JSONObject bObj = (JSONObject) item;
+                                                if (bObj != null && bObj.get("idBadGes") != null && Integer.parseInt(bObj.get("idBadGes").toString()) == idBadgesReward) {
+                                                    hasBadge = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        obj.put("isRewardGiven", hasBadge);
+                                        tasksArray.add(obj);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                JSONObject res = new JSONObject();
+                res.put("status", "success");
+                res.put("playerName", playerName);
+                res.put("isOnline", player != null);
+                res.put("data", tasksArray);
+                sendJsonResponse(exchange, 200, res.toJSONString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/complete-badges-task ---
+    private static class CompleteBadgesTaskHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStream is = exchange.getRequestBody();
+                String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
+
+                String playerName = body != null && body.get("playerName") != null
+                        ? body.get("playerName").toString().trim()
+                        : "";
+                int taskId = body != null && body.get("taskId") != null
+                        ? Integer.parseInt(body.get("taskId").toString())
+                        : -1;
+
+                if (playerName.isEmpty() || taskId < 0) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu thông tin tên nhân vật hoặc ID nhiệm vụ danh hiệu\"}");
+                    return;
+                }
+
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName)) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                String taskName = "ID #" + taskId;
+
+                if (player != null) {
+                    nro.models.task.BadgesTaskService.checkInitTask(player);
+                    if (player.dataTaskBadges != null) {
+                        for (nro.models.task.BadgesTask task : player.dataTaskBadges) {
+                            if (task != null && (task.id == taskId || task.idBadgesReward == taskId)) {
+                                task.count = task.countMax;
+                                taskName = nro.models.consts.ConstTaskBadges.getNameById(task.id);
+                                break;
+                            }
+                        }
+                    }
+                    nro.models.task.BadgesTaskService.updateDoneTask(player);
+                    nro.models.database.PlayerDAO.updatePlayer(player);
+                    Service.gI().sendThongBao(player, "Admin vừa duyệt hoàn thành Nhiệm Vụ Danh Hiệu: " + taskName);
+                } else {
+                    // Offline DB update
+                    try (Connection conn = LocalManager.getConnection();
+                         PreparedStatement ps = conn.prepareStatement("SELECT id, dataTaskBadges, dataBadges FROM player WHERE name = ?")) {
+                        ps.setString(1, playerName);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                int playerId = rs.getInt("id");
+                                String taskJson = rs.getString("dataTaskBadges");
+                                String badgeJson = rs.getString("dataBadges");
+
+                                JSONArray savedTasks = (taskJson != null && !taskJson.isEmpty()) ? (JSONArray) JSONValue.parse(taskJson) : new JSONArray();
+                                JSONArray savedBadges = (badgeJson != null && !badgeJson.isEmpty()) ? (JSONArray) JSONValue.parse(badgeJson) : new JSONArray();
+
+                                int rewardBadgeId = -1;
+                                boolean found = false;
+
+                                for (Object item : savedTasks) {
+                                    JSONObject tObj = (JSONObject) item;
+                                    if (tObj != null && tObj.get("id") != null && Integer.parseInt(tObj.get("id").toString()) == taskId) {
+                                        int countMax = Integer.parseInt(tObj.get("countMax").toString());
+                                        tObj.put("count", countMax);
+                                        rewardBadgeId = Integer.parseInt(tObj.get("idBadgesReward").toString());
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found && Manager.TASKS_BADGES_TEMPLATE != null) {
+                                    for (nro.models.task.BadgesTaskTemplate btt : Manager.TASKS_BADGES_TEMPLATE) {
+                                        if (btt != null && btt.id == taskId) {
+                                            JSONObject newObj = new JSONObject();
+                                            newObj.put("id", btt.id);
+                                            newObj.put("count", btt.count);
+                                            newObj.put("countMax", btt.count);
+                                            newObj.put("idBadgesReward", btt.idbadgesReward);
+                                            savedTasks.add(newObj);
+                                            rewardBadgeId = btt.idbadgesReward;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (rewardBadgeId > 0) {
+                                    boolean hasBadge = false;
+                                    for (Object item : savedBadges) {
+                                        JSONObject bObj = (JSONObject) item;
+                                        if (bObj != null && bObj.get("idBadGes") != null && Integer.parseInt(bObj.get("idBadGes").toString()) == rewardBadgeId) {
+                                            hasBadge = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!hasBadge) {
+                                        JSONObject newBadge = new JSONObject();
+                                        newBadge.put("idBadGes", rewardBadgeId);
+                                        newBadge.put("timeofUseBadges", System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000);
+                                        newBadge.put("isUse", false);
+                                        savedBadges.add(newBadge);
+                                    }
+                                }
+
+                                try (PreparedStatement updatePs = conn.prepareStatement("UPDATE player SET dataTaskBadges = ?, dataBadges = ? WHERE id = ?")) {
+                                    updatePs.setString(1, JSONValue.toJSONString(savedTasks));
+                                    updatePs.setString(2, JSONValue.toJSONString(savedBadges));
+                                    updatePs.setInt(3, playerId);
+                                    updatePs.executeUpdate();
+                                }
+                            } else {
+                                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật\"}");
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                JSONObject res = new JSONObject();
+                res.put("status", "success");
+                res.put("message", "Đã hoàn thành Nhiệm Vụ Danh Hiệu thành công cho nhân vật [" + playerName + "]!");
+                sendJsonResponse(exchange, 200, res.toJSONString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
             }
         }
     }

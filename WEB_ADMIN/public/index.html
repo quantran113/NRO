@@ -1560,6 +1560,44 @@
         </div>
     </div>
 
+    <!-- MODAL: NHIỆM VỤ DANH HIỆU -->
+    <div id="modal-badges-task" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass" style="max-width: 850px; width: 95vw;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-trophy" style="color: #8b5cf6;"></i> TIẾN ĐỘ NHIỆM VỤ DANH HIỆU - <span id="badges-modal-player-name" style="color: var(--gold);">N/A</span></h3>
+                <button type="button" class="modal-close-btn" onclick="closeModal('modal-badges-task')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding-top: 10px;">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; background: #f3e8ff; border: 1px solid #d8b4fe; padding: 10px 14px; border-radius: 10px; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 13px; font-weight: 700; color: #6b21a8;">
+                        <i class="fa-solid fa-circle-info"></i> Bạn có thể xem % tiến độ và bấm <strong>Hoàn Thành Ngay</strong> để hoàn tất nhiệm vụ danh hiệu cho nhân vật.
+                    </div>
+                    <span id="badges-status-badge" class="badge-online">ONLINE</span>
+                </div>
+
+                <div style="max-height: 55vh; overflow-y: auto;">
+                    <table class="table-custom" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #faf5ff; border-bottom: 2px solid #e9d5ff;">
+                                <th style="padding: 10px; text-align: center; width: 50px;">ID</th>
+                                <th style="padding: 10px; text-align: left;">Tên Nhiệm Vụ Danh Hiệu</th>
+                                <th style="padding: 10px; text-align: center; width: 220px;">Tiến Độ (%)</th>
+                                <th style="padding: 10px; text-align: center; width: 140px;">Trạng Thái</th>
+                                <th style="padding: 10px; text-align: center; width: 130px;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="badges-task-table-body">
+                            <!-- Rendered dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-badges-task')">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CUSTOM MODAL: CONFIRM ACTION -->
     <div id="modal-confirm-action" class="modal-overlay" style="display: none;">
         <div class="modal-card glass" style="max-width: 400px;">

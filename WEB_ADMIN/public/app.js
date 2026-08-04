@@ -2202,6 +2202,9 @@ function renderPlayerTable() {
                     <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: var(--teamobi-orange-bg); color: var(--teamobi-orange-dark); font-weight: 700; border: 1px solid var(--teamobi-orange-border); white-space: nowrap;" onclick="nextPlayerTask('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-forward-step"></i> Qua NV
                     </button>
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; font-weight: 800; border: 1px solid #a78bfa; white-space: nowrap;" onclick="openBadgesTaskModal('${escapeHtml(p.name)}')">
+                        <i class="fa-solid fa-trophy"></i> 🏆 NV Danh Hiệu
+                    </button>
                 </div>
             </td>
         `;
@@ -3317,4 +3320,106 @@ function renderInvItemsGrid() {
         `;
         container.appendChild(card);
     });
+}
+
+// Badges Task Modal Functions
+let currentBadgesPlayerName = '';
+
+async function openBadgesTaskModal(playerName) {
+    currentBadgesPlayerName = playerName;
+    const nameEl = document.getElementById('badges-modal-player-name');
+    const tbody = document.getElementById('badges-task-table-body');
+    const statusBadge = document.getElementById('badges-status-badge');
+
+    if (nameEl) nameEl.textContent = playerName;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 25px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh sách nhiệm vụ danh hiệu...</td></tr>`;
+
+    const modal = document.getElementById('modal-badges-task');
+    if (modal) modal.style.display = 'flex';
+
+    try {
+        const resp = await fetch(`/api/badges-tasks?playerName=${encodeURIComponent(playerName)}`);
+        if (!resp.ok) {
+            const errData = await resp.json();
+            throw new Error(errData.message || 'Lỗi lấy dữ liệu');
+        }
+
+        const data = await resp.json();
+        if (data.status !== 'success') {
+            throw new Error(data.message || 'Lỗi server');
+        }
+
+        if (statusBadge) {
+            statusBadge.className = data.isOnline ? 'badge-online' : 'badge-offline';
+            statusBadge.textContent = data.isOnline ? 'ONLINE' : 'OFFLINE';
+        }
+
+        renderBadgesTaskTable(data.data || []);
+    } catch (err) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 25px; color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(err.message)}</td></tr>`;
+    }
+}
+
+function renderBadgesTaskTable(tasks) {
+    const tbody = document.getElementById('badges-task-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!tasks || tasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 25px; color: var(--text-muted);">Không có nhiệm vụ danh hiệu nào.</td></tr>`;
+        return;
+    }
+
+    tasks.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #f3e8ff';
+
+        const percent = Math.min(100, Math.max(0, parseInt(t.percent) || 0));
+        const isDone = t.isDone || percent >= 100;
+
+        let statusHtml = isDone
+            ? `<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 11px;"><i class="fa-solid fa-circle-check"></i> Hoàn thành (${t.count}/${t.countMax})</span>`
+            : `<span style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;"><i class="fa-solid fa-hourglass-half"></i> Chưa xong (${t.count}/${t.countMax})</span>`;
+
+        let actionBtn = isDone
+            ? `<button class="btn-secondary" disabled style="padding: 5px 10px; font-size: 11px; opacity: 0.6; cursor: not-allowed;"><i class="fa-solid fa-check"></i> Đã xong</button>`
+            : `<button class="btn-primary" style="padding: 5px 10px; font-size: 11px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; font-weight: 800; white-space: nowrap;" onclick="completeBadgesTask('${escapeHtml(currentBadgesPlayerName)}', ${t.id})"><i class="fa-solid fa-bolt"></i> Hoàn Thành</button>`;
+
+        tr.innerHTML = `
+            <td style="padding: 10px; text-align: center; font-weight: 800; color: #8b5cf6;">#${t.id}</td>
+            <td style="padding: 10px; font-weight: 700; color: var(--text-main); font-size: 13px;">${escapeHtml(t.name)}</td>
+            <td style="padding: 10px; text-align: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="flex: 1; height: 10px; background: #e9d5ff; border-radius: 5px; overflow: hidden;">
+                        <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, #a855f7, #7c3aed); border-radius: 5px; transition: width 0.3s ease;"></div>
+                    </div>
+                    <span style="font-size: 12px; font-weight: 800; color: #6b21a8; min-width: 42px;">${percent}%</span>
+                </div>
+            </td>
+            <td style="padding: 10px; text-align: center;">${statusHtml}</td>
+            <td style="padding: 10px; text-align: center;">${actionBtn}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function completeBadgesTask(playerName, taskId) {
+    try {
+        const resp = await fetch('/api/complete-badges-task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerName: playerName, taskId: taskId })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok || data.status !== 'success') {
+            throw new Error(data.message || 'Không thể hoàn thành nhiệm vụ danh hiệu');
+        }
+
+        showToast(data.message || 'Đã hoàn thành nhiệm vụ danh hiệu thành công!', 'success');
+        openBadgesTaskModal(playerName);
+        if (typeof loadPlayers === 'function') loadPlayers();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
 }

@@ -601,6 +601,121 @@ app.post(['/api/next-task', '/api/admin/player/next-task'], async (req, res) => 
     }
 });
 
+// Get Badges Tasks Endpoint
+app.all(['/api/badges-tasks', '/api/admin/player/badges-tasks'], async (req, res) => {
+    try {
+        const playerName = (req.query.playerName || (req.body && req.body.playerName) || '').trim();
+        if (!playerName) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu tên nhân vật' });
+        }
+
+        try {
+            const resp = await fetch(`${JAVA_API_URL}/api/badges-tasks?playerName=${encodeURIComponent(playerName)}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                return res.json(data);
+            }
+        } catch (err) { }
+
+        // Fallback DB
+        const [players] = await pool.execute('SELECT dataTaskBadges, dataBadges FROM player WHERE name = ?', [playerName]);
+        if (players.length === 0) {
+            return res.status(404).json({ status: 'error', message: `Không tìm thấy nhân vật [${playerName}]` });
+        }
+        const [templates] = await pool.execute('SELECT id, NAME as name, maxCount as count, idbadgesReward FROM task_badges_template');
+        let savedTasks = [];
+        let savedBadges = [];
+        try { savedTasks = JSON.parse(players[0].dataTaskBadges || '[]'); } catch (e) { }
+        try { savedBadges = JSON.parse(players[0].dataBadges || '[]'); } catch (e) { }
+
+        const result = templates.map(btt => {
+            const foundTask = savedTasks.find(t => t.id === btt.id) || {};
+            const count = foundTask.count || 0;
+            const countMax = foundTask.countMax || btt.count;
+            const percent = countMax > 0 ? (count >= countMax ? 100 : Math.floor(count * 100 / countMax)) : 0;
+            const isDone = count >= countMax;
+            const isRewardGiven = savedBadges.some(b => b.idBadGes === btt.idbadgesReward);
+            return {
+                id: btt.id,
+                name: btt.name,
+                count: count,
+                countMax: countMax,
+                idBadgesReward: btt.idbadgesReward,
+                percent: percent,
+                isDone: isDone,
+                isRewardGiven: isRewardGiven
+            };
+        });
+
+        res.json({ status: 'success', playerName: playerName, isOnline: false, data: result });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+// Complete Badges Task Endpoint
+app.post(['/api/complete-badges-task', '/api/admin/player/complete-badges-task'], async (req, res) => {
+    try {
+        const { playerName, taskId } = req.body;
+        if (!playerName || taskId === undefined) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu tên nhân vật hoặc ID nhiệm vụ' });
+        }
+
+        try {
+            const resp = await fetch(`${JAVA_API_URL}/api/complete-badges-task`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName: playerName.trim(), taskId: parseInt(taskId) })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                return res.json(data);
+            }
+        } catch (err) { }
+
+        // Fallback DB
+        const [players] = await pool.execute('SELECT id, dataTaskBadges, dataBadges FROM player WHERE name = ?', [playerName.trim()]);
+        if (players.length === 0) {
+            return res.status(404).json({ status: 'error', message: `Không tìm thấy nhân vật [${playerName}]` });
+        }
+        const player = players[0];
+        let savedTasks = [];
+        let savedBadges = [];
+        try { savedTasks = JSON.parse(player.dataTaskBadges || '[]'); } catch (e) { }
+        try { savedBadges = JSON.parse(player.dataBadges || '[]'); } catch (e) { }
+
+        const tId = parseInt(taskId);
+        let rewardBadgeId = -1;
+        let taskObj = savedTasks.find(t => t.id === tId);
+
+        if (taskObj) {
+            taskObj.count = taskObj.countMax || 1;
+            rewardBadgeId = taskObj.idBadgesReward;
+        } else {
+            const [templates] = await pool.execute('SELECT id, maxCount as count, idbadgesReward FROM task_badges_template WHERE id = ?', [tId]);
+            if (templates.length > 0) {
+                const btt = templates[0];
+                savedTasks.push({ id: btt.id, count: btt.count, countMax: btt.count, idBadgesReward: btt.idbadgesReward });
+                rewardBadgeId = btt.idbadgesReward;
+            }
+        }
+
+        if (rewardBadgeId > 0 && !savedBadges.some(b => b.idBadGes === rewardBadgeId)) {
+            savedBadges.push({ idBadGes: rewardBadgeId, timeofUseBadges: Date.now() + 30 * 24 * 60 * 60 * 1000, isUse: false });
+        }
+
+        await pool.execute('UPDATE player SET dataTaskBadges = ?, dataBadges = ? WHERE id = ?', [
+            JSON.stringify(savedTasks),
+            JSON.stringify(savedBadges),
+            player.id
+        ]);
+
+        res.json({ status: 'success', message: `Đã hoàn thành Nhiệm Vụ Danh Hiệu #${tId} cho [${playerName}] thành công!` });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Update Player Event Point Endpoint (Admin)
 app.post('/api/admin/player/update-event-point', async (req, res) => {
     try {

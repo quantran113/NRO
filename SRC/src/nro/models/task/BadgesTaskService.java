@@ -16,6 +16,36 @@ import nro.models.item.Item;
 
 public class BadgesTaskService {
 
+    public static void checkInitTask(Player player) {
+        if (player == null) {
+            return;
+        }
+        if (player.dataTaskBadges == null) {
+            player.dataTaskBadges = new java.util.ArrayList<>();
+        }
+        if (Manager.TASKS_BADGES_TEMPLATE != null) {
+            for (BadgesTaskTemplate BTT : Manager.TASKS_BADGES_TEMPLATE) {
+                boolean exists = false;
+                for (BadgesTask data : player.dataTaskBadges) {
+                    if (data != null && data.id == BTT.id) {
+                        exists = true;
+                        data.countMax = BTT.count;
+                        data.idBadgesReward = BTT.idbadgesReward;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    BadgesTask data = new BadgesTask();
+                    data.id = BTT.id;
+                    data.count = 0;
+                    data.countMax = BTT.count;
+                    data.idBadgesReward = BTT.idbadgesReward;
+                    player.dataTaskBadges.add(data);
+                }
+            }
+        }
+    }
+
     public static void createAndResetTask(Player player) {
         if (player == null || player.dataTaskBadges == null) {
             return;
