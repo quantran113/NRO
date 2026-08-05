@@ -30,7 +30,7 @@ public class Pet extends Player {
     private static final short ARANGE_CAN_ATTACK = 300;
     private static final short ARANGE_ATT_SKILL1 = 50;
 
-    private static final short[][] PET_ID = {{285, 286, 287}, {288, 289, 290}, {282, 283, 284}, {304, 305, 303}, {946, 947, 948}, {1743, 1744, 1745}, {876, 877, 878}};
+    private static final short[][] PET_ID = {{285, 286, 287}, {288, 289, 290}, {282, 283, 284}, {304, 305, 303}, {438, 439, 440}, {1743, 1744, 1745}, {876, 877, 878}};
 
     public static final byte FOLLOW = 0;
     public static final byte PROTECT = 1;
@@ -828,7 +828,7 @@ public class Pet extends Player {
         } else if (this.typePet == 1) {
             return 297;
         } else if (this.typePet == 2) {
-            return 946;
+            return 438;
         } else if (this.typePet == 3) {
             return 1422;
         } else if (this.typePet == 4) {
@@ -864,7 +864,7 @@ public class Pet extends Player {
         } else if (this.typePet == 1 && !this.isTransform) {
             return 298;
         } else if (this.typePet == 2 && !this.isTransform) {
-            return 947;
+            return 439;
         } else if (this.typePet == 3 && !this.isTransform) {
             return 1423;
         } else if (this.typePet == 4) {
@@ -903,7 +903,7 @@ public class Pet extends Player {
         } else if (this.typePet == 1 && !this.isTransform) {
             return 299;
         } else if (this.typePet == 2 && !this.isTransform) {
-            return 948;
+            return 440;
         } else if (this.typePet == 3 && !this.isTransform) {
             return 1424;
         } else if (this.typePet == 4) {
