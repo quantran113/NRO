@@ -299,6 +299,7 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'Tên tài khoản phải từ 3 đến 30 ký tự' });
         }
 
+        // Check if username already exists
         const [existing] = await pool.execute('SELECT id FROM account WHERE username = ?', [cleanUser]);
         if (existing.length > 0) {
             return res.status(400).json({ status: 'error', message: `Tài khoản [${cleanUser}] đã tồn tại!` });
@@ -306,39 +307,51 @@ app.post('/api/register', async (req, res) => {
 
         // Dynamically inspect columns of account table
         const [cols] = await pool.execute('SHOW COLUMNS FROM account');
+        const colMap = {};
+        for (const c of cols) {
+            colMap[c.Field] = c;
+        }
 
-        const fields = ['username', 'password'];
-        const values = [cleanUser, cleanPass];
+        const fieldValues = {
+            username: cleanUser,
+            password: cleanPass,
+            email: cleanEmail
+        };
 
+        if ('active' in colMap) fieldValues['active'] = 1;
+        if ('is_admin' in colMap) fieldValues['is_admin'] = 0;
+        if ('admin' in colMap) fieldValues['admin'] = 0;
+        if ('ban' in colMap) fieldValues['ban'] = 0;
+        if ('thoi_vang' in colMap) fieldValues['thoi_vang'] = 0;
+        if ('server_login' in colMap) fieldValues['server_login'] = -1;
+        if ('token' in colMap) fieldValues['token'] = '';
+        if ('xsrf_token' in colMap) fieldValues['xsrf_token'] = '';
+        if ('newpass' in colMap) fieldValues['newpass'] = '';
+        if ('ip_address' in colMap) fieldValues['ip_address'] = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1').toString();
+
+        const nowStr = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        if ('create_time' in colMap) fieldValues['create_time'] = nowStr;
+        if ('update_time' in colMap) fieldValues['update_time'] = nowStr;
+
+        // Check any other NOT NULL column without default
         for (const c of cols) {
             const field = c.Field;
-            if (field === 'id' || (c.Extra && c.Extra.includes('auto_increment')) || field === 'username' || field === 'password') continue;
-
-            if (field === 'email') {
-                fields.push(field);
-                values.push(cleanEmail);
-            } else if (field === 'active') {
-                fields.push(field);
-                values.push(1);
-            } else if (field === 'admin' || field === 'is_admin') {
-                fields.push(field);
-                values.push(0);
-            } else if (field === 'create_time' || field === 'created_at') {
-                fields.push(field);
-                values.push(new Date());
-            } else if (c.Null === 'NO' && c.Default === null) {
-                // Handle any required column (like token, phone, ip) that lacks a default value
-                fields.push(field);
-                if (c.Type.includes('int')) {
-                    values.push(0);
-                } else if (c.Type.includes('time') || c.Type.includes('date')) {
-                    values.push(new Date());
-                } else {
-                    values.push('');
+            if (field === 'id' || (c.Extra && c.Extra.includes('auto_increment'))) continue;
+            if (!(field in fieldValues)) {
+                if (c.Null === 'NO' && c.Default === null) {
+                    if (c.Type.includes('int') || c.Type.includes('decimal') || c.Type.includes('float') || c.Type.includes('double')) {
+                        fieldValues[field] = 0;
+                    } else if (c.Type.includes('time') || c.Type.includes('date')) {
+                        fieldValues[field] = nowStr;
+                    } else {
+                        fieldValues[field] = '';
+                    }
                 }
             }
         }
 
+        const fields = Object.keys(fieldValues);
+        const values = Object.values(fieldValues);
         const placeholders = fields.map(() => '?').join(', ');
         const sql = `INSERT INTO account (${fields.join(', ')}) VALUES (${placeholders})`;
 
@@ -346,7 +359,8 @@ app.post('/api/register', async (req, res) => {
 
         res.json({ status: 'success', message: `Đăng ký tài khoản [${cleanUser}] thành công!` });
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        console.error('API Register Error:', err);
+        res.status(500).json({ status: 'error', message: err.message || 'Lỗi server khi đăng ký' });
     }
 });
 
