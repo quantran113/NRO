@@ -800,7 +800,7 @@ public class Pet extends Player {
             case 1:
                 return 297;
             case 2:
-                return 946;
+                return 419;
             case 3:
                 return 1422;
             case 4:
