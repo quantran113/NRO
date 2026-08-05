@@ -4,6 +4,7 @@ let mapTemplates = [];
 let optionTemplates = [];
 let playersList = [];
 let accountsList = [];
+let currentLoggedUser = null;
 
 // --- AUTH & SWITCHER ---
 function switchAuthTab(type) {
