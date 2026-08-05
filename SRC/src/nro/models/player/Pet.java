@@ -30,7 +30,7 @@ public class Pet extends Player {
     private static final short ARANGE_CAN_ATTACK = 300;
     private static final short ARANGE_ATT_SKILL1 = 50;
 
-    private static final short[][] PET_ID = {{285, 286, 287}, {288, 289, 290}, {282, 283, 284}, {304, 305, 303}, {419, 420, 421}, {1743, 1744, 1745}, {876, 877, 878}};
+    private static final short[][] PET_ID = {{285, 286, 287}, {288, 289, 290}, {282, 283, 284}, {304, 305, 303}, {946, 947, 948}, {1743, 1744, 1745}, {876, 877, 878}};
 
     public static final byte FOLLOW = 0;
     public static final byte PROTECT = 1;
@@ -800,7 +800,7 @@ public class Pet extends Player {
             case 1:
                 return 297;
             case 2:
-                return 419;
+                return 946;
             case 3:
                 return 1422;
             case 4:
@@ -825,19 +825,19 @@ public class Pet extends Player {
             return (short) ConstPlayer.HEADMONKEY[effectSkill.levelMonkey - 1];
         } else if (effectSkill != null && effectSkill.isSocola) {
             return 412;
+        } else if (this.typePet == 1) {
+            return 297;
+        } else if (this.typePet == 2) {
+            return 946;
+        } else if (this.typePet == 3) {
+            return 1422;
+        } else if (this.typePet == 4) {
+            return 876;
         } else if (inventory.itemsBody.get(5).isNotNullItem()) {
             int part = inventory.itemsBody.get(5).template.head;
             if (part != -1) {
                 return (short) part;
             }
-        } else if (this.typePet == 1) {
-            return 297;
-        } else if (this.typePet == 2) {
-            return 419;
-        } else if (this.typePet == 3) {
-            return 1422;
-        } else if (this.typePet == 4) {
-            return 876;
         }
         if (this.nPoint.power < 1500000) {
             return PET_ID[this.gender][0];
@@ -861,19 +861,19 @@ public class Pet extends Player {
             return 193;
         } else if (effectSkill != null && effectSkill.isSocola) {
             return 413;
+        } else if (this.typePet == 1 && !this.isTransform) {
+            return 298;
+        } else if (this.typePet == 2 && !this.isTransform) {
+            return 947;
+        } else if (this.typePet == 3 && !this.isTransform) {
+            return 1423;
+        } else if (this.typePet == 4) {
+            return 877;
         } else if (inventory.itemsBody.get(5).isNotNullItem()) {
             int body = inventory.itemsBody.get(5).template.body;
             if (body != -1) {
                 return (short) body;
             }
-        } else if (this.typePet == 1 && !this.isTransform) {
-            return 298;
-        } else if (this.typePet == 2 && !this.isTransform) {
-            return 420;
-        } else if (this.typePet == 3 && !this.isTransform) {
-            return 1423;
-        } else if (this.typePet == 4) {
-            return 877;
         }
         if (inventory.itemsBody.get(0).isNotNullItem()) {
             return inventory.itemsBody.get(0).template.part;
@@ -900,15 +900,10 @@ public class Pet extends Player {
             return 194;
         } else if (effectSkill != null && effectSkill.isSocola) {
             return 414;
-        } else if (inventory.itemsBody.get(5).isNotNullItem()) {
-            int leg = inventory.itemsBody.get(5).template.leg;
-            if (leg != -1) {
-                return (short) leg;
-            }
         } else if (this.typePet == 1 && !this.isTransform) {
             return 299;
         } else if (this.typePet == 2 && !this.isTransform) {
-            return 421;
+            return 948;
         } else if (this.typePet == 3 && !this.isTransform) {
             return 1424;
         } else if (this.typePet == 4) {
