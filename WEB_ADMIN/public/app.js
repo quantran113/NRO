@@ -414,6 +414,7 @@ function selectAdminTab(tabName) {
         else if (tabName === 'events' && typeof loadServerEvents === 'function') loadServerEvents();
         else if (tabName === 'drops' && typeof loadDropRules === 'function') loadDropRules();
         else if (tabName === 'shops' && typeof loadNpcShops === 'function') loadNpcShops();
+        else if (tabName === 'upgrade' && typeof loadUpgradeRates === 'function') loadUpgradeRates();
     } catch (e) {
         console.error('Error reloading tab data:', e);
     }
@@ -3579,5 +3580,47 @@ async function executeGrantSetSkh(e) {
         showToast(data.message || 'Đã cấp trọn bộ 5 món Set Kích Hoạt thành công!', 'success');
     } catch (err) {
         showToast(err.message, 'error');
+    }
+}
+
+async function loadUpgradeRates() {
+    try {
+        const resp = await fetch('/api/admin/upgrade-rates');
+        if (resp.ok) {
+            const rates = await resp.json();
+            if (Array.isArray(rates) && rates.length >= 8) {
+                for (let i = 0; i < 8; i++) {
+                    const el = document.getElementById(`rate-lvl-${i + 1}`);
+                    if (el) el.value = rates[i];
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load upgrade rates', e);
+    }
+}
+
+async function saveUpgradeRates(e) {
+    if (e) e.preventDefault();
+    const rates = [];
+    for (let i = 1; i <= 8; i++) {
+        const el = document.getElementById(`rate-lvl-${i}`);
+        rates.push(parseFloat(el ? el.value : 0) || 0);
+    }
+
+    try {
+        const resp = await fetch('/api/admin/upgrade-rates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rates })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.status === 'success') {
+            showToast('✅ ' + data.message, 'success');
+        } else {
+            showToast('❌ ' + (data.message || 'Lỗi lưu tỉ lệ đập đồ'), 'error');
+        }
+    } catch (err) {
+        showToast('❌ Lỗi kết nối: ' + err.message, 'error');
     }
 }

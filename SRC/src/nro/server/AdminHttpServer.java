@@ -76,6 +76,7 @@ public class AdminHttpServer {
             server.createContext("/api/badges-tasks", new BadgesTasksHandler());
             server.createContext("/api/complete-badges-task", new CompleteBadgesTaskHandler());
             server.createContext("/api/grant-set-skh", new GrantSetSkhHandler());
+            server.createContext("/api/upgrade-rates", new UpgradeRatesHandler());
 
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -3071,6 +3072,48 @@ public class AdminHttpServer {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500,
                         "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- GET / POST /api/upgrade-rates ---
+    private static class UpgradeRatesHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    JSONArray arr = new JSONArray();
+                    for (double rate : nro.models.combine.CombineSystem.RATE_NANG_CAP_DO) {
+                        arr.add(rate);
+                    }
+                    sendJsonResponse(exchange, 200, arr.toJSONString());
+                } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                    JSONObject body = (JSONObject) JSONValue.parse(reader);
+                    if (body != null && body.containsKey("rates")) {
+                        JSONArray ratesArr = (JSONArray) body.get("rates");
+                        if (ratesArr != null && ratesArr.size() >= 8) {
+                            for (int i = 0; i < 8; i++) {
+                                Number n = (Number) ratesArr.get(i);
+                                if (n != null) {
+                                    nro.models.combine.CombineSystem.RATE_NANG_CAP_DO[i] = n.doubleValue();
+                                }
+                            }
+                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật tỉ lệ đập đồ Bà Hạt Mít thành công!\"}");
+                            return;
+                        }
+                    }
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu rates không hợp lệ\"}");
+                } else {
+                    sendJsonResponse(exchange, 455, "{\"error\": \"Method not allowed\"}");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
             }
         }
     }

@@ -172,6 +172,37 @@ app.post('/api/admin/bots', async (req, res) => {
     }
 });
 
+// Upgrade Rates API Endpoints
+app.get('/api/admin/upgrade-rates', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/upgrade-rates`);
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể kết nối Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/api/admin/upgrade-rates', async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/upgrade-rates`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
+        });
+        if (resp.ok) {
+            const data = await resp.json();
+            return res.json(data);
+        }
+        res.status(500).json({ status: 'error', message: 'Không thể phản hồi từ Game Server API' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Manage Bosses API Endpoints
 app.get('/api/admin/bosses', async (req, res) => {
     try {

@@ -294,36 +294,13 @@ public class CombineSystem {
         return 0;
     }
 
+    public static double[] RATE_NANG_CAP_DO = { 80.0, 50.0, 20.0, 10.0, 7.0, 5.0, 1.0, 0.3 };
+
     public static double getTileNangCapDo(int level) {
-        switch (level) {
-            case 0:
-                return 80;
-            case 1:
-                return 50;
-            case 2:
-                return 20;
-            case 3:
-                return 10;
-            case 4:
-                return 7;
-            case 5:
-                return 5;
-            case 6:
-                return 1;
-            case 7: // 7 sao
-                return 0.3;
-            case 8:
-                return 5;
-            case 9:
-                return 1;
-            case 10: // 7 sao
-                return 0.3;
-            case 11: // 7 sao
-                return 0.3;
-            case 12: // 7 sao
-                return 0.3;
+        if (level >= 0 && level < RATE_NANG_CAP_DO.length) {
+            return RATE_NANG_CAP_DO[level];
         }
-        return 0;
+        return 0.3;
     }
 
     private static boolean rollSuccess(Player player, Item.ItemOption optionStar) {

@@ -472,6 +472,9 @@
                 <button type="button" id="menu-btn-shops" class="admin-nav-item" onclick="switchTab('shops')">
                     <i class="fa-solid fa-store"></i> <span>Quản Lý Shop NPC</span>
                 </button>
+                <button type="button" id="menu-btn-upgrade" class="admin-nav-item" onclick="switchTab('upgrade')">
+                    <i class="fa-solid fa-hammer"></i> <span>Tỉ Lệ Bà Hạt Mít</span>
+                </button>
                 <button type="button" id="menu-btn-giftcode" class="admin-nav-item" onclick="switchTab('giftcode')">
                     <i class="fa-solid fa-gift"></i> <span>Tạo GiftCode VIP</span>
                 </button>
@@ -1259,6 +1262,59 @@
                         </table>
                     </div>
 
+                </div>
+            </div>
+
+            <!-- TAB: CẤU HÌNH TỈ LỆ ĐẬP ĐỒ BÀ HẠT MÍT -->
+            <div id="tab-upgrade" class="tab-content" style="display: none;">
+                <div class="glass" style="padding: 32px; max-width: 850px; margin: 0 auto;">
+                    <div class="panel-header"
+                        style="border: none; padding: 0 0 20px 0; border-bottom: 1px solid var(--border-glass);">
+                        <h2><i class="fa-solid fa-hammer" style="color: var(--teamobi-orange);"></i> CẤU HÌNH TỈ LỆ ĐẬP ĐỒ BÀ HẠT MÍT REALTIME</h2>
+                        <p style="color: var(--text-sub); font-size: 13px; margin-top: 6px;">Điều chỉnh tỉ lệ đập đồ thành công (+1 đến +8) tại NPC Bà Hạt Mít. Áp dụng ngay tức thì không cần restart server!</p>
+                    </div>
+
+                    <form onsubmit="saveUpgradeRates(event)" style="margin-top: 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #10b981;">Tỉ Lệ Lên +1 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-1" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #10b981;">Tỉ Lệ Lên +2 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-2" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #3b82f6;">Tỉ Lệ Lên +3 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-3" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #3b82f6;">Tỉ Lệ Lên +4 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-4" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #a855f7;">Tỉ Lệ Lên +5 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-5" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #a855f7;">Tỉ Lệ Lên +6 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-6" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #ef4444;">Tỉ Lệ Lên +7 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-7" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 800; color: #f59e0b;">Tỉ Lệ Lên +8 (%)</label>
+                                <input type="number" step="0.1" min="0" max="100" id="rate-lvl-8" class="input-field" style="font-weight: 800;" required>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+                            <button type="button" class="btn-secondary" onclick="loadUpgradeRates()"><i class="fa-solid fa-rotate"></i> Tải Lại Tỉ Lệ</button>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);"><i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình Tỉ Lệ</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
