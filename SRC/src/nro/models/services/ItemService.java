@@ -134,13 +134,46 @@ public class ItemService {
             case 1433 -> item.itemOptions.add(new ItemOption(153, 5));
         }
 
+        // 3. Check High-Tier Specific Default Base Stats
+        if (tempId >= 1048 && tempId <= 1062) { // Thiên Sứ (Cấp 15)
+            switch (item.template.type) {
+                case 0 -> item.itemOptions.add(new ItemOption(47, 4400));
+                case 1 -> item.itemOptions.add(new ItemOption(22, 165));
+                case 2 -> item.itemOptions.add(new ItemOption(0, 12100));
+                case 3 -> item.itemOptions.add(new ItemOption(23, 143));
+                case 4 -> item.itemOptions.add(new ItemOption(14, 22));
+            }
+        } else if (tempId >= 650 && tempId <= 662) { // Hủy Diệt (Cấp 14)
+            switch (item.template.type) {
+                case 0 -> item.itemOptions.add(new ItemOption(47, 1320));
+                case 1 -> item.itemOptions.add(new ItemOption(22, 71));
+                case 2 -> item.itemOptions.add(new ItemOption(0, 10560));
+                case 3 -> item.itemOptions.add(new ItemOption(23, 71));
+                case 4 -> item.itemOptions.add(new ItemOption(14, 20));
+            }
+        } else if (tempId >= 555 && tempId <= 567) { // Thần Linh (Cấp 13)
+            switch (item.template.type) {
+                case 0 -> item.itemOptions.add(new ItemOption(47, 605));
+                case 1 -> item.itemOptions.add(new ItemOption(6, 35200));
+                case 2 -> item.itemOptions.add(new ItemOption(0, 5720));
+                case 3 -> item.itemOptions.add(new ItemOption(7, 35200));
+                case 4 -> item.itemOptions.add(new ItemOption(14, 17));
+            }
+        }
+
         if (!item.itemOptions.isEmpty()) {
             return;
         }
 
-        // 3. Special single option fallbacks if not found in NPC shop
-        if (item.template.type == 5) { // Cải trang
-            item.itemOptions.add(new ItemOption(50, 10)); // +10% SD
+        // 4. General Fallback Base Stats by Equipment Type (0, 1, 2, 3, 4)
+        long req = item.template.strRequire;
+        switch (item.template.type) {
+            case 0 -> item.itemOptions.add(new ItemOption(47, req > 0 ? (int) (req / 100000) + 15 : 15));
+            case 1 -> item.itemOptions.add(new ItemOption(6, req > 0 ? (int) (req / 5000) + 100 : 100));
+            case 2 -> item.itemOptions.add(new ItemOption(0, req > 0 ? (int) (req / 20000) + 30 : 30));
+            case 3 -> item.itemOptions.add(new ItemOption(7, req > 0 ? (int) (req / 5000) + 100 : 100));
+            case 4 -> item.itemOptions.add(new ItemOption(14, 5));
+            case 5 -> item.itemOptions.add(new ItemOption(50, 10));
         }
     }
 
