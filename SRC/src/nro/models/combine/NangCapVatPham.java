@@ -87,9 +87,9 @@ public class NangCapVatPham {
                             break;
                         }
                     }
-                    npcSay += "|2|Sau khi nâng cấp (+" + (level + 1) + ")\n|7|"
-                            + option.replaceAll("#", String.valueOf(param))
-                            + "\n|7|Tỉ lệ thành công: " + player.combineNew.ratioCombine + "%\n"
+                    npcSay += "|2|Sau khi nâng cấp (+" + (level + 1) + ")\n"
+                            + (option != null ? "|7|" + option.replaceAll("#", String.valueOf(param)) + "\n" : "")
+                            + "|7|Tỉ lệ thành công: " + player.combineNew.ratioCombine + "%\n"
                             + (player.combineNew.countDaNangCap > itemDNC.quantity ? "|7|" : "|1|")
                             + "Cần " + player.combineNew.countDaNangCap + " " + itemDNC.template.name
                             + "\n" + (player.combineNew.goldCombine > player.inventory.gold ? "|7|" : "|1|")
@@ -222,7 +222,9 @@ public class NangCapVatPham {
                         }
                     }
                     if (Util.isTrue(player.combineNew.ratioCombine, 100)) {
-                        option.param += (option.param * 10 / 100) < 1 ? 1 : (option.param * 10 / 100);
+                        if (option != null) {
+                            option.param += (option.param * 10 / 100) < 1 ? 1 : (option.param * 10 / 100);
+                        }
                         if (option2 != null) {
                             option2.param += (option2.param * 10 / 100) < 1 ? 1 : (option2.param * 10 / 100);
                         }
@@ -232,9 +234,7 @@ public class NangCapVatPham {
                             optionLevel.param++;
                         }
                         if (optionLevel != null && optionLevel.param >= 5) {
-                            // ChatGlobalService.gI().ThongBaoRoiDo(player, "Chúc mừng " + player.name + "
-                            // vừa nâng cấp " + "thành công " + itemDo.template.name + " lên +" +
-                            // optionLevel.param);
+                            // ChatGlobalService.gI().ThongBaoRoiDo...
                         }
                         CombineService.gI().sendEffectSuccessCombine(player);
                         int currentLvl = (optionLevel != null) ? optionLevel.param : 1;
@@ -243,11 +243,15 @@ public class NangCapVatPham {
                         }
                     } else {
                         if ((level == 2 || level == 4 || level == 6) && (player.combineNew.itemsCombine.size() != 3)) {
-                            option.param -= (option.param * 11 / 100) < 1 ? 1 : (option.param * 11 / 100);
+                            if (option != null) {
+                                option.param -= (option.param * 11 / 100) < 1 ? 1 : (option.param * 11 / 100);
+                            }
                             if (option2 != null) {
                                 option2.param -= (option2.param * 11 / 100) < 1 ? 1 : (option2.param * 11 / 100);
                             }
-                            optionLevel.param--;
+                            if (optionLevel != null) {
+                                optionLevel.param--;
+                            }
 
                             Item.ItemOption downgradeOption = itemDo.itemOptions.stream()
                                     .filter(io -> io.optionTemplate.id == 209)
