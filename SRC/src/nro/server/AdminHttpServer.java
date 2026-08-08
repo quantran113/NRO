@@ -1290,26 +1290,31 @@ public class AdminHttpServer {
                 String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
 
-                String oldName = body != null && body.get("oldName") != null ? body.get("oldName").toString().trim() : "";
-                String newName = body != null && body.get("newName") != null ? body.get("newName").toString().trim() : "";
+                String oldName = body != null && body.get("oldName") != null ? body.get("oldName").toString().trim()
+                        : "";
+                String newName = body != null && body.get("newName") != null ? body.get("newName").toString().trim()
+                        : "";
 
                 if (oldName.isEmpty() || newName.isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Vui lòng nhập đầy đủ tên nhân vật!\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Vui lòng nhập đầy đủ tên nhân vật!\"}");
                     return;
                 }
 
                 if (oldName.equalsIgnoreCase(newName)) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật mới trùng với tên cũ!\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Tên nhân vật mới trùng với tên cũ!\"}");
                     return;
                 }
 
                 // Check if newName already exists in DB
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("SELECT id FROM player WHERE name = ?")) {
+                        PreparedStatement ps = conn.prepareStatement("SELECT id FROM player WHERE name = ?")) {
                     ps.setString(1, newName);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật '" + newName + "' đã được sử dụng!\"}");
+                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật '"
+                                    + newName + "' đã được sử dụng!\"}");
                             return;
                         }
                     }
@@ -1318,14 +1323,15 @@ public class AdminHttpServer {
                 // Update DB
                 int rows = 0;
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("UPDATE player SET name = ? WHERE name = ?")) {
+                        PreparedStatement ps = conn.prepareStatement("UPDATE player SET name = ? WHERE name = ?")) {
                     ps.setString(1, newName);
                     ps.setString(2, oldName);
                     rows = ps.executeUpdate();
                 }
 
                 if (rows == 0) {
-                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật '" + oldName + "'!\"}");
+                    sendJsonResponse(exchange, 404,
+                            "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật '" + oldName + "'!\"}");
                     return;
                 }
 
@@ -1344,10 +1350,12 @@ public class AdminHttpServer {
                     Service.gI().Send_Info_NV(player);
                 }
 
-                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã đổi tên nhân vật '" + oldName + "' thành '" + newName + "' thành công!\"}");
+                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã đổi tên nhân vật '"
+                        + oldName + "' thành '" + newName + "' thành công!\"}");
             } catch (Exception e) {
                 e.printStackTrace();
-                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Lỗi máy chủ: " + e.getMessage() + "\"}");
+                sendJsonResponse(exchange, 500,
+                        "{\"status\": \"error\", \"message\": \"Lỗi máy chủ: " + e.getMessage() + "\"}");
             }
         }
     }
@@ -1550,7 +1558,8 @@ public class AdminHttpServer {
                 int eventPoint = body.containsKey("eventPoint") ? ((Number) body.get("eventPoint")).intValue() : 0;
 
                 if (playerName == null || playerName.trim().isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
                     return;
                 }
 
@@ -1579,13 +1588,15 @@ public class AdminHttpServer {
                     }
 
                     player.event.setEventPoint(newPt);
-                    nro.models.services.Service.gI().sendThongBao(player, "Admin vừa cập nhật Điểm Sự Kiện cho bạn thành: " + newPt + " điểm!");
+                    nro.models.services.Service.gI().sendThongBao(player,
+                            "Admin vừa cập nhật Điểm Sự Kiện cho bạn thành: " + newPt + " điểm!");
                     nro.models.database.PlayerDAO.updatePlayer(player);
                 }
 
                 int updated = 0;
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("UPDATE player SET event_point = CASE WHEN ? = 'set' THEN ? WHEN ? = 'sub' THEN GREATEST(0, event_point - ?) ELSE event_point + ? END WHERE name = ?")) {
+                        PreparedStatement ps = conn.prepareStatement(
+                                "UPDATE player SET event_point = CASE WHEN ? = 'set' THEN ? WHEN ? = 'sub' THEN GREATEST(0, event_point - ?) ELSE event_point + ? END WHERE name = ?")) {
                     ps.setString(1, action);
                     ps.setInt(2, eventPoint);
                     ps.setString(3, action);
@@ -1596,9 +1607,13 @@ public class AdminHttpServer {
                 }
 
                 if (isOnline || updated > 0) {
-                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật Điểm Sự Kiện nhân vật [" + playerName.trim() + "] thành công (" + (isOnline ? "ONLINE" : "OFFLINE") + ")!\"}");
+                    sendJsonResponse(exchange, 200,
+                            "{\"status\": \"success\", \"message\": \"Đã cập nhật Điểm Sự Kiện nhân vật ["
+                                    + playerName.trim() + "] thành công (" + (isOnline ? "ONLINE" : "OFFLINE")
+                                    + ")!\"}");
                 } else {
-                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName.trim() + "] trong CSDL!\"}");
+                    sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật ["
+                            + playerName.trim() + "] trong CSDL!\"}");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1722,29 +1737,38 @@ public class AdminHttpServer {
                 List<nro.models.boss.Boss> allBosses = new ArrayList<>();
 
                 try {
-                    if (nro.models.boss.Boss_Manager.BossManager.gI() != null && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
+                    if (nro.models.boss.Boss_Manager.BossManager.gI() != null
+                            && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
                         allBosses.addAll(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
 
                 try {
-                    if (nro.models.boss.Boss_Manager.FinalBossManager.gI() != null && nro.models.boss.Boss_Manager.FinalBossManager.gI().getBosses() != null) {
+                    if (nro.models.boss.Boss_Manager.FinalBossManager.gI() != null
+                            && nro.models.boss.Boss_Manager.FinalBossManager.gI().getBosses() != null) {
                         for (nro.models.boss.Boss b : nro.models.boss.Boss_Manager.FinalBossManager.gI().getBosses()) {
-                            if (!allBosses.contains(b)) allBosses.add(b);
+                            if (!allBosses.contains(b))
+                                allBosses.add(b);
                         }
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
 
                 try {
-                    if (nro.models.boss.Boss_Manager.OtherBossManager.gI() != null && nro.models.boss.Boss_Manager.OtherBossManager.gI().getBosses() != null) {
+                    if (nro.models.boss.Boss_Manager.OtherBossManager.gI() != null
+                            && nro.models.boss.Boss_Manager.OtherBossManager.gI().getBosses() != null) {
                         for (nro.models.boss.Boss b : nro.models.boss.Boss_Manager.OtherBossManager.gI().getBosses()) {
-                            if (!allBosses.contains(b)) allBosses.add(b);
+                            if (!allBosses.contains(b))
+                                allBosses.add(b);
                         }
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
 
                 for (nro.models.boss.Boss boss : allBosses) {
-                    if (boss == null) continue;
+                    if (boss == null)
+                        continue;
                     try {
                         JSONObject obj = new JSONObject();
                         obj.put("id", boss.id);
@@ -1752,7 +1776,8 @@ public class AdminHttpServer {
                         String name = "Boss";
                         if (boss.name != null && !boss.name.isEmpty()) {
                             name = boss.name;
-                        } else if (boss.data != null && boss.data.length > 0 && boss.data[0] != null && boss.data[0].getName() != null) {
+                        } else if (boss.data != null && boss.data.length > 0 && boss.data[0] != null
+                                && boss.data[0].getName() != null) {
                             name = boss.data[0].getName();
                         }
                         obj.put("name", name);
@@ -1761,7 +1786,8 @@ public class AdminHttpServer {
                         try {
                             head = boss.getHead();
                         } catch (Exception ex) {
-                            if (boss.data != null && boss.data.length > 0 && boss.data[0] != null && boss.data[0].getOutfit() != null) {
+                            if (boss.data != null && boss.data.length > 0 && boss.data[0] != null
+                                    && boss.data[0].getOutfit() != null) {
                                 head = boss.data[0].getOutfit()[0];
                             }
                         }
@@ -1825,7 +1851,8 @@ public class AdminHttpServer {
                 JSONObject body = (JSONObject) JSONValue.parse(reader);
 
                 if (body == null || !body.containsKey("bossId")) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Vui lòng nhập Boss ID hợp lệ!\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Vui lòng nhập Boss ID hợp lệ!\"}");
                     return;
                 }
 
@@ -1871,46 +1898,60 @@ public class AdminHttpServer {
                         try {
                             nro.models.map.Map targetMap = nro.models.map.service.MapService.gI().getMapById(mapId);
                             if (targetMap != null && targetMap.zones != null && !targetMap.zones.isEmpty()) {
-                                targetZone = targetMap.zones.get(nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1));
+                                targetZone = targetMap.zones
+                                        .get(nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1));
                             }
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                        }
                     } else if (mapId == -2) {
-                        int[] normalMaps = new int[]{0, 1, 2, 5, 7, 8, 13, 14, 20, 27, 28, 29, 30, 42, 43, 44};
+                        int[] normalMaps = new int[] { 0, 1, 2, 5, 7, 8, 13, 14, 20, 27, 28, 29, 30, 42, 43, 44 };
                         int randomMapId = normalMaps[nro.models.utils.Util.nextInt(0, normalMaps.length - 1)];
                         try {
-                            nro.models.map.Map targetMap = nro.models.map.service.MapService.gI().getMapById(randomMapId);
+                            nro.models.map.Map targetMap = nro.models.map.service.MapService.gI()
+                                    .getMapById(randomMapId);
                             if (targetMap != null && targetMap.zones != null && !targetMap.zones.isEmpty()) {
-                                targetZone = targetMap.zones.get(nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1));
+                                targetZone = targetMap.zones
+                                        .get(nro.models.utils.Util.nextInt(0, targetMap.zones.size() - 1));
                             }
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                        }
                     }
 
                     if (targetZone == null) {
                         try {
                             targetZone = boss.getMapJoin();
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                        }
                     }
 
                     if (targetZone != null) {
                         boss.zone = targetZone;
-                        int x = targetZone.map.mapWidth > 100 ? nro.models.utils.Util.nextInt(100, targetZone.map.mapWidth - 100) : nro.models.utils.Util.nextInt(100);
+                        int x = targetZone.map.mapWidth > 100
+                                ? nro.models.utils.Util.nextInt(100, targetZone.map.mapWidth - 100)
+                                : nro.models.utils.Util.nextInt(100);
                         int y = targetZone.map.yPhysicInTop(x, 100);
                         boss.location.x = x;
                         boss.location.y = y;
                         try {
                             nro.models.map.service.ChangeMapService.gI().changeMap(boss, targetZone, x, y);
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                        }
                     }
 
                     boss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
 
-                    String mapLocationInfo = (boss.zone != null && boss.zone.map != null) ? boss.zone.map.mapName + " (Khu " + boss.zone.zoneId + ")" : "Bản đồ ngẫu nhiên";
+                    String mapLocationInfo = (boss.zone != null && boss.zone.map != null)
+                            ? boss.zone.map.mapName + " (Khu " + boss.zone.zoneId + ")"
+                            : "Bản đồ ngẫu nhiên";
                     JSONObject res = new JSONObject();
                     res.put("status", "success");
-                    res.put("message", "Đã triệu hồi Boss [" + (boss.name != null ? boss.name : "ID: " + bossId) + "] xuất hiện ngay tại " + mapLocationInfo + "! (HP: " + boss.nPoint.hp + ")");
+                    res.put("message", "Đã triệu hồi Boss [" + (boss.name != null ? boss.name : "ID: " + bossId)
+                            + "] xuất hiện ngay tại " + mapLocationInfo + "! (HP: " + boss.nPoint.hp + ")");
                     sendJsonResponse(exchange, 200, res.toJSONString());
                 } else {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể khởi tạo Boss ID: " + bossId + "! Vui lòng kiểm tra lại ID.\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Không thể khởi tạo Boss ID: " + bossId
+                                    + "! Vui lòng kiểm tra lại ID.\"}");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1932,7 +1973,8 @@ public class AdminHttpServer {
                 JSONObject body = (JSONObject) JSONValue.parse(reader);
 
                 if (body == null) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
                     return;
                 }
 
@@ -1940,7 +1982,8 @@ public class AdminHttpServer {
                 int bossId = body.containsKey("bossId") ? ((Number) body.get("bossId")).intValue() : 0;
 
                 List<nro.models.boss.Boss> allBosses = new ArrayList<>();
-                if (nro.models.boss.Boss_Manager.BossManager.gI() != null && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
+                if (nro.models.boss.Boss_Manager.BossManager.gI() != null
+                        && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
                     allBosses.addAll(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
                 }
 
@@ -1955,21 +1998,27 @@ public class AdminHttpServer {
                 if ("kill".equalsIgnoreCase(action) || "despawn".equalsIgnoreCase(action)) {
                     if (targetBoss != null) {
                         targetBoss.changeStatus(nro.models.consts.BossStatus.DIE);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tiêu diệt Boss thành công!\"}");
+                        sendJsonResponse(exchange, 200,
+                                "{\"status\": \"success\", \"message\": \"Đã tiêu diệt Boss thành công!\"}");
                     } else {
-                        sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss đang xuất hiện!\"}");
+                        sendJsonResponse(exchange, 404,
+                                "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss đang xuất hiện!\"}");
                     }
                 } else if ("delete".equalsIgnoreCase(action) || "remove".equalsIgnoreCase(action)) {
                     if (targetBoss != null) {
                         try {
                             targetBoss.changeStatus(nro.models.consts.BossStatus.LEAVE_MAP);
-                            if (nro.models.boss.Boss_Manager.BossManager.gI() != null && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
+                            if (nro.models.boss.Boss_Manager.BossManager.gI() != null
+                                    && nro.models.boss.Boss_Manager.BossManager.gI().getBosses() != null) {
                                 nro.models.boss.Boss_Manager.BossManager.gI().getBosses().remove(targetBoss);
                             }
-                        } catch (Exception ex) {}
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã xóa Boss hoàn toàn khỏi danh sách!\"}");
+                        } catch (Exception ex) {
+                        }
+                        sendJsonResponse(exchange, 200,
+                                "{\"status\": \"success\", \"message\": \"Đã xóa Boss hoàn toàn khỏi danh sách!\"}");
                     } else {
-                        sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss cần xóa!\"}");
+                        sendJsonResponse(exchange, 404,
+                                "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss cần xóa!\"}");
                     }
                 } else if ("respawn".equalsIgnoreCase(action)) {
                     if (targetBoss != null) {
@@ -2004,17 +2053,25 @@ public class AdminHttpServer {
                         if (targetBoss.zone == null) {
                             try {
                                 targetBoss.zone = targetBoss.getMapJoin();
-                            } catch (Exception ex) {}
+                            } catch (Exception ex) {
+                            }
                         }
                         if (targetBoss.zone != null) {
                             try {
-                                int x = targetBoss.zone.map.mapWidth > 100 ? nro.models.utils.Util.nextInt(100, targetBoss.zone.map.mapWidth - 100) : nro.models.utils.Util.nextInt(100);
+                                int x = targetBoss.zone.map.mapWidth > 100
+                                        ? nro.models.utils.Util.nextInt(100, targetBoss.zone.map.mapWidth - 100)
+                                        : nro.models.utils.Util.nextInt(100);
                                 int y = targetBoss.zone.map.yPhysicInTop(x, 100);
-                                nro.models.map.service.ChangeMapService.gI().changeMap(targetBoss, targetBoss.zone, x, y);
-                            } catch (Exception ex) {}
+                                nro.models.map.service.ChangeMapService.gI().changeMap(targetBoss, targetBoss.zone, x,
+                                        y);
+                            } catch (Exception ex) {
+                            }
                         }
                         targetBoss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã hồi sinh và đưa Boss " + targetBoss.name + " trở lại game! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ")\"}");
+                        sendJsonResponse(exchange, 200,
+                                "{\"status\": \"success\", \"message\": \"Đã hồi sinh và đưa Boss " + targetBoss.name
+                                        + " trở lại game! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax
+                                        + ")\"}");
                     } else {
                         nro.models.boss.Boss newBoss = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(bossId);
                         if (newBoss != null) {
@@ -2024,9 +2081,11 @@ public class AdminHttpServer {
                             newBoss.initBase();
                             newBoss.changeToTypeNonPK();
                             newBoss.changeStatus(nro.models.consts.BossStatus.ACTIVE);
-                            sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã tạo mới và triệu hồi Boss thành công!\"}");
+                            sendJsonResponse(exchange, 200,
+                                    "{\"status\": \"success\", \"message\": \"Đã tạo mới và triệu hồi Boss thành công!\"}");
                         } else {
-                            sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Không thể tạo mới Boss!\"}");
+                            sendJsonResponse(exchange, 400,
+                                    "{\"status\": \"error\", \"message\": \"Không thể tạo mới Boss!\"}");
                         }
                     }
                 } else if ("set_stats".equalsIgnoreCase(action)) {
@@ -2064,12 +2123,18 @@ public class AdminHttpServer {
                             targetBoss.nPoint.def = newDef;
                         }
 
-                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cập nhật chỉ số Boss [" + targetBoss.name + "] thành công! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax + ", Dame: " + targetBoss.nPoint.dame + ", Giáp: " + targetBoss.nPoint.def + ")\"}");
+                        sendJsonResponse(exchange, 200,
+                                "{\"status\": \"success\", \"message\": \"Đã cập nhật chỉ số Boss [" + targetBoss.name
+                                        + "] thành công! (HP: " + targetBoss.nPoint.hp + "/" + targetBoss.nPoint.hpMax
+                                        + ", Dame: " + targetBoss.nPoint.dame + ", Giáp: " + targetBoss.nPoint.def
+                                        + ")\"}");
                     } else {
-                        sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss!\"}");
+                        sendJsonResponse(exchange, 404,
+                                "{\"status\": \"error\", \"message\": \"Không tìm thấy Boss!\"}");
                     }
                 } else {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Hành động không được hỗ trợ\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Hành động không được hỗ trợ\"}");
                 }
 
             } catch (Exception e) {
@@ -2100,7 +2165,8 @@ public class AdminHttpServer {
         }
 
         private JSONObject parseItemToJson(Item item, int slotIndex) {
-            if (item == null || item.template == null) return null;
+            if (item == null || item.template == null)
+                return null;
             JSONObject obj = new JSONObject();
             obj.put("slot", slotIndex);
             obj.put("slotName", getBodySlotName(slotIndex));
@@ -2116,7 +2182,8 @@ public class AdminHttpServer {
                     if (io != null && io.optionTemplate != null) {
                         JSONObject optObj = new JSONObject();
                         optObj.put("id", io.optionTemplate.id);
-                        optObj.put("name", io.optionTemplate.name != null ? io.optionTemplate.name : ("Option #" + io.optionTemplate.id));
+                        optObj.put("name", io.optionTemplate.name != null ? io.optionTemplate.name
+                                : ("Option #" + io.optionTemplate.id));
                         optObj.put("param", io.param);
                         optArr.add(optObj);
                     }
@@ -2127,20 +2194,25 @@ public class AdminHttpServer {
         }
 
         private JSONObject parseRawDbItemToJson(String itemJsonStr, int slotIndex) {
-            if (itemJsonStr == null || itemJsonStr.trim().isEmpty() || "null".equalsIgnoreCase(itemJsonStr)) return null;
+            if (itemJsonStr == null || itemJsonStr.trim().isEmpty() || "null".equalsIgnoreCase(itemJsonStr))
+                return null;
             try {
                 Object parsed = JSONValue.parse(itemJsonStr);
-                if (!(parsed instanceof JSONArray)) return null;
+                if (!(parsed instanceof JSONArray))
+                    return null;
                 JSONArray dataItem = (JSONArray) parsed;
-                if (dataItem.isEmpty()) return null;
+                if (dataItem.isEmpty())
+                    return null;
 
                 int tempId = Integer.parseInt(String.valueOf(dataItem.get(0)));
-                if (tempId == -1) return null;
+                if (tempId == -1)
+                    return null;
 
                 int quantity = dataItem.size() > 1 ? Integer.parseInt(String.valueOf(dataItem.get(1))) : 1;
 
                 ItemTemplate temp = ItemService.gI().getTemplate((short) tempId);
-                if (temp == null) return null;
+                if (temp == null)
+                    return null;
 
                 JSONObject obj = new JSONObject();
                 obj.put("slot", slotIndex);
@@ -2163,16 +2235,20 @@ public class AdminHttpServer {
                     if (rawOpts != null) {
                         for (Object o : rawOpts) {
                             JSONArray singleOpt = null;
-                            if (o instanceof JSONArray) singleOpt = (JSONArray) o;
-                            else if (o instanceof String) singleOpt = (JSONArray) JSONValue.parse((String) o);
+                            if (o instanceof JSONArray)
+                                singleOpt = (JSONArray) o;
+                            else if (o instanceof String)
+                                singleOpt = (JSONArray) JSONValue.parse((String) o);
 
                             if (singleOpt != null && singleOpt.size() >= 2) {
                                 int optId = Integer.parseInt(String.valueOf(singleOpt.get(0)));
                                 int param = Integer.parseInt(String.valueOf(singleOpt.get(1)));
-                                ItemOptionTemplate optTemp = Manager.ITEM_OPTION_TEMPLATES.stream().filter(t -> t != null && t.id == optId).findFirst().orElse(null);
+                                ItemOptionTemplate optTemp = Manager.ITEM_OPTION_TEMPLATES.stream()
+                                        .filter(t -> t != null && t.id == optId).findFirst().orElse(null);
                                 JSONObject optObj = new JSONObject();
                                 optObj.put("id", optId);
-                                optObj.put("name", optTemp != null && optTemp.name != null ? optTemp.name : ("Option #" + optId));
+                                optObj.put("name",
+                                        optTemp != null && optTemp.name != null ? optTemp.name : ("Option #" + optId));
                                 optObj.put("param", param);
                                 optArr.add(optObj);
                             }
@@ -2209,7 +2285,8 @@ public class AdminHttpServer {
                 }
 
                 if (playerName.isEmpty()) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Vui lòng cung cấp tên nhân vật!\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Vui lòng cung cấp tên nhân vật!\"}");
                     return;
                 }
 
@@ -2239,7 +2316,8 @@ public class AdminHttpServer {
                         for (int i = 0; i < player.inventory.itemsBody.size(); i++) {
                             Item item = player.inventory.itemsBody.get(i);
                             JSONObject itemObj = parseItemToJson(item, i);
-                            if (itemObj != null) bodyArr.add(itemObj);
+                            if (itemObj != null)
+                                bodyArr.add(itemObj);
                         }
                     }
                     res.put("itemsBody", bodyArr);
@@ -2249,7 +2327,8 @@ public class AdminHttpServer {
                         for (int i = 0; i < player.inventory.itemsBag.size(); i++) {
                             Item item = player.inventory.itemsBag.get(i);
                             JSONObject itemObj = parseItemToJson(item, i);
-                            if (itemObj != null) bagArr.add(itemObj);
+                            if (itemObj != null)
+                                bagArr.add(itemObj);
                         }
                     }
                     res.put("itemsBag", bagArr);
@@ -2259,7 +2338,8 @@ public class AdminHttpServer {
                         for (int i = 0; i < player.inventory.itemsBox.size(); i++) {
                             Item item = player.inventory.itemsBox.get(i);
                             JSONObject itemObj = parseItemToJson(item, i);
-                            if (itemObj != null) boxArr.add(itemObj);
+                            if (itemObj != null)
+                                boxArr.add(itemObj);
                         }
                     }
                     res.put("itemsBox", boxArr);
@@ -2275,7 +2355,8 @@ public class AdminHttpServer {
                             for (int i = 0; i < player.pet.inventory.itemsBody.size(); i++) {
                                 Item item = player.pet.inventory.itemsBody.get(i);
                                 JSONObject itemObj = parseItemToJson(item, i);
-                                if (itemObj != null) petBodyArr.add(itemObj);
+                                if (itemObj != null)
+                                    petBodyArr.add(itemObj);
                             }
                         }
                         res.put("itemsPetBody", petBodyArr);
@@ -2290,7 +2371,8 @@ public class AdminHttpServer {
 
                 // OFFLINE PLAYER FROM DATABASE
                 try (Connection conn = LocalManager.getConnection();
-                     PreparedStatement ps = conn.prepareStatement("SELECT id, name, gender, items_body, items_bag, items_box, data_inventory, pet FROM player WHERE name = ?")) {
+                        PreparedStatement ps = conn.prepareStatement(
+                                "SELECT id, name, gender, items_body, items_bag, items_box, data_inventory, pet FROM player WHERE name = ?")) {
                     ps.setString(1, playerName);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
@@ -2311,11 +2393,15 @@ public class AdminHttpServer {
                                 try {
                                     JSONArray invArr = (JSONArray) JSONValue.parse(inventoryStr);
                                     if (invArr != null) {
-                                        if (invArr.size() > 0) gold = Long.parseLong(String.valueOf(invArr.get(0)));
-                                        if (invArr.size() > 1) gem = Long.parseLong(String.valueOf(invArr.get(1)));
-                                        if (invArr.size() > 2) ruby = Long.parseLong(String.valueOf(invArr.get(2)));
+                                        if (invArr.size() > 0)
+                                            gold = Long.parseLong(String.valueOf(invArr.get(0)));
+                                        if (invArr.size() > 1)
+                                            gem = Long.parseLong(String.valueOf(invArr.get(1)));
+                                        if (invArr.size() > 2)
+                                            ruby = Long.parseLong(String.valueOf(invArr.get(2)));
                                     }
-                                } catch (Exception ex) {}
+                                } catch (Exception ex) {
+                                }
                             }
                             res.put("gold", gold);
                             res.put("gem", gem);
@@ -2327,7 +2413,8 @@ public class AdminHttpServer {
                                 if (rawArr != null) {
                                     for (int i = 0; i < rawArr.size(); i++) {
                                         JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
-                                        if (itemObj != null) bodyArr.add(itemObj);
+                                        if (itemObj != null)
+                                            bodyArr.add(itemObj);
                                     }
                                 }
                             }
@@ -2339,7 +2426,8 @@ public class AdminHttpServer {
                                 if (rawArr != null) {
                                     for (int i = 0; i < rawArr.size(); i++) {
                                         JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
-                                        if (itemObj != null) bagArr.add(itemObj);
+                                        if (itemObj != null)
+                                            bagArr.add(itemObj);
                                     }
                                 }
                             }
@@ -2351,7 +2439,8 @@ public class AdminHttpServer {
                                 if (rawArr != null) {
                                     for (int i = 0; i < rawArr.size(); i++) {
                                         JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
-                                        if (itemObj != null) boxArr.add(itemObj);
+                                        if (itemObj != null)
+                                            boxArr.add(itemObj);
                                     }
                                 }
                             }
@@ -2371,8 +2460,10 @@ public class AdminHttpServer {
                                         int petGender = 0;
                                         if (petInfoStr != null && !petInfoStr.isEmpty()) {
                                             JSONArray infoArr = (JSONArray) JSONValue.parse(petInfoStr);
-                                            if (infoArr != null && infoArr.size() > 0) petName = String.valueOf(infoArr.get(0));
-                                            if (infoArr != null && infoArr.size() > 1) petGender = Integer.parseInt(String.valueOf(infoArr.get(1)));
+                                            if (infoArr != null && infoArr.size() > 0)
+                                                petName = String.valueOf(infoArr.get(0));
+                                            if (infoArr != null && infoArr.size() > 1)
+                                                petGender = Integer.parseInt(String.valueOf(infoArr.get(1)));
                                         }
                                         res.put("petName", petName);
                                         res.put("petGender", petGender);
@@ -2380,7 +2471,8 @@ public class AdminHttpServer {
                                         long petPower = 0;
                                         if (petPointStr != null && !petPointStr.isEmpty()) {
                                             JSONArray pointArr = (JSONArray) JSONValue.parse(petPointStr);
-                                            if (pointArr != null && pointArr.size() > 1) petPower = Long.parseLong(String.valueOf(pointArr.get(1)));
+                                            if (pointArr != null && pointArr.size() > 1)
+                                                petPower = Long.parseLong(String.valueOf(pointArr.get(1)));
                                         }
                                         res.put("petPower", petPower);
 
@@ -2389,8 +2481,10 @@ public class AdminHttpServer {
                                             JSONArray rawArr = (JSONArray) JSONValue.parse(petBodyStr);
                                             if (rawArr != null) {
                                                 for (int i = 0; i < rawArr.size(); i++) {
-                                                    JSONObject itemObj = parseRawDbItemToJson(String.valueOf(rawArr.get(i)), i);
-                                                    if (itemObj != null) petBodyArr.add(itemObj);
+                                                    JSONObject itemObj = parseRawDbItemToJson(
+                                                            String.valueOf(rawArr.get(i)), i);
+                                                    if (itemObj != null)
+                                                        petBodyArr.add(itemObj);
                                                 }
                                             }
                                         }
@@ -2414,11 +2508,13 @@ public class AdminHttpServer {
                     }
                 }
 
-                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật '" + playerName + "'!\"}");
+                sendJsonResponse(exchange, 404,
+                        "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật '" + playerName + "'!\"}");
 
             } catch (Exception e) {
                 e.printStackTrace();
-                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
+                sendJsonResponse(exchange, 500,
+                        "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
             }
         }
     }
@@ -2477,7 +2573,8 @@ public class AdminHttpServer {
                                 String name = nro.models.consts.ConstTaskBadges.getNameById(task.id);
                                 if (Manager.TASKS_BADGES_TEMPLATE != null) {
                                     for (nro.models.task.BadgesTaskTemplate btt : Manager.TASKS_BADGES_TEMPLATE) {
-                                        if (btt != null && btt.id == task.id && btt.name != null && !btt.name.isEmpty()) {
+                                        if (btt != null && btt.id == task.id && btt.name != null
+                                                && !btt.name.isEmpty()) {
                                             name = btt.name;
                                             break;
                                         }
@@ -2507,23 +2604,30 @@ public class AdminHttpServer {
                 } else {
                     // Offline DB query
                     try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement ps = conn.prepareStatement("SELECT dataTaskBadges, dataBadges FROM player WHERE name = ?")) {
+                            PreparedStatement ps = conn
+                                    .prepareStatement("SELECT dataTaskBadges, dataBadges FROM player WHERE name = ?")) {
                         ps.setString(1, playerName);
                         try (ResultSet rs = ps.executeQuery()) {
                             if (rs.next()) {
                                 String taskJson = rs.getString("dataTaskBadges");
                                 String badgeJson = rs.getString("dataBadges");
 
-                                JSONArray savedTasks = (taskJson != null && !taskJson.isEmpty()) ? (JSONArray) JSONValue.parse(taskJson) : new JSONArray();
-                                JSONArray savedBadges = (badgeJson != null && !badgeJson.isEmpty()) ? (JSONArray) JSONValue.parse(badgeJson) : new JSONArray();
+                                JSONArray savedTasks = (taskJson != null && !taskJson.isEmpty())
+                                        ? (JSONArray) JSONValue.parse(taskJson)
+                                        : new JSONArray();
+                                JSONArray savedBadges = (badgeJson != null && !badgeJson.isEmpty())
+                                        ? (JSONArray) JSONValue.parse(badgeJson)
+                                        : new JSONArray();
 
                                 if (Manager.TASKS_BADGES_TEMPLATE != null) {
                                     for (nro.models.task.BadgesTaskTemplate btt : Manager.TASKS_BADGES_TEMPLATE) {
-                                        if (btt == null) continue;
+                                        if (btt == null)
+                                            continue;
                                         JSONObject obj = new JSONObject();
                                         obj.put("id", btt.id);
-                                        obj.put("name", btt.name != null && !btt.name.isEmpty() ? btt.name : nro.models.consts.ConstTaskBadges.getNameById(btt.id));
-                                        
+                                        obj.put("name", btt.name != null && !btt.name.isEmpty() ? btt.name
+                                                : nro.models.consts.ConstTaskBadges.getNameById(btt.id));
+
                                         int count = 0;
                                         int countMax = btt.count;
                                         int idBadgesReward = btt.idbadgesReward;
@@ -2531,9 +2635,11 @@ public class AdminHttpServer {
                                         if (savedTasks != null) {
                                             for (Object item : savedTasks) {
                                                 JSONObject taskObj = (JSONObject) item;
-                                                if (taskObj != null && taskObj.get("id") != null && Integer.parseInt(taskObj.get("id").toString()) == btt.id) {
+                                                if (taskObj != null && taskObj.get("id") != null
+                                                        && Integer.parseInt(taskObj.get("id").toString()) == btt.id) {
                                                     count = Integer.parseInt(taskObj.get("count").toString());
-                                                    if (taskObj.get("countMax") != null) countMax = Integer.parseInt(taskObj.get("countMax").toString());
+                                                    if (taskObj.get("countMax") != null)
+                                                        countMax = Integer.parseInt(taskObj.get("countMax").toString());
                                                     break;
                                                 }
                                             }
@@ -2542,7 +2648,9 @@ public class AdminHttpServer {
                                         obj.put("count", count);
                                         obj.put("countMax", countMax);
                                         obj.put("idBadgesReward", idBadgesReward);
-                                        int percent = countMax > 0 ? (count >= countMax ? 100 : (int)((long)count * 100 / countMax)) : 0;
+                                        int percent = countMax > 0
+                                                ? (count >= countMax ? 100 : (int) ((long) count * 100 / countMax))
+                                                : 0;
                                         obj.put("percent", percent);
                                         obj.put("isDone", count >= countMax);
 
@@ -2550,7 +2658,8 @@ public class AdminHttpServer {
                                         if (savedBadges != null) {
                                             for (Object item : savedBadges) {
                                                 JSONObject bObj = (JSONObject) item;
-                                                if (bObj != null && bObj.get("idBadGes") != null && Integer.parseInt(bObj.get("idBadGes").toString()) == idBadgesReward) {
+                                                if (bObj != null && bObj.get("idBadGes") != null && Integer
+                                                        .parseInt(bObj.get("idBadGes").toString()) == idBadgesReward) {
                                                     hasBadge = true;
                                                     break;
                                                 }
@@ -2599,7 +2708,8 @@ public class AdminHttpServer {
                         : -1;
 
                 if (playerName.isEmpty() || taskId < 0) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu thông tin tên nhân vật hoặc ID nhiệm vụ danh hiệu\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Thiếu thông tin tên nhân vật hoặc ID nhiệm vụ danh hiệu\"}");
                     return;
                 }
 
@@ -2630,7 +2740,8 @@ public class AdminHttpServer {
                 } else {
                     // Offline DB update
                     try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement ps = conn.prepareStatement("SELECT id, dataTaskBadges, dataBadges FROM player WHERE name = ?")) {
+                            PreparedStatement ps = conn.prepareStatement(
+                                    "SELECT id, dataTaskBadges, dataBadges FROM player WHERE name = ?")) {
                         ps.setString(1, playerName);
                         try (ResultSet rs = ps.executeQuery()) {
                             if (rs.next()) {
@@ -2638,15 +2749,20 @@ public class AdminHttpServer {
                                 String taskJson = rs.getString("dataTaskBadges");
                                 String badgeJson = rs.getString("dataBadges");
 
-                                JSONArray savedTasks = (taskJson != null && !taskJson.isEmpty()) ? (JSONArray) JSONValue.parse(taskJson) : new JSONArray();
-                                JSONArray savedBadges = (badgeJson != null && !badgeJson.isEmpty()) ? (JSONArray) JSONValue.parse(badgeJson) : new JSONArray();
+                                JSONArray savedTasks = (taskJson != null && !taskJson.isEmpty())
+                                        ? (JSONArray) JSONValue.parse(taskJson)
+                                        : new JSONArray();
+                                JSONArray savedBadges = (badgeJson != null && !badgeJson.isEmpty())
+                                        ? (JSONArray) JSONValue.parse(badgeJson)
+                                        : new JSONArray();
 
                                 int rewardBadgeId = -1;
                                 boolean found = false;
 
                                 for (Object item : savedTasks) {
                                     JSONObject tObj = (JSONObject) item;
-                                    if (tObj != null && tObj.get("id") != null && Integer.parseInt(tObj.get("id").toString()) == taskId) {
+                                    if (tObj != null && tObj.get("id") != null
+                                            && Integer.parseInt(tObj.get("id").toString()) == taskId) {
                                         int countMax = Integer.parseInt(tObj.get("countMax").toString());
                                         tObj.put("count", countMax);
                                         rewardBadgeId = Integer.parseInt(tObj.get("idBadgesReward").toString());
@@ -2674,7 +2790,8 @@ public class AdminHttpServer {
                                     boolean hasBadge = false;
                                     for (Object item : savedBadges) {
                                         JSONObject bObj = (JSONObject) item;
-                                        if (bObj != null && bObj.get("idBadGes") != null && Integer.parseInt(bObj.get("idBadGes").toString()) == rewardBadgeId) {
+                                        if (bObj != null && bObj.get("idBadGes") != null
+                                                && Integer.parseInt(bObj.get("idBadGes").toString()) == rewardBadgeId) {
                                             hasBadge = true;
                                             break;
                                         }
@@ -2682,20 +2799,23 @@ public class AdminHttpServer {
                                     if (!hasBadge) {
                                         JSONObject newBadge = new JSONObject();
                                         newBadge.put("idBadGes", rewardBadgeId);
-                                        newBadge.put("timeofUseBadges", System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000);
+                                        newBadge.put("timeofUseBadges",
+                                                System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000);
                                         newBadge.put("isUse", false);
                                         savedBadges.add(newBadge);
                                     }
                                 }
 
-                                try (PreparedStatement updatePs = conn.prepareStatement("UPDATE player SET dataTaskBadges = ?, dataBadges = ? WHERE id = ?")) {
+                                try (PreparedStatement updatePs = conn.prepareStatement(
+                                        "UPDATE player SET dataTaskBadges = ?, dataBadges = ? WHERE id = ?")) {
                                     updatePs.setString(1, JSONValue.toJSONString(savedTasks));
                                     updatePs.setString(2, JSONValue.toJSONString(savedBadges));
                                     updatePs.setInt(3, playerId);
                                     updatePs.executeUpdate();
                                 }
                             } else {
-                                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật\"}");
+                                sendJsonResponse(exchange, 404,
+                                        "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật\"}");
                                 return;
                             }
                         }
@@ -2726,42 +2846,57 @@ public class AdminHttpServer {
                 JSONObject body = (JSONObject) JSONValue.parse(reader);
 
                 if (body == null) {
-                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
+                    sendJsonResponse(exchange, 400,
+                            "{\"status\": \"error\", \"message\": \"Dữ liệu yêu cầu không hợp lệ\"}");
                     return;
                 }
 
                 String playerName = body.get("playerName") != null ? body.get("playerName").toString().trim() : "";
                 int gender = body.get("gender") != null ? Integer.parseInt(body.get("gender").toString()) : 0;
                 String tier = body.get("tier") != null ? body.get("tier").toString().toLowerCase() : "thien_su";
-                int skhOptionId = body.get("skhOptionId") != null ? Integer.parseInt(body.get("skhOptionId").toString()) : 129;
+                int skhOptionId = body.get("skhOptionId") != null ? Integer.parseInt(body.get("skhOptionId").toString())
+                        : 129;
                 int starCount = body.get("starCount") != null ? Integer.parseInt(body.get("starCount").toString()) : 0;
-                String targetLocation = body.get("targetLocation") != null ? body.get("targetLocation").toString() : "bag";
+                String targetLocation = body.get("targetLocation") != null ? body.get("targetLocation").toString()
+                        : "bag";
 
                 if (playerName.isEmpty()) {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật\"}");
                     return;
                 }
 
-                if (gender < 0 || gender > 2) gender = 0;
+                if (gender < 0 || gender > 2)
+                    gender = 0;
 
-                int[][] thienSuMap = { { 1048, 1051, 1054, 1057, 1060 }, { 1049, 1052, 1055, 1058, 1061 }, { 1050, 1053, 1056, 1059, 1062 } };
-                int[][] huyDietMap = { { 650, 651, 657, 658, 656 }, { 652, 653, 659, 660, 656 }, { 654, 655, 661, 662, 656 } };
-                int[][] thanLinhMap = { { 555, 556, 562, 563, 561 }, { 557, 558, 564, 565, 561 }, { 559, 560, 566, 567, 561 } };
+                int[][] thienSuMap = { { 1048, 1051, 1054, 1057, 1060 }, { 1049, 1052, 1055, 1058, 1061 },
+                        { 1050, 1053, 1056, 1059, 1062 } };
+                int[][] huyDietMap = { { 650, 651, 657, 658, 656 }, { 652, 653, 659, 660, 656 },
+                        { 654, 655, 661, 662, 656 } };
+                int[][] thanLinhMap = { { 555, 556, 562, 563, 561 }, { 557, 558, 564, 565, 561 },
+                        { 559, 560, 566, 567, 561 } };
 
-                int[][] cap12Map = { { 233, 245, 257, 269, 281 }, { 237, 249, 261, 273, 281 }, { 241, 253, 265, 277, 281 } };
-                int[][] cap11Map = { { 232, 244, 256, 268, 280 }, { 236, 248, 260, 272, 280 }, { 240, 252, 264, 276, 280 } };
-                int[][] cap10Map = { { 231, 243, 255, 267, 279 }, { 235, 247, 259, 271, 279 }, { 239, 251, 263, 275, 279 } };
-                int[][] cap9Map  = { { 230, 242, 254, 266, 278 }, { 234, 246, 258, 270, 278 }, { 238, 250, 262, 274, 278 } };
+                int[][] cap12Map = { { 233, 245, 257, 269, 281 }, { 237, 249, 261, 273, 281 },
+                        { 241, 253, 265, 277, 281 } };
+                int[][] cap11Map = { { 232, 244, 256, 268, 280 }, { 236, 248, 260, 272, 280 },
+                        { 240, 252, 264, 276, 280 } };
+                int[][] cap10Map = { { 231, 243, 255, 267, 279 }, { 235, 247, 259, 271, 279 },
+                        { 239, 251, 263, 275, 279 } };
+                int[][] cap9Map = { { 230, 242, 254, 266, 278 }, { 234, 246, 258, 270, 278 },
+                        { 238, 250, 262, 274, 278 } };
 
-                int[][] cap8Map  = { { 139, 143, 147, 151, 187 }, { 155, 159, 163, 167, 187 }, { 171, 175, 179, 183, 187 } };
-                int[][] cap7Map  = { { 138, 142, 146, 150, 186 }, { 154, 158, 162, 166, 186 }, { 170, 174, 178, 182, 186 } };
-                int[][] cap6Map  = { { 137, 141, 145, 149, 185 }, { 153, 157, 161, 165, 185 }, { 169, 173, 177, 181, 185 } };
-                int[][] cap5Map  = { { 136, 140, 144, 148, 184 }, { 152, 156, 160, 164, 184 }, { 168, 172, 176, 180, 184 } };
+                int[][] cap8Map = { { 139, 143, 147, 151, 187 }, { 155, 159, 163, 167, 187 },
+                        { 171, 175, 179, 183, 187 } };
+                int[][] cap7Map = { { 138, 142, 146, 150, 186 }, { 154, 158, 162, 166, 186 },
+                        { 170, 174, 178, 182, 186 } };
+                int[][] cap6Map = { { 137, 141, 145, 149, 185 }, { 153, 157, 161, 165, 185 },
+                        { 169, 173, 177, 181, 185 } };
+                int[][] cap5Map = { { 136, 140, 144, 148, 184 }, { 152, 156, 160, 164, 184 },
+                        { 168, 172, 176, 180, 184 } };
 
-                int[][] cap4Map  = { { 34, 36, 38, 40, 59 }, { 42, 44, 46, 48, 59 }, { 50, 52, 54, 56, 59 } };
-                int[][] cap3Map  = { { 33, 35, 37, 39, 58 }, { 41, 43, 45, 47, 58 }, { 49, 51, 53, 55, 58 } };
-                int[][] cap2Map  = { { 3, 9, 24, 30, 57 }, { 4, 10, 25, 31, 57 }, { 5, 11, 26, 32, 57 } };
-                int[][] cap1Map  = { { 0, 6, 21, 27, 12 }, { 1, 7, 22, 28, 12 }, { 2, 8, 23, 29, 12 } };
+                int[][] cap4Map = { { 34, 36, 38, 40, 59 }, { 42, 44, 46, 48, 59 }, { 50, 52, 54, 56, 59 } };
+                int[][] cap3Map = { { 33, 35, 37, 39, 58 }, { 41, 43, 45, 47, 58 }, { 49, 51, 53, 55, 58 } };
+                int[][] cap2Map = { { 3, 9, 24, 30, 57 }, { 4, 10, 25, 31, 57 }, { 5, 11, 26, 32, 57 } };
+                int[][] cap1Map = { { 0, 6, 21, 27, 12 }, { 1, 7, 22, 28, 12 }, { 2, 8, 23, 29, 12 } };
 
                 int[] selectedIds;
                 switch (tier) {
@@ -2850,19 +2985,25 @@ public class AdminHttpServer {
                         InventoryService.gI().sendItemBags(targetPlayer);
                     }
                     Service.gI().sendThongBao(targetPlayer, "Admin vừa cấp cho bạn trọn bộ Set Kích Hoạt 5 Món!");
-                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cấp trọn bộ 5 món Set Kích Hoạt thành công cho nhân vật [" + playerName + "] (Online)!\"}");
+                    sendJsonResponse(exchange, 200,
+                            "{\"status\": \"success\", \"message\": \"Đã cấp trọn bộ 5 món Set Kích Hoạt thành công cho nhân vật ["
+                                    + playerName + "] (Online)!\"}");
                 } else {
                     // Offline DB update
                     try (Connection conn = LocalManager.getConnection();
-                         PreparedStatement ps = conn.prepareStatement("SELECT id, items_bag, items_box FROM player WHERE name = ?")) {
+                            PreparedStatement ps = conn
+                                    .prepareStatement("SELECT id, items_bag, items_box FROM player WHERE name = ?")) {
                         ps.setString(1, playerName);
                         try (ResultSet rs = ps.executeQuery()) {
                             if (rs.next()) {
                                 int pId = rs.getInt("id");
-                                String targetColumn = "box".equalsIgnoreCase(targetLocation) ? "items_box" : "items_bag";
+                                String targetColumn = "box".equalsIgnoreCase(targetLocation) ? "items_box"
+                                        : "items_bag";
                                 String jsonStr = rs.getString(targetColumn);
 
-                                JSONArray itemsList = (jsonStr != null && !jsonStr.isEmpty()) ? (JSONArray) JSONValue.parse(jsonStr) : new JSONArray();
+                                JSONArray itemsList = (jsonStr != null && !jsonStr.isEmpty())
+                                        ? (JSONArray) JSONValue.parse(jsonStr)
+                                        : new JSONArray();
 
                                 for (int itemId : selectedIds) {
                                     JSONArray dataItem = new JSONArray();
@@ -2870,7 +3011,7 @@ public class AdminHttpServer {
                                     dataItem.add(1);
 
                                     JSONArray optionsArr = new JSONArray();
-                                    
+
                                     Item tempItem = ItemService.gI().createNewItem((short) itemId, 1);
                                     if (tempItem != null && tempItem.itemOptions != null) {
                                         for (Item.ItemOption io : tempItem.itemOptions) {
@@ -2909,22 +3050,27 @@ public class AdminHttpServer {
                                     itemsList.add(dataItem);
                                 }
 
-                                try (PreparedStatement updatePs = conn.prepareStatement("UPDATE player SET " + targetColumn + " = ? WHERE id = ?")) {
+                                try (PreparedStatement updatePs = conn
+                                        .prepareStatement("UPDATE player SET " + targetColumn + " = ? WHERE id = ?")) {
                                     updatePs.setString(1, JSONValue.toJSONString(itemsList));
                                     updatePs.setInt(2, pId);
                                     updatePs.executeUpdate();
                                 }
 
-                                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cấp trọn bộ 5 món Set Kích Hoạt thành công cho nhân vật [" + playerName + "] (Offline)!\"}");
+                                sendJsonResponse(exchange, 200,
+                                        "{\"status\": \"success\", \"message\": \"Đã cấp trọn bộ 5 món Set Kích Hoạt thành công cho nhân vật ["
+                                                + playerName + "] (Offline)!\"}");
                             } else {
-                                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật\"}");
+                                sendJsonResponse(exchange, 404,
+                                        "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật\"}");
                             }
                         }
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
+                sendJsonResponse(exchange, 500,
+                        "{\"status\": \"error\", \"message\": \"Lỗi server: " + e.getMessage() + "\"}");
             }
         }
     }
