@@ -19,9 +19,7 @@ public class NangCapBongTai3 {
     private static final int GEM_BONG_TAI = 1_000;
     private static final int RATIO_BONG_TAI = 30;
 
-    private static final int ITEM_ID_BONG_TAI_C2 = 921;
     private static final int ITEM_ID_BONG_TAI_C3 = 1819;
-    private static final int ITEM_ID_MANH_VO_BT3 = 1820;
 
     private static final int ITEM_OPTION_ID_CAP = 72;
     private static final int ITEM_OPTION_VALUE_CAP_3 = 3;
@@ -36,10 +34,10 @@ public class NangCapBongTai3 {
             for (Item item : player.combineNew.itemsCombine) {
                 if (item != null && item.isNotNullItem() && item.template != null) {
                     String name = item.template.name.toLowerCase();
-                    if (item.template.id == ITEM_ID_BONG_TAI_C2 || name.contains("cấp 2") || (name.contains("bông tai") && !name.contains("mảnh"))) {
-                        bongTai = item;
-                    } else if (item.template.id == ITEM_ID_MANH_VO_BT3 || name.contains("mảnh vỡ") || name.contains("mảnh")) {
+                    if (name.contains("mảnh") || item.template.id == 1820 || item.template.id == 933 || item.template.id == 934) {
                         manhVo = item;
+                    } else {
+                        bongTai = item;
                     }
                 }
             }
@@ -53,10 +51,6 @@ public class NangCapBongTai3 {
                 npcSay += "|2|Tỉ lệ thành công: " + RATIO_BONG_TAI + "%\n";
 
                 int currentMvp = manhVo.quantity;
-                Item bagMvp = InventoryService.gI().findItemBag(player, manhVo.template.id);
-                if (bagMvp != null) {
-                    currentMvp = Math.max(currentMvp, bagMvp.quantity);
-                }
 
                 if (currentMvp < REQUIRED_MANH_VO_FULL) {
                     npcSay += "|7|Cần " + REQUIRED_MANH_VO_FULL + " " + manhVo.template.name + "\n";
@@ -120,10 +114,10 @@ public class NangCapBongTai3 {
             for (Item item : player.combineNew.itemsCombine) {
                 if (item != null && item.isNotNullItem() && item.template != null) {
                     String name = item.template.name.toLowerCase();
-                    if (item.template.id == ITEM_ID_BONG_TAI_C2 || name.contains("cấp 2") || (name.contains("bông tai") && !name.contains("mảnh"))) {
-                        bongTai = item;
-                    } else if (item.template.id == ITEM_ID_MANH_VO_BT3 || name.contains("mảnh vỡ") || name.contains("mảnh")) {
+                    if (name.contains("mảnh") || item.template.id == 1820 || item.template.id == 933 || item.template.id == 934) {
                         manhVo = item;
+                    } else {
+                        bongTai = item;
                     }
                 }
             }
