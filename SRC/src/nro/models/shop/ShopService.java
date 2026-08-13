@@ -84,6 +84,9 @@ public class ShopService {
                 for (TabShop tabShop : shop.tabShops) {
                     for (ItemShop item : tabShop.itemShops) {
                         item.iconSpec = 0;
+                        if (item.typeSell != COST_GOLD) {
+                            item.typeSell = COST_GEM;
+                        }
                     }
                 }
                 shop = this.resolveShop(player, shop, allGender);
