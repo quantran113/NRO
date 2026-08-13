@@ -312,7 +312,11 @@ public class Boss extends Player implements IBoss {
             lvl = 0;
         }
         if (this.data != null && this.data.length > lvl && this.data[lvl] != null && this.data[lvl].getOutfit() != null) {
-            return (byte) this.data[lvl].getOutfit()[4];
+            byte aura = (byte) this.data[lvl].getOutfit()[4];
+            if (aura < 0 || aura > 45) {
+                return -1;
+            }
+            return aura;
         }
         return -1;
     }

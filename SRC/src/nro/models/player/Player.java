@@ -748,6 +748,8 @@ public class Player implements Runnable {
             return -1;
         }
 
+        byte aura = -1;
+
         // 1. Check items worn on body (itemsBody) for explicit Aura options (Option
         // 112, 159, 209, 211)
         if (this.inventory != null && this.inventory.itemsBody != null) {
@@ -756,7 +758,8 @@ public class Player implements Runnable {
                     for (Item.ItemOption io : item.itemOptions) {
                         if (io != null && (io.optionTemplate.id == 112 || io.optionTemplate.id == 159
                                 || io.optionTemplate.id == 209 || io.optionTemplate.id == 211)) {
-                            return (byte) io.param;
+                            aura = (byte) io.param;
+                            break;
                         }
                     }
                 }
@@ -764,26 +767,34 @@ public class Player implements Runnable {
         }
 
         // 2. Check Radar Sách sưu tầm / Cards
-        if (this.Cards != null && !this.Cards.isEmpty()) {
+        if (aura <= 0 && this.Cards != null && !this.Cards.isEmpty()) {
             for (Card card : this.Cards) {
                 if (card != null && (card.Id == 956 || card.Id == 1792 || card.Id == 1793 || card.Id == 1791
                         || card.Id == 1204 || card.Id == 1142) && card.Level > 1) {
                     RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == card.Id)
                             .findFirst().orElse(null);
                     if (radarTemplate != null && radarTemplate.AuraId > 0) {
-                        return (byte) radarTemplate.AuraId;
+                        aura = (byte) radarTemplate.AuraId;
+                        break;
                     }
                 }
             }
         }
 
         // 3. Fallback Aura based on Equipment Star Level / Set Kích Hoạt (getEffFront)
-        byte effFront = getEffFront();
-        if (effFront > 0) {
-            return effFront;
+        if (aura <= 0) {
+            byte effFront = getEffFront();
+            if (effFront > 0) {
+                aura = effFront;
+            }
         }
 
-        return -1;
+        // Chống crash Client: Nếu AuraId nhỏ hơn 0 hoặc vượt quá giới hạn client PC (45) thì trả về -1
+        if (aura < 0 || aura > 45) {
+            return -1;
+        }
+
+        return aura;
     }
 
     public byte getEffFront() {
