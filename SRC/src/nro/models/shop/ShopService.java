@@ -81,6 +81,7 @@ public class ShopService {
             }
             boolean hasSpecialCurrency = false;
             if (tagName.equals("URON")) {
+                shop = this.resolveShop(player, shop, allGender);
                 for (TabShop tabShop : shop.tabShops) {
                     for (ItemShop item : tabShop.itemShops) {
                         item.iconSpec = 0;
@@ -89,7 +90,6 @@ public class ShopService {
                         }
                     }
                 }
-                shop = this.resolveShop(player, shop, allGender);
                 openShopType0(player, shop);
                 return;
             }
