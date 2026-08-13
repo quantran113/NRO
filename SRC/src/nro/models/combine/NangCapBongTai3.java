@@ -21,7 +21,7 @@ public class NangCapBongTai3 {
 
     private static final int ITEM_ID_BONG_TAI_C2 = 921;
     private static final int ITEM_ID_BONG_TAI_C3 = 1819;
-    private static final int ITEM_ID_MANH_VO_BT3 = 933;
+    private static final int ITEM_ID_MANH_VO_BT3 = 1820;
 
     private static final int ITEM_OPTION_ID_CAP = 72;
     private static final int ITEM_OPTION_VALUE_CAP_3 = 3;
