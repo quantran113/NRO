@@ -80,6 +80,16 @@ public class ShopService {
                 }
             }
             boolean hasSpecialCurrency = false;
+            if (tagName.equals("URON")) {
+                for (TabShop tabShop : shop.tabShops) {
+                    for (ItemShop item : tabShop.itemShops) {
+                        item.iconSpec = 0;
+                    }
+                }
+                shop = this.resolveShop(player, shop, allGender);
+                openShopType0(player, shop);
+                return;
+            }
             for (TabShop tabShop : shop.tabShops) {
                 for (ItemShop item : tabShop.itemShops) {
                     if (item.iconSpec > 0 || item.typeSell == COST_RUBY) {
