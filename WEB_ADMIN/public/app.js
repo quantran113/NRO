@@ -3550,11 +3550,11 @@ function updateSkhOptionsDropdown() {
         ],
         // 1: Namếc
         [
-            { id: 131, name: '🎯 Set Ốc Tiêu (Tăng Ma Kankosappo Xuyên Giáp)' },
-            { id: 132, name: '😈 Set Pikkoro Daimao (Tăng Ma Phong Ba)' },
-            { id: 130, name: '💚 Set Picolo (Tăng Tái Tạo & Trị Thương)' },
-            { id: 237, name: '🗡️ Set Nail (Tăng Phản Sát Thương & Sức Đánh)' },
-            { id: 250, name: '⚡ Set Liên Hoàn (Tăng Sát Thương Dấu Ấn)' }
+            { id: 131, name: '🎯 Set Ốc Tiêu (+100% Sát Thương Chiêu Liên Hoàn)' },
+            { id: 130, name: '💚 Set Picolo (+100% Sát Thương Chiêu Makankosappo)' },
+            { id: 132, name: '😈 Set Pikkoro Daimao (+100% Sát Thương & Bất Tử Đệ Đẻ Trứng)' },
+            { id: 237, name: '🗡️ Set Nail (Tăng Phản Sát Thương & Hồi Chiêu Masenko)' },
+            { id: 250, name: '⚡ Set Liên Hoàn (Tăng Sát Thương Kilis)' }
         ],
         // 2: Xayda
         [
