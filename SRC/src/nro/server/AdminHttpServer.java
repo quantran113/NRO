@@ -77,6 +77,8 @@ public class AdminHttpServer {
             server.createContext("/api/complete-badges-task", new CompleteBadgesTaskHandler());
             server.createContext("/api/grant-set-skh", new GrantSetSkhHandler());
             server.createContext("/api/upgrade-rates", new UpgradeRatesHandler());
+            server.createContext("/api/special-skill", new SpecialSkillHandler());
+            server.createContext("/api/admin/player/special-skill", new SpecialSkillHandler());
 
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -3110,6 +3112,134 @@ public class AdminHttpServer {
                     sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu rates không hợp lệ\"}");
                 } else {
                     sendJsonResponse(exchange, 455, "{\"error\": \"Method not allowed\"}");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    private static class SpecialSkillHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStream is = exchange.getRequestBody();
+                String bodyStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(bodyStr);
+
+                if (body == null) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
+                    return;
+                }
+
+                String playerName = (String) body.get("playerName");
+                int skillId = body.containsKey("skillId") ? ((Number) body.get("skillId")).intValue() : 0;
+                int point = body.containsKey("point") ? ((Number) body.get("point")).intValue() : 1;
+                int currLevel = body.containsKey("currLevel") ? ((Number) body.get("currLevel")).intValue() : 1000;
+
+                if (playerName == null || playerName.trim().isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Tên nhân vật không được để trống\"}");
+                    return;
+                }
+
+                if (skillId != 24 && skillId != 25 && skillId != 26) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"ID Kỹ năng đặc biệt không hợp lệ (Hỗ trợ 24: Super Kame, 25: Ca Đíc Liên Hoàn Chưởng, 26: Ma Phong Ba)\"}");
+                    return;
+                }
+
+                point = Math.min(10, Math.max(1, point));
+                currLevel = Math.min(1000, Math.max(0, currLevel));
+
+                Player player = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName.trim())) {
+                        player = p;
+                        break;
+                    }
+                }
+
+                String skillName = skillId == 24 ? "Super Kamejoko" : (skillId == 25 ? "Ca Đíc Liên Hoàn Chưởng" : "Ma Phong Ba");
+
+                if (player != null) {
+                    nro.models.skill.Skill skill = nro.models.skill.SkillUtil.getSkillbyId(player, skillId);
+                    if (skill == null) {
+                        nro.models.services.SkillService.gI().learSkillSpecial(player, (byte) skillId);
+                        skill = nro.models.skill.SkillUtil.getSkillbyId(player, skillId);
+                    }
+
+                    if (skill != null) {
+                        skill.point = (byte) point;
+                        skill.currLevel = (short) currLevel;
+
+                        nro.models.services.SkillService.gI().sendCurrLevelSpecial(player, skill);
+                        nro.models.services.SkillService.gI().sendSkill(player, skill);
+                        nro.models.services.Service.gI().sendThongBao(player, "Admin vừa nâng cấp tuyệt kỹ " + skillName + " cho bạn!");
+                        nro.models.database.PlayerDAO.updatePlayer(player);
+
+                        sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã nâng cấp tuyệt kỹ " + skillName + " (Cấp " + point + ", Thành thạo: " + currLevel + ") cho nhân vật [" + player.name + "] (ONLINE)!\"}");
+                    } else {
+                        sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"Không thể tạo tuyệt kỹ cho nhân vật!\"}");
+                    }
+                } else {
+                    // OFFLINE DB UPDATE
+                    try (Connection conn = LocalManager.getConnection();
+                         PreparedStatement ps = conn.prepareStatement("SELECT id, skills FROM player WHERE name = ?")) {
+                        ps.setString(1, playerName.trim());
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                int plId = rs.getInt("id");
+                                String skillsStr = rs.getString("skills");
+                                JSONArray dataArray = (JSONArray) JSONValue.parse(skillsStr);
+                                if (dataArray == null) {
+                                    dataArray = new JSONArray();
+                                }
+
+                                boolean found = false;
+                                for (int i = 0; i < dataArray.size(); i++) {
+                                    JSONArray dataSkill = (JSONArray) JSONValue.parse(String.valueOf(dataArray.get(i)));
+                                    if (dataSkill != null && !dataSkill.isEmpty()) {
+                                        int tempId = Integer.parseInt(String.valueOf(dataSkill.get(0)));
+                                        if (tempId == skillId) {
+                                            dataSkill.set(1, point);
+                                            if (dataSkill.size() > 3) {
+                                                dataSkill.set(3, currLevel);
+                                            } else {
+                                                dataSkill.add(currLevel);
+                                            }
+                                            dataArray.set(i, dataSkill.toJSONString());
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (!found) {
+                                    JSONArray newSkillData = new JSONArray();
+                                    newSkillData.add(skillId);
+                                    newSkillData.add(point);
+                                    newSkillData.add(0);
+                                    newSkillData.add(currLevel);
+                                    dataArray.add(newSkillData.toJSONString());
+                                }
+
+                                String updatedSkills = dataArray.toJSONString();
+                                try (PreparedStatement updatePs = conn.prepareStatement("UPDATE player SET skills = ? WHERE id = ?")) {
+                                    updatePs.setString(1, updatedSkills);
+                                    updatePs.setInt(2, plId);
+                                    updatePs.executeUpdate();
+                                }
+
+                                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã nâng cấp tuyệt kỹ " + skillName + " (Cấp " + point + ", Thành thạo: " + currLevel + ") cho nhân vật [" + playerName + "] (OFFLINE)!\"}");
+                            } else {
+                                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật [" + playerName + "] trong CSDL!\"}");
+                            }
+                        }
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

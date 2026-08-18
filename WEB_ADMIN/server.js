@@ -1296,6 +1296,64 @@ app.post('/api/adjust-player-power', async (req, res) => {
     }
 });
 
+// --- NÂNG CẤP KỸ NĂNG ĐẶC BIỆT (Super Kame, Ma Phong Ba, Liên Hoàn Chưởng) ---
+app.post(['/api/special-skill', '/api/admin/player/special-skill'], async (req, res) => {
+    try {
+        const resp = await fetch(`${JAVA_API_URL}/api/admin/player/special-skill`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
+        });
+        const data = await resp.json();
+        return res.status(resp.status).json(data);
+    } catch (err) {
+        // Fallback DB update if Java API unreachable
+        const { playerName, skillId, point = 1, currLevel = 1000 } = req.body;
+        if (!playerName || !skillId) {
+            return res.status(400).json({ status: 'error', message: 'Tên nhân vật và Kỹ năng đặc biệt không được để trống' });
+        }
+        try {
+            const [players] = await pool.execute('SELECT id, skills FROM player WHERE name = ?', [playerName.trim()]);
+            if (players.length === 0) {
+                return res.status(404).json({ status: 'error', message: `Không tìm thấy nhân vật [${playerName}]` });
+            }
+            const player = players[0];
+            let dataArray = [];
+            try {
+                dataArray = JSON.parse(player.skills || '[]');
+            } catch (e) {
+                dataArray = [];
+            }
+            let found = false;
+            for (let i = 0; i < dataArray.length; i++) {
+                let item = dataArray[i];
+                if (typeof item === 'string') {
+                    try { item = JSON.parse(item); } catch (e) {}
+                }
+                if (Array.isArray(item) && item[0] === parseInt(skillId)) {
+                    item[1] = parseInt(point);
+                    if (item.length > 3) {
+                        item[3] = parseInt(currLevel);
+                    } else {
+                        item[3] = parseInt(currLevel);
+                    }
+                    dataArray[i] = JSON.stringify(item);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                dataArray.push(JSON.stringify([parseInt(skillId), parseInt(point), 0, parseInt(currLevel)]));
+            }
+            await pool.execute('UPDATE player SET skills = ? WHERE id = ?', [JSON.stringify(dataArray), player.id]);
+            const skillName = parseInt(skillId) === 24 ? "Super Kamejoko" : (parseInt(skillId) === 25 ? "Ca Đíc Liên Hoàn Chưởng" : "Ma Phong Ba");
+            return res.json({ status: 'success', message: `Đã nâng cấp tuyệt kỹ ${skillName} (Cấp ${point}, Thành thạo: ${currLevel}) cho nhân vật [${playerName}] (Database)!` });
+        } catch (dbErr) {
+            return res.status(500).json({ status: 'error', message: dbErr.message });
+        }
+    }
+});
+
 // --- FIX DUPLICATE ITEM OPTIONS (Sửa Đồ Lỗi Trùng Chỉ Số) ---
 app.post('/api/fix-duplicate-options', async (req, res) => {
     try {

@@ -2220,6 +2220,9 @@ function renderPlayerTable() {
                     <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; border: 1px solid #10b981; white-space: nowrap;" onclick="openAdjustPlayerPowerModal('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-bolt"></i> ⚡ SM
                     </button>
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(236, 72, 153, 0.15); color: #ec4899; font-weight: 800; border: 1px solid #ec4899; white-space: nowrap;" onclick="openSpecialSkillModal('${escapeHtml(p.name)}')">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 💥 Skill Đặc Biệt
+                    </button>
                     <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; white-space: nowrap;" onclick="quickSelectPlayer('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-gift"></i> Cấp Đồ
                     </button>
@@ -2268,6 +2271,42 @@ function openAdjustPlayerPowerModal(playerName) {
         } catch (e) {
             closeModal('modal-adjust-power');
             showToast('Không thể kết nối đến Game Server', 'error');
+        }
+    };
+}
+
+function setSpecialSkillPreset(point, currLevel) {
+    const pInput = document.getElementById('modal-special-skill-point');
+    const cInput = document.getElementById('modal-special-skill-currlevel');
+    if (pInput) pInput.value = point;
+    if (cInput) cInput.value = currLevel;
+}
+
+function openSpecialSkillModal(playerName) {
+    const nameEl = document.getElementById('special-skill-player-name');
+    if (nameEl) nameEl.innerText = playerName;
+
+    showModal('modal-special-skill');
+
+    const confirmBtn = document.getElementById('modal-confirm-special-skill-btn');
+    confirmBtn.onclick = async () => {
+        const skillId = parseInt(document.getElementById('modal-special-skill-id').value) || 24;
+        const point = parseInt(document.getElementById('modal-special-skill-point').value) || 1;
+        const currLevel = parseInt(document.getElementById('modal-special-skill-currlevel').value) || 1000;
+
+        try {
+            const resp = await fetch('/api/admin/player/special-skill', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName, skillId, point, currLevel })
+            });
+            const data = await resp.json();
+            closeModal('modal-special-skill');
+            showToast(data.message, data.status === 'success' ? 'success' : 'error');
+            if (typeof loadPlayers === 'function') loadPlayers();
+        } catch (e) {
+            closeModal('modal-special-skill');
+            showToast('Không thể kết nối đến Web Admin API', 'error');
         }
     };
 }
