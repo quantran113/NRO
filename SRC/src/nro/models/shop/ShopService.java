@@ -981,7 +981,13 @@ public class ShopService {
             pl.lastTimeChangeBadges = System.currentTimeMillis() + 3000;
             return;
         }
-        BadgesService.turnOnBadges(pl, BagesTemplate.fineIdEffectbyIdItem(is.temp.id));
+        int newBadgeId = BagesTemplate.fineIdEffectbyIdItem(is.temp.id);
+        BadgesService.turnOnBadges(pl, newBadgeId);
+        pl.badges.idBadges = newBadgeId;
+        pl.badges.lastTimeSendBadges = 0;
+        Service.gI().sendBadgesPlayer(pl, 5, newBadgeId);
+        pl.nPoint.update();
+        Service.gI().point(pl);
         Service.gI().sendThongBao(pl, "Đã đổi danh hiệu sang " + is.temp.name);
         pl.lastTimeChangeBadges = System.currentTimeMillis() + 3000;
         pl.nPoint.calPoint();
