@@ -2882,9 +2882,11 @@ public class AdminHttpServer {
                     targetPlayer.dataBadges.add(bd);
                     if (isUse) {
                         targetPlayer.badges.idBadges = badgeId;
+                        targetPlayer.badges.lastTimeSendBadges = 0;
                         nro.models.player_badges.BadgesService.turnOnBadges(targetPlayer, badgeId);
                         Service.gI().sendBadgesPlayer(targetPlayer, 5, badgeId);
                     }
+                    targetPlayer.nPoint.update();
                     Service.gI().point(targetPlayer);
                     nro.models.database.PlayerDAO.updatePlayer(targetPlayer);
                     Service.gI().sendThongBao(targetPlayer, "Admin vừa trao tặng Danh Hiệu [ID " + badgeId + "] cho bạn!");
