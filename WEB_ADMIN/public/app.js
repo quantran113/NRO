@@ -2211,6 +2211,9 @@ function renderPlayerTable() {
                     <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; font-weight: 800; border: none; border-radius: 6px; white-space: nowrap;" onclick="openBadgesTaskModal('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-trophy"></i> 🏆 NV Danh Hiệu
                     </button>
+                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 800; border: none; border-radius: 6px; white-space: nowrap;" onclick="grantTop1Badge('${escapeHtml(p.name)}')">
+                        <i class="fa-solid fa-crown"></i> 👑 Cấp Top 1 (+20% SĐ)
+                    </button>
                     <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px; background: rgba(255, 102, 0, 0.15); color: var(--teamobi-orange-dark); font-weight: 800; border: 1px solid var(--teamobi-orange-border); white-space: nowrap;" onclick="openPlayerInventoryModal('${escapeHtml(p.name)}')">
                         <i class="fa-solid fa-briefcase"></i> 🎒 Hành Trang
                     </button>
@@ -3661,5 +3664,28 @@ async function saveUpgradeRates(e) {
         }
     } catch (err) {
         showToast('❌ Lỗi kết nối: ' + err.message, 'error');
+    }
+}
+
+async function grantTop1Badge(playerName) {
+    if (!playerName) return;
+    const days = prompt(`👑 Trao tặng Danh Hiệu [TOP 1 SỨC MẠNH SERVER] (+20% Sức Đánh) cho nhân vật [${playerName}].\n\nNhập số ngày hiệu lực (Ví dụ: 30 hoặc 365. Nhập 0 để dùng vĩnh viễn):`, '30');
+    if (days === null) return;
+    const daysInt = parseInt(days) || 0;
+    try {
+        const resp = await fetch('/api/grant-badge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerName, badgeId: 300, days: daysInt, isUse: true })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.status === 'success') {
+            showToast(`✅ ${data.message}`, 'success');
+            fetchPlayers();
+        } else {
+            showToast(`❌ Lỗi: ${data.message}`, 'error');
+        }
+    } catch (e) {
+        showToast(`❌ Lỗi kết nối: ${e.message}`, 'error');
     }
 }

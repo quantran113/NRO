@@ -79,6 +79,8 @@ public class AdminHttpServer {
             server.createContext("/api/upgrade-rates", new UpgradeRatesHandler());
             server.createContext("/api/special-skill", new SpecialSkillHandler());
             server.createContext("/api/admin/player/special-skill", new SpecialSkillHandler());
+            server.createContext("/api/grant-badge", new GrantBadgeHandler());
+            server.createContext("/api/admin/player/grant-badge", new GrantBadgeHandler());
 
             server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
             server.start();
@@ -2829,6 +2831,99 @@ public class AdminHttpServer {
                 res.put("status", "success");
                 res.put("message", "Đã hoàn thành Nhiệm Vụ Danh Hiệu thành công cho nhân vật [" + playerName + "]!");
                 sendJsonResponse(exchange, 200, res.toJSONString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+            }
+        }
+    }
+
+    // --- POST /api/grant-badge & /api/admin/player/grant-badge ---
+    private static class GrantBadgeHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJsonResponse(exchange, 200, "{}");
+                return;
+            }
+            try {
+                InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+                JSONObject body = (JSONObject) JSONValue.parse(reader);
+                if (body == null) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Dữ liệu không hợp lệ\"}");
+                    return;
+                }
+                String playerName = body.get("playerName") != null ? body.get("playerName").toString().trim() : "";
+                int badgeId = body.get("badgeId") != null ? Integer.parseInt(body.get("badgeId").toString()) : 300;
+                int days = body.get("days") != null ? Integer.parseInt(body.get("days").toString()) : 30;
+                boolean isUse = body.get("isUse") != null ? Boolean.parseBoolean(body.get("isUse").toString()) : true;
+
+                if (playerName.isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"status\": \"error\", \"message\": \"Thiếu tên nhân vật\"}");
+                    return;
+                }
+
+                long expireTime = days > 0 ? (System.currentTimeMillis() + days * 24L * 60 * 60 * 1000L) : -1L;
+
+                Player targetPlayer = null;
+                for (Player p : Client.gI().getPlayers()) {
+                    if (p != null && p.name != null && p.name.equalsIgnoreCase(playerName)) {
+                        targetPlayer = p;
+                        break;
+                    }
+                }
+
+                if (targetPlayer != null) {
+                    if (targetPlayer.dataBadges == null) {
+                        targetPlayer.dataBadges = new ArrayList<>();
+                    }
+                    targetPlayer.dataBadges.removeIf(b -> b.idBadGes == badgeId);
+                    nro.models.player_badges.BadgesData bd = new nro.models.player_badges.BadgesData(badgeId, expireTime, isUse);
+                    targetPlayer.dataBadges.add(bd);
+                    if (isUse) {
+                        targetPlayer.badges.idBadges = badgeId;
+                        nro.models.player_badges.BadgesService.turnOnBadges(targetPlayer, badgeId);
+                        Service.gI().sendBadgesPlayer(targetPlayer, 5, badgeId);
+                    }
+                    Service.gI().point(targetPlayer);
+                    nro.models.database.PlayerDAO.updatePlayer(targetPlayer);
+                    Service.gI().sendThongBao(targetPlayer, "Admin vừa trao tặng Danh Hiệu [ID " + badgeId + "] cho bạn!");
+                    sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cấp thành công Danh Hiệu [ID " + badgeId + "] cho nhân vật [" + playerName + "] (Online)!\"}");
+                } else {
+                    try (Connection conn = LocalManager.getConnection();
+                         PreparedStatement ps = conn.prepareStatement("SELECT id, dataBadges FROM player WHERE name = ?")) {
+                        ps.setString(1, playerName);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                int playerId = rs.getInt("id");
+                                String badgeJson = rs.getString("dataBadges");
+                                JSONArray savedBadges = (badgeJson != null && !badgeJson.isEmpty()) ? (JSONArray) JSONValue.parse(badgeJson) : new JSONArray();
+                                
+                                JSONArray newBadges = new JSONArray();
+                                for (Object item : savedBadges) {
+                                    JSONObject bObj = (JSONObject) item;
+                                    if (bObj != null && bObj.get("idBadGes") != null && Integer.parseInt(bObj.get("idBadGes").toString()) != badgeId) {
+                                        newBadges.add(bObj);
+                                    }
+                                }
+                                JSONObject newB = new JSONObject();
+                                newB.put("idBadGes", badgeId);
+                                newB.put("timeofUseBadges", expireTime);
+                                newB.put("isUse", isUse);
+                                newBadges.add(newB);
+
+                                try (PreparedStatement updatePs = conn.prepareStatement("UPDATE player SET dataBadges = ? WHERE id = ?")) {
+                                    updatePs.setString(1, JSONValue.toJSONString(newBadges));
+                                    updatePs.setInt(2, playerId);
+                                    updatePs.executeUpdate();
+                                }
+                                sendJsonResponse(exchange, 200, "{\"status\": \"success\", \"message\": \"Đã cấp thành công Danh Hiệu [ID " + badgeId + "] cho nhân vật [" + playerName + "] (Offline DB)!\"}");
+                            } else {
+                                sendJsonResponse(exchange, 404, "{\"status\": \"error\", \"message\": \"Không tìm thấy nhân vật\"}");
+                            }
+                        }
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 sendJsonResponse(exchange, 500, "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");

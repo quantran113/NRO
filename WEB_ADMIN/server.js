@@ -761,6 +761,47 @@ app.post(['/api/complete-badges-task', '/api/admin/player/complete-badges-task']
     }
 });
 
+// Grant Badge Endpoint
+app.post(['/api/grant-badge', '/api/admin/player/grant-badge'], async (req, res) => {
+    try {
+        const { playerName, badgeId, days, isUse } = req.body;
+        if (!playerName) {
+            return res.status(400).json({ status: 'error', message: 'Thiếu tên nhân vật' });
+        }
+        try {
+            const resp = await fetch(`${JAVA_API_URL}/api/grant-badge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName, badgeId: badgeId || 300, days: days || 30, isUse: isUse !== false })
+            });
+            const data = await resp.json();
+            return res.json(data);
+        } catch (e) {
+            console.log('Java server offline, falling back to direct DB for grant-badge');
+        }
+
+        const [players] = await pool.execute('SELECT id, dataBadges FROM player WHERE name = ?', [playerName.trim()]);
+        if (players.length === 0) {
+            return res.status(404).json({ status: 'error', message: 'Không tìm thấy nhân vật' });
+        }
+        const bId = parseInt(badgeId) || 300;
+        const d = parseInt(days) || 30;
+        const expireTime = d > 0 ? Date.now() + d * 24 * 60 * 60 * 1000 : -1;
+        let savedBadges = [];
+        try { savedBadges = JSON.parse(players[0].dataBadges || '[]'); } catch (err) {}
+        savedBadges = savedBadges.filter(b => b.idBadGes !== bId);
+        savedBadges.push({ idBadGes: bId, timeofUseBadges: expireTime, isUse: true });
+
+        await pool.execute('UPDATE player SET dataBadges = ? WHERE id = ?', [
+            JSON.stringify(savedBadges),
+            players[0].id
+        ]);
+        res.json({ status: 'success', message: `Đã cấp Danh Hiệu [ID ${bId}] cho [${playerName}] thành công!` });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
 // Grant Set SKH Endpoint
 app.post(['/api/grant-set-skh', '/api/admin/grant-set-skh'], async (req, res) => {
     try {
