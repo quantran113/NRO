@@ -3681,7 +3681,7 @@ async function grantTop1Badge(playerName) {
         const data = await resp.json();
         if (resp.ok && data.status === 'success') {
             showToast(`✅ ${data.message}`, 'success');
-            fetchPlayers();
+            if (typeof loadPlayers === 'function') loadPlayers();
         } else {
             showToast(`❌ Lỗi: ${data.message}`, 'error');
         }
