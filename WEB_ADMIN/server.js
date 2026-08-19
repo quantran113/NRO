@@ -786,7 +786,7 @@ app.post(['/api/grant-badge', '/api/admin/player/grant-badge'], async (req, res)
         }
         const bId = parseInt(badgeId) || 300;
         const d = parseInt(days) || 30;
-        const expireTime = d > 0 ? Date.now() + d * 24 * 60 * 60 * 1000 : -1;
+        const expireTime = d > 0 ? Date.now() + d * 24 * 60 * 60 * 1000 : Date.now() + 3650 * 24 * 60 * 60 * 1000;
         let savedBadges = [];
         try { savedBadges = JSON.parse(players[0].dataBadges || '[]'); } catch (err) {}
         savedBadges = savedBadges.filter(b => b.idBadGes !== bId);

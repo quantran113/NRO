@@ -2863,7 +2863,7 @@ public class AdminHttpServer {
                     return;
                 }
 
-                long expireTime = days > 0 ? (System.currentTimeMillis() + days * 24L * 60 * 60 * 1000L) : -1L;
+                long expireTime = days > 0 ? (System.currentTimeMillis() + days * 24L * 60 * 60 * 1000L) : (System.currentTimeMillis() + 3650L * 24 * 60 * 60 * 1000L);
 
                 Player targetPlayer = null;
                 for (Player p : Client.gI().getPlayers()) {

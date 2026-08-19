@@ -635,7 +635,7 @@ public class Player implements Runnable {
         Iterator<BadgesData> iterator = dataBadges.iterator();
         while (iterator.hasNext()) {
             BadgesData data = iterator.next();
-            if (System.currentTimeMillis() >= data.timeofUseBadges) {
+            if (data.timeofUseBadges > 0 && System.currentTimeMillis() >= data.timeofUseBadges) {
                 iterator.remove();
             } else if (data.isUse) {
                 badges.idBadges = data.idBadGes;
