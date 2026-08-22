@@ -81,6 +81,16 @@ public class Controller implements IMessageHandler {
             player = _session.player;
             byte cmd = _msg.command;
             switch (cmd) {
+                case -120:
+                case 120:
+                    try {
+                        long timeSent = _msg.reader().readLong();
+                        Message msgPing = new Message(cmd);
+                        msgPing.writer().writeLong(timeSent);
+                        _session.sendMessage(msgPing);
+                        msgPing.cleanup();
+                    } catch (Exception ex) {}
+                    break;
                 case -100:
                     if (player == null) {
                         return;
